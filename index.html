@@ -32,7 +32,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
 .brand b{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-size:.82rem;letter-spacing:.32em;font-weight:700}
 .contact{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;color:var(--dim);
   text-decoration:none;border:1px solid var(--line);padding:8px 14px;border-radius:8px;
-  transition:.25s;background:rgba(8,14,30,.4);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+  transition:.25s;background:rgba(8,14,30,.4);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  cursor:pointer;line-height:inherit;text-transform:uppercase}
 .contact:hover{color:var(--cyan);border-color:rgba(70,240,255,.5);box-shadow:0 0 18px rgba(70,240,255,.18)}
 
 /* ---------- hero ---------- */
@@ -65,6 +66,7 @@ h1{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-weight:900;font-s
 .dir-head h2{font-family:var(--mono);font-size:.85rem;letter-spacing:.3em;color:var(--cyan);margin:0;white-space:nowrap}
 .dir-head .rule{flex:1;height:1px;background:linear-gradient(90deg,rgba(70,240,255,.5),transparent)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(310px,100%),1fr));gap:18px;padding-bottom:10vh}
+.grid+.dir-head{margin-top:0}   /* grid already pads 10vh; don't stack another 4vh */
 
 .card{position:relative;background:var(--card);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
   border:1px solid var(--line);border-radius:16px;padding:22px;overflow:hidden;
@@ -139,6 +141,20 @@ body.modal-open{overflow:hidden}
 .btn.ghost{background:transparent;color:var(--dim);border-color:rgba(140,160,200,.25)}
 .btn.ghost:hover{color:var(--ink);border-color:rgba(140,160,200,.5)}
 
+/* ---------- vision / intake panel ---------- */
+.term.vision{width:min(520px,100%)}
+.vision-title{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-size:1rem;font-weight:700;
+  letter-spacing:.12em;margin:0 0 14px;color:var(--ink)}
+.term.vision p{margin:0 0 22px;color:var(--dim);font-size:1.02rem;line-height:1.6}
+.mail{display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;
+  font-family:var(--mono);font-size:.9rem;letter-spacing:.04em;color:var(--cyan);text-align:center;
+  border:1px solid rgba(70,240,255,.4);border-radius:12px;padding:14px 16px;word-break:break-word;
+  background:rgba(70,240,255,.06);transition:.25s}
+.mail:hover,.mail:focus-visible{background:rgba(70,240,255,.13);border-color:var(--cyan);
+  box-shadow:0 0 24px rgba(70,240,255,.2);color:#bff6ff}
+.vision-note{font-family:var(--mono);font-size:.58rem;letter-spacing:.18em;color:var(--dim);
+  text-align:center;margin:13px 0 20px}
+
 /* ---------- HUD ---------- */
 .hud{position:fixed;left:18px;bottom:16px;z-index:5;display:flex;align-items:center;gap:11px;
   font-family:var(--mono);background:rgba(6,12,28,.62);border:1px solid var(--line);
@@ -160,6 +176,20 @@ body.modal-open{overflow:hidden}
   70%{opacity:1;transform:scale(1.03) rotate(-4deg)}100%{opacity:0;transform:scale(1.05) rotate(-4deg)}}
 
 /* ---------- footer ---------- */
+/* ---------- special thanks ---------- */
+.thanks{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:18px;padding-bottom:9vh}
+.thx{position:relative;background:var(--card);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border:1px solid var(--line);border-radius:16px;padding:24px;overflow:hidden;
+  transition:transform .3s,border-color .3s,box-shadow .3s}
+.thx::before{content:'';position:absolute;top:0;left:8%;right:8%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(167,139,250,.6),transparent)}
+.thx:hover{transform:translateY(-4px);border-color:rgba(167,139,250,.42);
+  box-shadow:0 12px 40px rgba(0,0,0,.45),0 0 24px rgba(167,139,250,.10)}
+.thx .tile{background:linear-gradient(140deg,rgba(167,139,250,.14),rgba(45,212,191,.12));margin-bottom:13px}
+.thx h3{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-size:.9rem;font-weight:700;
+  letter-spacing:.14em;margin:0 0 9px}
+.thx p{margin:0;color:var(--dim);font-size:1rem;line-height:1.62}
+
 footer{border-top:1px solid var(--line);padding:26px 0 90px;display:flex;flex-wrap:wrap;gap:14px;
   justify-content:space-between;font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;color:var(--dim)}
 footer a{color:#9ec2ee;text-decoration:none}
@@ -168,13 +198,13 @@ footer a:hover{color:var(--cyan)}
 @media (max-width:640px){
   header{flex-wrap:wrap;row-gap:10px}
   .brand b{font-size:.68rem;letter-spacing:.16em}
-  .contact{white-space:nowrap}
+  .contact{white-space:nowrap;font-size:.6rem;letter-spacing:.07em;padding:7px 10px}
   .desc{min-height:0}
   .hud{left:10px;bottom:10px;padding:6px 12px 6px 7px}
   .hero{min-height:78vh}
 }
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
-  .card{background:rgba(10,18,38,.88)}
+  .card,.thx{background:rgba(10,18,38,.88)}
   .contact,.stat{background:rgba(8,14,30,.85)}
   .hud{background:rgba(6,12,28,.9)}
   .overlay{background:rgba(2,6,16,.88)}
@@ -210,14 +240,14 @@ footer a:hover{color:var(--cyan)}
       </svg>
       <b>SPINDOLA&nbsp;SOFTWARE</b>
     </a>
-    <a class="contact" href="mailto:Spindola.Software@gmail.com">CONTACT ▸</a>
+    <button class="contact" id="vision-btn" type="button">Turn your vision into reality ▸</button>
   </header>
 
   <section class="hero">
     <div class="eyebrow">One-Builder Software Foundry</div>
     <h1>SPINDOLA<br>SOFTWARE</h1>
     <p class="tagline">Where ideas <em>grow</em> into apps.</p>
-    <p class="sub">Nine products, planted one seed at a time. Every preview below is encrypted —
+    <p class="sub">Endless products, planted one seed at a time. Every preview below is encrypted —
       enter your access code to decrypt its link.</p>
     <div class="stats">
       <span class="stat"><b>9</b>&nbsp;APPS</span>
@@ -231,8 +261,31 @@ footer a:hover{color:var(--cyan)}
   <div class="dir-head"><h2>// APP DIRECTORY</h2><div class="rule"></div></div>
   <div class="grid" id="grid"></div>
 
+  <div class="dir-head"><h2>// SPECIAL THANKS TO</h2><div class="rule"></div></div>
+  <section class="thanks">
+    <article class="thx">
+      <div class="tile">🎖️</div>
+      <h3>OUR SERVICE MEMBERS</h3>
+      <p>Our veterans and active-duty service members who sacrifice their time/lives for our
+        freedom and continue to protect it. To all those who serve and have served, thank you.</p>
+    </article>
+    <article class="thx">
+      <div class="tile">⚙️</div>
+      <h3>OUR ENGINEERS</h3>
+      <p>To our engineers that design our future, as well as all of the things that make our lives
+        easier and more efficient, often taken for granted. Enormous thanks to you for our safety,
+        comfort, and convenience.</p>
+    </article>
+    <article class="thx">
+      <div class="tile">💐</div>
+      <h3>OUR MOTHERS</h3>
+      <p>My mom. As well as all of the great mothers who nurtured the amazing people we have in our
+        lives. With endless gratitude and love, thank you.</p>
+    </article>
+  </section>
+
   <footer>
-    <span>© 2026 SPINDOLA SOFTWARE · GROWN ONE COMMIT AT A TIME 🌳</span>
+    <span>© 2026 SPINDOLA SOFTWARE · GROWN ONE IDEA AT A TIME 🌳</span>
     <span>PREVIEW BUILDS · ACCESS BY INVITATION · <a href="mailto:Spindola.Software@gmail.com">SPINDOLA.SOFTWARE@GMAIL.COM</a></span>
   </footer>
 </div>
@@ -247,6 +300,20 @@ footer a:hover{color:var(--cyan)}
     <div class="m-btns">
       <button class="btn ghost" id="m-cancel">ABORT</button>
       <button class="btn auth" id="m-go">DECRYPT ▸</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="vision-overlay" hidden>
+  <div class="term vision" id="vision-term" role="dialog" aria-modal="true" aria-labelledby="vision-title">
+    <div class="term-head">SPINDOLA INTAKE <span class="term-dot"></span></div>
+    <h3 class="vision-title" id="vision-title">TURN YOUR VISION INTO REALITY</h3>
+    <p>Let us manifest your idea into a real app. Simply tell us what you want here and we'll get started:</p>
+    <a class="mail" id="vision-mail"
+       href="mailto:Spindola.Software@gmail.com?subject=My%20app%20idea&amp;body=Hi%20Rafael%2C%0A%0AHere%27s%20the%20app%20I%27d%20like%20built%3A%0A%0A">✉&nbsp; Spindola.Software@gmail.com</a>
+    <div class="vision-note">OPENS YOUR EMAIL APP · OR COPY THE ADDRESS</div>
+    <div class="m-btns">
+      <button class="btn ghost" id="vision-close" type="button">CLOSE</button>
     </div>
   </div>
 </div>
@@ -448,7 +515,36 @@ document.getElementById('m-go').addEventListener('click',attempt);
 document.getElementById('m-cancel').addEventListener('click',closeModal);
 overlay.addEventListener('click',e=>{if(e.target===overlay)closeModal();});
 mInput.addEventListener('keydown',e=>{if(e.key==='Enter')attempt();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!overlay.hidden)closeModal();});
+/* vision / intake panel — same open-close contract as the secure gate */
+const vOverlay=document.getElementById('vision-overlay'),vTerm=document.getElementById('vision-term');
+const vMail=document.getElementById('vision-mail'),vClose=document.getElementById('vision-close');
+let visionOpener=null;
+function openVision(){
+  visionOpener=document.activeElement;
+  vOverlay.hidden=false;
+  document.body.classList.add('modal-open');shellEl.inert=true;
+  setTimeout(()=>vMail.focus(),60);
+}
+function closeVision(){
+  vOverlay.hidden=true;
+  document.body.classList.remove('modal-open');shellEl.inert=false;
+  if(visionOpener&&visionOpener.isConnected&&visionOpener.offsetParent)visionOpener.focus();
+  visionOpener=null;
+}
+document.getElementById('vision-btn').addEventListener('click',openVision);
+vClose.addEventListener('click',closeVision);
+vOverlay.addEventListener('click',e=>{if(e.target===vOverlay)closeVision();});
+vTerm.addEventListener('keydown',e=>{
+  if(e.key!=='Tab')return;
+  if(e.shiftKey&&document.activeElement===vMail){e.preventDefault();vClose.focus();}
+  else if(!e.shiftKey&&document.activeElement===vClose){e.preventDefault();vMail.focus();}
+});
+
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  if(!overlay.hidden)closeModal();
+  else if(!vOverlay.hidden)closeVision();
+});
 
 /* ================================================================
    THE OAK — procedural background scene
