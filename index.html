@@ -214,7 +214,7 @@ footer a:hover{color:var(--cyan)}
   </header>
 
   <section class="hero">
-    <div class="eyebrow">One-Builder Software Foundry · Arizona</div>
+    <div class="eyebrow">One-Builder Software Foundry</div>
     <h1>SPINDOLA<br>SOFTWARE</h1>
     <p class="tagline">Where ideas <em>grow</em> into apps.</p>
     <p class="sub">Nine products, planted one seed at a time. Every preview below is encrypted —
@@ -232,7 +232,7 @@ footer a:hover{color:var(--cyan)}
   <div class="grid" id="grid"></div>
 
   <footer>
-    <span>© 2026 SPINDOLA SOFTWARE · BUILT IN THE ARIZONA SUN 🌵</span>
+    <span>© 2026 SPINDOLA SOFTWARE · GROWN ONE COMMIT AT A TIME 🌳</span>
     <span>PREVIEW BUILDS · ACCESS BY INVITATION · <a href="mailto:Spindola.Software@gmail.com">SPINDOLA.SOFTWARE@GMAIL.COM</a></span>
   </footer>
 </div>
@@ -255,10 +255,10 @@ footer a:hover{color:var(--cyan)}
 'use strict';
 /* ================================================================
    SPINDOLA SOFTWARE — master landing
-   Background: procedural oak. Grows over 5 minutes, cycles a full
-   year of seasons every 30s, then a lumberjack fells it and the
+   Background: procedural oak. Grows over 4 minutes, cycles a full
+   year of seasons every 24s, then a lumberjack fells it and the
    cycle replants. Dev helpers: ?speed=20 (time multiplier),
-   ?t=290 (start seconds into the growth cycle).
+   ?t=230 (start seconds into the growth cycle).
    ================================================================ */
 
 /* ---------------- crypto: SHA-256 + XOR keystream vault ----------- */
@@ -462,7 +462,7 @@ if(!ctx.roundRect)CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const qs=new URLSearchParams(location.search);
 const SPEED=Math.min(120,Math.max(0.1,parseFloat(qs.get('speed'))||1));
-const GROW=300,SEASON=30;               // seconds
+const GROW=240,SEASON=24;               // seconds (25% faster than the original 300/30)
 const PH={WALK:3.2,CUT:4.6,FALL:2.4,AFTER:3.0,FADE:1.6};
 let W=0,H=0,dpr=1,mobile=false;
 
