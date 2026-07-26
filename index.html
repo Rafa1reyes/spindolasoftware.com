@@ -155,17 +155,6 @@ body.modal-open{overflow:hidden}
 .vision-note{font-family:var(--mono);font-size:.58rem;letter-spacing:.18em;color:var(--dim);
   text-align:center;margin:13px 0 20px}
 
-/* ---------- HUD ---------- */
-.hud{position:fixed;left:18px;bottom:16px;z-index:5;display:flex;align-items:center;gap:11px;
-  font-family:var(--mono);background:rgba(6,12,28,.62);border:1px solid var(--line);
-  border-radius:999px;padding:8px 16px 8px 9px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);pointer-events:none}
-.hud svg{display:block}
-.hud .ring-bg{stroke:rgba(120,200,255,.18)}
-.hud .ring-fg{stroke:var(--cyan);stroke-linecap:round;filter:drop-shadow(0 0 4px rgba(70,240,255,.8));
-  transition:stroke-dashoffset .4s linear}
-.hud-txt{font-size:.62rem;letter-spacing:.2em;color:#a9c4ea;line-height:1.5}
-.hud-txt b{color:var(--cyan)}
-
 /* ---------- timber ---------- */
 #timber{position:fixed;inset:0;z-index:6;display:grid;place-items:center;pointer-events:none;opacity:0}
 #timber span{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-weight:900;font-style:italic;font-size:clamp(3rem,11vw,7.5rem);
@@ -200,13 +189,11 @@ footer a:hover{color:var(--cyan)}
   .brand b{font-size:.68rem;letter-spacing:.16em}
   .contact{white-space:nowrap;font-size:.6rem;letter-spacing:.07em;padding:7px 10px}
   .desc{min-height:0}
-  .hud{left:10px;bottom:10px;padding:6px 12px 6px 7px}
   .hero{min-height:78vh}
 }
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
   .card,.thx{background:rgba(10,18,38,.88)}
   .contact,.stat{background:rgba(8,14,30,.85)}
-  .hud{background:rgba(6,12,28,.9)}
   .overlay{background:rgba(2,6,16,.88)}
 }
 @media (prefers-reduced-motion:reduce){
@@ -217,15 +204,6 @@ footer a:hover{color:var(--cyan)}
 <body>
 
 <canvas id="scene"></canvas>
-
-<div class="hud" id="hud" aria-hidden="true">
-  <svg width="34" height="34" viewBox="0 0 34 34">
-    <circle class="ring-bg" cx="17" cy="17" r="14" fill="none" stroke-width="3"/>
-    <circle class="ring-fg" id="hud-ring" cx="17" cy="17" r="14" fill="none" stroke-width="3"
-      stroke-dasharray="87.96" stroke-dashoffset="87.96" transform="rotate(-90 17 17)"/>
-  </svg>
-  <div class="hud-txt"><b id="hud-line1">GROWTH CYCLE</b><br><span id="hud-line2">YEAR 1 · SPRING</span></div>
-</div>
 
 <div id="timber"><span>TIMBER!</span></div>
 
@@ -588,6 +566,8 @@ function buildTree(sd){
   const clusters=[];
   function mk(depth,len,w,rel){
     const node={rel,len,w,depth,
+      /* birth/span run on `form`, not on overall growth — a real sapling puts out
+         side shoots and leaves in its first spring, then grows by SIZE (see sizeRamp) */
       birth:depth===0?0:Math.min(0.86,depth*0.105+rnd()*0.05),
       span:depth===0?0.10:0.16+rnd()*0.12,
       swayPhase:rnd()*6.283,swaySpeed:0.6+rnd()*0.9,
@@ -674,6 +654,14 @@ function seasonBlend(arr){
 
 /* growth 0..1 over the 5 minutes, front-loaded like a real tree */
 const growth=()=>phase==='grow'?1-Math.pow(1-Math.min(1,cycleT/GROW),1.35):1;
+/* FORM 0..1 — how much of the branch structure exists. Sprints to 1 over the first
+   ~8s (spring of year 1) so the sapling has twigs and leaves right away, like a real one. */
+const FORM_T=8;
+const form=()=>phase==='grow'?smooth01(cycleT/FORM_T):1;
+/* overall size: a small leafy sapling in year 1 that keeps getting bigger for 10 years */
+const sizeRamp=G=>0.10+0.90*Math.pow(G,0.7);
+/* young trees carry proportionally larger leaves than a mature canopy */
+const leafBoost=G=>1+1.2*Math.max(0,1-G*2.5);
 
 /* ---------------- update ---------------- */
 function update(dt){
@@ -876,11 +864,12 @@ function drawLeafCluster(leaf,branchP){
   ctx.globalAlpha=1;
 }
 
-function drawNode(node,G,windAmp){
-  const p=smooth01((G-node.birth)/node.span);
+function drawNode(node,F,windAmp,G){
+  const p=smooth01((F-node.birth)/node.span);
   if(p<=0.02)return;
   const len=node.len*p;
-  const w0=node.w*(0.3+0.7*p),w1=w0*0.55;
+  const slim=node.depth<=1?0.6+0.4*Math.min(1,G*1.8):1;   // saplings have slender trunks
+  const w0=node.w*(0.3+0.7*p)*slim,w1=w0*0.55;
   const sway=Math.sin(simTime*node.swaySpeed+node.swayPhase)*node.swayAmp*windAmp;
   ctx.save();
   ctx.rotate(node.rel+sway);
@@ -890,21 +879,21 @@ function drawNode(node,G,windAmp){
   ctx.closePath();ctx.fill();
   if(node.depth<3&&!lowFX){ctx.beginPath();ctx.arc(0,0,w0/2,0,6.283);ctx.fill();}
   ctx.translate(0,-len);
-  if(p>0.25)for(const c of node.children)drawNode(c,G,windAmp);
-  if(node.leaf&&!(lowFX&&node.depth>=tree.maxD))drawLeafCluster(node.leaf,p);
+  if(p>0.25)for(const c of node.children)drawNode(c,F,windAmp,G);
+  if(node.leaf&&!(lowFX&&node.depth>=tree.maxD))drawLeafCluster(node.leaf,p*leafBoost(G));
   ctx.restore();
 }
 
 function drawTree(){
   const s=treeScale(),bx=treeX(),by=groundAt(treeX());
-  const G=growth();
+  const G=growth(),sz=sizeRamp(G),F=form();
   const windAmp=(0.6+0.9*(0.5+0.5*Math.sin(simTime*0.13)))*(phase==='cut'?2.2:1);
   const fading=phase==='fade'?1-phaseT/PH.FADE:1;
   /* soft shadow */
   ctx.save();
-  ctx.globalAlpha=0.35*G*fading;
+  ctx.globalAlpha=0.35*sz*fading;
   ctx.fillStyle='#000';
-  ctx.beginPath();ctx.ellipse(bx,by+3,60*s*G/2.4,7*s*G/2.4,0,0,6.283);ctx.fill();
+  ctx.beginPath();ctx.ellipse(bx,by+3,60*s*sz/2.4,7*s*sz/2.4,0,0,6.283);ctx.fill();
   ctx.restore();
   ctx.save();
   ctx.globalAlpha=fading;
@@ -912,8 +901,8 @@ function drawTree(){
   let jitter=0;
   if(phase==='cut')jitter=Math.sin(simTime*90)*0.006*cutProgress;
   ctx.rotate(fallAngle+jitter);
-  ctx.scale(s,s);
-  drawNode(tree.trunk,G,windAmp);
+  ctx.scale(s*sz,s*sz);
+  drawNode(tree.trunk,F,windAmp,G);
   ctx.restore();
   /* cut notch */
   if(phase==='cut'&&cutProgress>0){
@@ -1046,25 +1035,6 @@ function drawOverlays(){
   ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
 }
 
-/* ---------------- HUD ---------------- */
-const hudRing=document.getElementById('hud-ring'),hud1=document.getElementById('hud-line1'),hud2=document.getElementById('hud-line2');
-const SEASON_LABEL=['SPRING 🌱','SUMMER ☀️','AUTUMN 🍂','WINTER ❄️'];
-let hudAcc=0;
-function updateHUD(dt){
-  hudAcc+=dt;if(hudAcc<0.25)return;hudAcc=0;
-  const C=87.96;
-  if(phase==='grow'){
-    hudRing.style.strokeDashoffset=(C*(1-cycleT/GROW)).toFixed(1);
-    const yr=Math.min(10,(cycleT/SEASON|0)+1),ss=SEASON_LABEL[seasonPos()|0];
-    hud1.textContent='GROWTH CYCLE';
-    hud2.textContent='YEAR '+yr+' · '+ss;
-  }else{
-    hudRing.style.strokeDashoffset='0';
-    hud1.textContent='HARVEST PROTOCOL';
-    hud2.textContent=phase==='walk'?'CONTRACTOR INBOUND':phase==='cut'?'CUTTING… 🪚':phase==='fall'?'TIMBER!':'REPLANTING 🌱';
-  }
-}
-
 /* ---------------- main loop ---------------- */
 function frame(now){
   requestAnimationFrame(frame);   // schedule first so a draw hiccup can never kill the loop
@@ -1084,7 +1054,6 @@ function frame(now){
   drawParticles();
   drawLumberjack();
   drawOverlays();
-  updateHUD(dt/SPEED);
 }
 
 if(reduced){
@@ -1099,13 +1068,12 @@ if(reduced){
     ctx.beginPath();ctx.ellipse(bx,by+3,60*s/2.4,7*s/2.4,0,0,6.283);ctx.fill();
     ctx.restore();
     ctx.save();ctx.translate(bx,by);ctx.scale(s,s);
-    drawNode(tree.trunk,1,0);
+    drawNode(tree.trunk,1,0,1);
     ctx.restore();
     drawOverlays();
   };
   drawStatic();
   addEventListener('resize',()=>requestAnimationFrame(drawStatic));
-  document.getElementById('hud').style.display='none';
 }else{
   requestAnimationFrame(frame);
 }
