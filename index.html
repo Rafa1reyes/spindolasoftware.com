@@ -184,6 +184,10 @@ body.modal-open{overflow:hidden}
 .thx h3{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-size:.9rem;font-weight:700;
   letter-spacing:.14em;margin:0 0 9px}
 .thx p{margin:0;color:var(--dim);font-size:1rem;line-height:1.62}
+.thx.wide{grid-column:1/-1;text-align:center;padding:30px 24px}
+.thx.wide .tile{margin:0 auto 15px;width:60px;height:60px;font-size:30px}
+.thx.wide h3{font-size:1.02rem;letter-spacing:.2em}
+.thx.wide p{font-size:1.22rem;color:#d3e3f8;letter-spacing:.01em}
 
 footer{border-top:1px solid var(--line);padding:26px 0 90px;display:flex;flex-wrap:wrap;gap:14px;
   justify-content:space-between;font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;color:var(--dim)}
@@ -250,6 +254,11 @@ footer a:hover{color:var(--cyan)}
 
   <div class="dir-head"><h2>// SPECIAL THANKS TO</h2><div class="rule"></div></div>
   <section class="thanks">
+    <article class="thx wide">
+      <div class="tile">🙏</div>
+      <h3>ABOVE ALL, GOD</h3>
+      <p>Thanks be to God for it all.</p>
+    </article>
     <article class="thx">
       <div class="tile">🎖️</div>
       <h3>OUR SERVICE MEMBERS</h3>
