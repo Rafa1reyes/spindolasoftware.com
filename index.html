@@ -81,8 +81,8 @@ h1{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-weight:900;font-s
   background:linear-gradient(90deg,transparent,rgba(70,240,255,.55),transparent)}
 .card:hover{transform:translateY(-4px);border-color:rgba(70,240,255,.42);
   box-shadow:0 12px 40px rgba(0,0,0,.45),0 0 24px rgba(70,240,255,.10)}
-.card.unlocked{border-color:rgba(74,222,128,.4)}
-.card.unlocked::before{background:linear-gradient(90deg,transparent,rgba(74,222,128,.7),transparent)}
+.card.unlocked,.card.public{border-color:rgba(74,222,128,.4)}
+.card.unlocked::before,.card.public::before{background:linear-gradient(90deg,transparent,rgba(74,222,128,.7),transparent)}
 .card.just-unlocked{animation:pop .6s cubic-bezier(.2,1.6,.4,1)}
 @keyframes pop{0%{transform:scale(.97)}55%{transform:scale(1.02)}100%{transform:scale(1)}}
 .card-top{display:flex;align-items:center;gap:14px;margin-bottom:10px}
@@ -101,7 +101,7 @@ h1{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-weight:900;font-s
 .meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .tag{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;color:var(--dim)}
 .lockstate{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;color:#6d81a8}
-.card.unlocked .lockstate{color:var(--ok)}
+.card.unlocked .lockstate,.card.public .lockstate{color:var(--ok)}
 .btn{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.18em;cursor:pointer;
   border-radius:10px;padding:12px 18px;width:100%;text-align:center;display:block;
   text-decoration:none;transition:.25s;border:1px solid}
@@ -238,13 +238,13 @@ footer a:hover{color:var(--cyan)}
     <div class="eyebrow">One-Builder Software Foundry</div>
     <h1>SPINDOLA<br>SOFTWARE</h1>
     <p class="tagline">Where ideas <em>grow</em>.</p>
-    <p class="sub">Endless products, planted one seed at a time. Every preview below is encrypted —
-      enter your access code to decrypt its link.</p>
+    <p class="sub">Endless products, planted one seed at a time. The live ones link straight through —
+      the previews stay encrypted until you enter an access code.</p>
     <div class="stats">
       <span class="stat"><b>9</b>&nbsp;APPS</span>
       <span class="stat"><b>9</b>&nbsp;LIVE&nbsp;WEBSITES</span>
       <span class="stat"><b>∞</b>&nbsp;IDEAS</span>
-      <span class="stat">CODE-GATED&nbsp;ACCESS</span>
+      <span class="stat"><b>3</b>&nbsp;OPEN&nbsp;·&nbsp;<b>6</b>&nbsp;CODE-GATED</span>
     </div>
     <div class="scrollcue">▼&nbsp;&nbsp;THE&nbsp;FLEET&nbsp;&nbsp;▼</div>
   </section>
@@ -409,17 +409,17 @@ function tryUnlock(appId,rawCode){
 
 /* ---------------- app directory UI ---------------- */
 const APPS=[
- {id:'logtight',name:'LogTight',icon:'❄️',badge:'LIVE',tag:'REFRIGERANT COMPLIANCE',
+ {id:'logtight',name:'LogTight',icon:'❄️',badge:'LIVE',tag:'REFRIGERANT COMPLIANCE',url:'https://logtight.com',
   desc:'EPA refrigerant leak-rate compliance for A/C and refrigeration shops — logging, cylinder reconciliation, branded reports.'},
  {id:'backflowlog',name:'BackflowLog',icon:'💧',badge:'NEW',tag:'WATER COMPLIANCE',
   desc:'Backflow-testing compliance for the trade — assemblies, pass/fail tests, district paperwork.'},
- {id:'pooltidy',name:'PoolTidy',icon:'🫧',badge:'PREVIEW',tag:'FIELD SERVICE',
+ {id:'pooltidy',name:'PoolTidy',icon:'🫧',badge:'LIVE',tag:'FIELD SERVICE',url:'https://pooltidy.com',
   desc:'Two-sided pool service — dead simple for customers, LSI water chemistry and dosing for pros.'},
  {id:'petfi',name:'Petfi',icon:'🐾',badge:'PREVIEW',tag:'SOCIAL',
   desc:'The social network for pets — profiles, mate match, dog-park territory claims.'},
  {id:'3pass',name:'3Pass',icon:'🛡️',badge:'PREVIEW',tag:'PATROL OPS',
   desc:'Shared trespass registry for guard companies — subjects, sites, 602 flow.'},
- {id:'gorechess',name:'GoreChess',icon:'♟️',badge:'18+',tag:'GAME',
+ {id:'gorechess',name:'GoreChess',icon:'♟️',badge:'18+',tag:'GAME',url:'https://gorechess.com',
   desc:'Chess with consequences — per-piece kill animations, leagues and Elo.'},
  {id:'bodylore',name:'BodyLore',icon:'🖐️',badge:'PREVIEW',tag:'AI · FUN',
   desc:'Scan your hands and face — on-device AI reads folklore and science side by side.'},
@@ -433,15 +433,28 @@ const LS_KEY='spindola.access.v1';
 const saved=(()=>{try{const v=JSON.parse(localStorage.getItem(LS_KEY));return(v&&typeof v==='object'&&!Array.isArray(v))?v:{}}catch(e){return{}}})();
 const unlockedUrl={};
 
+const hostOf=u=>u.replace(/^https?:\/\//,'').replace(/\/$/,'');
+
 const grid=document.getElementById('grid');
 for(const app of APPS){
   const el=document.createElement('article');
-  el.className='card';el.id='card-'+app.id;
-  el.innerHTML=
+  el.className='card'+(app.url?' public':'');el.id='card-'+app.id;
+  const head=
     '<div class="card-top"><div class="tile">'+app.icon+'</div><div>'+
     '<h3>'+app.name+' <span class="badge '+(badgeClass[app.badge]||'preview')+'">'+app.badge+'</span></h3>'+
     '</div></div>'+
-    '<p class="desc">'+app.desc+'</p>'+
+    '<p class="desc">'+app.desc+'</p>';
+  if(app.url){
+    /* Shipped products — no gate, straight to the live site. */
+    el.innerHTML=head+
+      '<div class="meta"><span class="tag">'+app.tag+'</span>'+
+      '<span class="lockstate">🌐 '+hostOf(app.url).toUpperCase()+'</span></div>'+
+      '<a class="btn launch" href="'+app.url+'" target="_blank" rel="noopener">'+
+      'VISIT '+hostOf(app.url).toUpperCase()+' ▸</a>';
+    grid.appendChild(el);
+    continue;
+  }
+  el.innerHTML=head+
     '<div class="meta"><span class="tag">'+app.tag+'</span><span class="lockstate">🔒 ENCRYPTED LINK</span></div>'+
     '<button class="btn auth">⬡ ENTER ACCESS CODE</button>'+
     '<a class="btn launch" target="_blank" rel="noopener" style="display:none">LAUNCH '+app.name.toUpperCase()+' ▸</a>';
