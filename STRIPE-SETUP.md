@@ -1,8 +1,47 @@
 # Stripe setup — Google review tap placards
 
-Everything on `google-reviews.html` works **right now** without Stripe: the "Pay
-securely by card" button falls back to an email order. Do this when you want
-card payments to run themselves.
+## ✅ ALREADY DONE (2026-08-11)
+
+The payment link is **built and live**:
+
+**https://buy.stripe.com/bJefZhb4s7QL5mi1Cm67S01**
+(`plink_1U3IBQFdpx7emFYwyOE4ghVo`, live mode, account `acct_1TwWbyFdpx7emFYw`)
+
+It is already pasted into `google-reviews.html`, so the website takes cards now.
+What's configured:
+
+- **$40 Google review placard** — quantity locked to 1, always on the order
+- **Two optional add-ons** the customer taps **+ Add** to include:
+  **Additional placard $20** (0–10) and **Wallet tap card $20** (0–20)
+- Collects **business name, full name, phone, billing + shipping address** (US)
+- Three custom fields: their **Google Business Profile / review link** (required),
+  best install days/times, and anything you should know (both optional)
+- A custom thank-you message promising a same-day refund if you can't reach them
+- **Post-payment invoice PDF is ON** (Stripe's 0.4%, capped at $2 — about 16¢ on
+  a $40 sale)
+- **Managed Payments is OFF** — deliberately. It makes Stripe the merchant of
+  record and is for *digital* products; you sell a physical placard plus an
+  in-person install. It also brands the page "Sold through Link" instead of
+  Spindola Software.
+
+### The one thing left for you
+Turn on automatic email receipts: **Settings → Business → Customer emails →
+Successful payments**. Thirty seconds, free, and every customer gets a receipt
+without you doing anything.
+
+### Why the add-ons are "recommended products", not line items
+Stripe won't let a line item start at quantity 0 ("Quantity must be between 1
+and 999999"), so putting all three in as line items would have opened checkout
+at **$80** when the site advertises **$40**. Optional items start at zero and
+the customer adds them. If you ever restructure this, don't undo that.
+
+---
+
+## Everything below is reference — how it was built, and how to build another
+
+The site never depends on Stripe being configured: if `STRIPE_LINKS.install` is
+ever emptied, the "Pay securely by card" button falls back to an email order
+rather than dead-ending a customer.
 
 You already have a live Stripe account: **Spindola Software**, `acct_1TwWbyFdpx7emFYw`.
 Make sure you are in **live mode** (the toggle at the top of the Dashboard), not
