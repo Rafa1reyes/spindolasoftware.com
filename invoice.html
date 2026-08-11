@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Invoice &amp; Receipt Builder — Spindola Software</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#040914">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧾</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#040914; --ink:#dfe9ff; --dim:#8fa3c8; --cyan:#46f0ff; --violet:#a78bfa;
+  --teal:#2dd4bf; --ok:#4ade80; --danger:#ff5470;
+  --line:rgba(120,200,255,.14); --mono:ui-monospace,'Cascadia Mono',Consolas,monospace;
+  /* paper palette — these are the only colours that reach the printer */
+  --pink:#0f1b33; --paper:#ffffff; --pi:#16233c; --pdim:#5b6b85; --prule:#dce3ee;
+  --pblue:#1f6fd0; --pgold:#b07d00;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:'Rajdhani',system-ui,sans-serif;font-size:16px;line-height:1.5}
+
+/* =========================================================
+   APP CHROME — everything with class .ui is screen-only
+   ========================================================= */
+.ui-top{position:sticky;top:0;z-index:20;background:rgba(4,9,20,.92);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line)}
+.ui-top .row{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;
+  align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);margin-right:auto}
+.brand b{font-family:'Orbitron',sans-serif;font-size:.7rem;letter-spacing:.26em}
+.ui-btn{font-family:'Orbitron',sans-serif;font-size:.66rem;font-weight:700;letter-spacing:.14em;
+  cursor:pointer;border-radius:9px;padding:11px 15px;border:1px solid rgba(140,175,225,.28);
+  background:rgba(8,14,30,.6);color:var(--ink);transition:.2s;white-space:nowrap}
+.ui-btn:hover{border-color:rgba(70,240,255,.6);color:var(--cyan)}
+.ui-btn.pri{background:linear-gradient(120deg,#46f0ff,#7c9dff 55%,#a78bfa);color:#04101c;border-color:transparent}
+.ui-btn.pri:hover{box-shadow:0 0 24px rgba(110,190,255,.45);color:#04101c}
+.ui-btn.warn{border-color:rgba(255,84,112,.4);color:#ffa9b8}
+.ui-btn.warn:hover{border-color:var(--danger);color:#fff}
+.ui-btn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:rgba(8,14,30,.6)}
+.seg button{font-family:'Orbitron',sans-serif;font-size:.64rem;font-weight:700;letter-spacing:.12em;
+  padding:11px 14px;border:none;background:transparent;color:var(--dim);cursor:pointer;transition:.2s}
+.seg button[aria-pressed="true"]{background:rgba(70,240,255,.16);color:var(--cyan)}
+.seg button:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
+
+.ui-wrap{max-width:1180px;margin:0 auto;padding:22px 20px 90px;
+  display:grid;grid-template-columns:1fr 292px;gap:22px;align-items:start}
+.ui-side{position:sticky;top:74px;display:flex;flex-direction:column;gap:14px}
+.ui-card{background:rgba(10,18,38,.62);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  border:1px solid var(--line);border-radius:14px;padding:17px}
+.ui-card h3{font-family:var(--mono);font-size:.62rem;letter-spacing:.24em;color:var(--cyan);
+  margin:0 0 12px;text-transform:uppercase}
+.quick{display:flex;flex-direction:column;gap:7px}
+.quick button{text-align:left;font-family:'Rajdhani',sans-serif;font-size:.92rem;font-weight:600;
+  padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:rgba(4,9,20,.5);
+  color:#c6d8f5;cursor:pointer;transition:.2s;display:flex;justify-content:space-between;gap:10px}
+.quick button:hover{border-color:rgba(70,240,255,.5);color:#fff;background:rgba(70,240,255,.08)}
+.quick button span{color:var(--teal);font-family:'Orbitron',sans-serif;font-size:.8rem}
+.quick button:focus-visible{outline:2px solid var(--cyan);outline-offset:1px}
+.ui-field{margin-bottom:11px}
+.ui-field label{display:block;font-family:var(--mono);font-size:.56rem;letter-spacing:.18em;
+  color:var(--dim);text-transform:uppercase;margin-bottom:5px}
+.ui-field input,.ui-field select{width:100%;background:rgba(4,9,20,.6);border:1px solid var(--line);
+  border-radius:8px;padding:9px 10px;color:var(--ink);font-family:inherit;font-size:.94rem;outline:none}
+.ui-field input:focus,.ui-field select:focus{border-color:rgba(70,240,255,.6)}
+.hint{font-size:.82rem;color:var(--dim);line-height:1.55;margin:0}
+.saved-list{display:flex;flex-direction:column;gap:6px;max-height:230px;overflow-y:auto}
+.saved-list button{display:flex;justify-content:space-between;gap:8px;text-align:left;
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:8px 9px;border-radius:7px;
+  border:1px solid var(--line);background:rgba(4,9,20,.5);color:#b3c8e8;cursor:pointer}
+.saved-list button:hover{border-color:rgba(70,240,255,.5);color:#fff}
+.saved-list em{color:var(--dim);font-style:normal}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(14px);
+  background:rgba(6,12,28,.95);border:1px solid rgba(74,222,128,.5);color:var(--ok);
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;padding:12px 20px;border-radius:10px;
+  opacity:0;pointer-events:none;transition:.28s;z-index:60;text-transform:uppercase}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* =========================================================
+   THE PAPER — this is what prints
+   ========================================================= */
+.sheet-outer{background:#8f9bb3;border-radius:16px;padding:26px;
+  box-shadow:inset 0 0 40px rgba(0,0,0,.25)}
+.paper{background:var(--paper);color:var(--pi);width:100%;max-width:816px;margin:0 auto;
+  padding:52px 56px 44px;box-shadow:0 24px 60px rgba(0,0,0,.45);position:relative;
+  font-family:'Rajdhani',system-ui,sans-serif;font-size:15px;line-height:1.5}
+
+/* editable regions look like paper until you touch them */
+[contenteditable]{outline:none;border-radius:3px;transition:background .15s,box-shadow .15s}
+[contenteditable]:hover{background:rgba(31,111,208,.05)}
+[contenteditable]:focus{background:rgba(31,111,208,.09);box-shadow:0 0 0 2px rgba(31,111,208,.35)}
+[contenteditable]:empty::before{content:attr(data-ph);color:#a9b4c6}
+[contenteditable][data-ph]:empty:focus::before{color:#c3ccda}
+
+.p-head{display:flex;justify-content:space-between;align-items:flex-start;gap:30px;
+  padding-bottom:22px;border-bottom:2px solid var(--pi)}
+.p-logo img{height:74px;width:auto;display:block}
+.p-logo .tag{font-family:var(--mono);font-size:.56rem;letter-spacing:.18em;color:var(--pdim);
+  text-transform:uppercase;margin-top:7px}
+.p-title{text-align:right;flex-shrink:0}
+.p-title .kind{font-family:'Orbitron',sans-serif;font-size:2.05rem;font-weight:900;
+  letter-spacing:.1em;line-height:1;color:var(--pi)}
+.p-title .kind.paid{color:#17803d}
+.p-title .meta{margin-top:12px;font-family:var(--mono);font-size:.68rem;line-height:2;color:var(--pdim)}
+.p-title .meta b{color:var(--pi);font-weight:700;letter-spacing:.04em}
+
+.p-parties{display:grid;grid-template-columns:1fr 1fr;gap:34px;padding:24px 0 6px}
+.p-parties h4{font-family:var(--mono);font-size:.6rem;letter-spacing:.22em;color:var(--pblue);
+  text-transform:uppercase;margin:0 0 9px;font-weight:700}
+.p-parties .who{font-size:1.08rem;font-weight:700;color:var(--pi);margin-bottom:2px}
+.p-parties .li{color:#43536d;font-size:.96rem;line-height:1.65}
+
+table.p-items{width:100%;border-collapse:collapse;margin:26px 0 0}
+table.p-items thead th{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;
+  text-transform:uppercase;color:#fff;background:var(--pi);padding:10px 12px;text-align:left;font-weight:700}
+table.p-items thead th.n{text-align:right;width:76px}
+table.p-items thead th.m{text-align:right;width:104px}
+table.p-items thead th.x{width:34px;padding:0}
+table.p-items tbody td{padding:12px;border-bottom:1px solid var(--prule);vertical-align:top}
+table.p-items tbody tr:nth-child(even) td{background:#f7f9fc}
+td.n,td.m{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.m{font-weight:700}
+.it-desc{font-weight:600;color:var(--pi)}
+.it-sub{color:var(--pdim);font-size:.9rem;margin-top:2px}
+.cell-num{width:100%;border:none;background:transparent;text-align:right;font-family:inherit;
+  font-size:15px;font-weight:600;color:var(--pi);padding:0;outline:none;
+  -moz-appearance:textfield;appearance:textfield}
+.cell-num::-webkit-outer-spin-button,.cell-num::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.cell-num:focus{background:rgba(31,111,208,.09);box-shadow:0 0 0 2px rgba(31,111,208,.35);border-radius:3px}
+.rm{width:26px;height:26px;border-radius:50%;border:1px solid #e2b6bd;background:#fff;
+  color:#c0392b;cursor:pointer;font-size:1rem;line-height:1;padding:0}
+.rm:hover{background:#fdecee;border-color:#c0392b}
+
+/* stamp lives in the totals row rather than absolutely placed, so it can never
+   land on top of the header meta no matter how many line items there are */
+.p-tot{display:flex;align-items:center;gap:24px;margin-top:20px}
+.p-tot > table{border-collapse:collapse;min-width:330px;margin-left:auto}
+.p-tot td{padding:7px 0}
+.p-tot td:first-child{color:var(--pdim);padding-right:26px}
+.p-tot td:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.p-tot tr.grand td{border-top:2px solid var(--pi);padding-top:12px;font-size:1.32rem;
+  font-family:'Orbitron',sans-serif;font-weight:900;color:var(--pi)}
+.p-tot tr.grand td:first-child{font-size:.68rem;letter-spacing:.16em;color:var(--pi);font-family:var(--mono)}
+.p-tot tr.due td{color:#b45309;font-weight:700}
+.taxrow input{width:3ch;border:none;background:transparent;text-align:left;font-family:inherit;
+  font-size:15px;color:var(--pdim);outline:none;-moz-appearance:textfield;appearance:textfield}
+.taxrow input::-webkit-outer-spin-button,.taxrow input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.taxrow input:focus{background:rgba(31,111,208,.09);box-shadow:0 0 0 2px rgba(31,111,208,.35);border-radius:3px}
+
+.p-pay{margin-top:30px;padding:16px 18px;background:#f2f6fc;border-left:4px solid var(--pblue);border-radius:0 8px 8px 0}
+.p-pay h4{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;color:var(--pblue);
+  text-transform:uppercase;margin:0 0 7px;font-weight:700}
+.p-pay .li{font-size:.96rem;color:#43536d;line-height:1.7}
+
+.p-notes{margin-top:24px}
+.p-notes h4{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;color:var(--pdim);
+  text-transform:uppercase;margin:0 0 7px;font-weight:700}
+.p-notes .body{font-size:.96rem;color:#43536d;line-height:1.7;min-height:1.7em}
+
+.p-perk{margin-top:22px;padding:15px 18px;border:1px dashed #d9c07a;border-radius:9px;
+  background:#fffaed;font-size:.95rem;color:#6b5410;line-height:1.65}
+.p-perk b{color:#8a6a00}
+
+.p-foot{margin-top:30px;padding-top:16px;border-top:1px solid var(--prule);
+  display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;color:var(--pdim);text-transform:uppercase}
+
+/* PAID stamp */
+.stamp{transform:rotate(-9deg);flex-shrink:0;margin-left:18px;
+  border:4px double #17803d;color:#17803d;border-radius:11px;padding:10px 22px;
+  font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.85rem;letter-spacing:.14em;
+  opacity:.92;pointer-events:none;text-align:center;line-height:1.05}
+.stamp small{display:block;font-family:var(--mono);font-size:.5rem;letter-spacing:.18em;
+  font-weight:400;margin-top:4px}
+.paper[data-mode="invoice"] .stamp{display:none}
+.paper[data-mode="invoice"] .only-receipt{display:none}
+.paper[data-mode="receipt"] .only-invoice{display:none}
+
+/* screen-only: a printed page is ~816 CSS px wide, so an unscoped max-width
+   breakpoint would collapse the invoice to the mobile layout on paper */
+@media screen and (max-width:1000px){
+  .ui-wrap{grid-template-columns:1fr}
+  .ui-side{position:static;order:-1}
+  .sheet-outer{padding:12px}
+  .paper{padding:32px 26px}
+  .p-parties{grid-template-columns:1fr;gap:20px}
+  .p-head{flex-direction:column;gap:18px}
+  .p-title{text-align:left}
+  .stamp{top:auto;bottom:24px;right:24px;font-size:1.3rem}
+}
+
+/* =========================================================
+   PRINT — the paper, alone, on Letter
+   ========================================================= */
+@media print{
+  .ui,.ui-top,.ui-side,.toast,.rm,.print-hide{display:none!important}
+  body{background:#fff!important;font-size:12.5pt}
+  .ui-wrap{display:block;padding:0;max-width:none}
+  .sheet-outer{background:none;padding:0;border-radius:0;box-shadow:none}
+  .paper{box-shadow:none;max-width:none;width:auto;padding:0;margin:0}
+  table.p-items thead th{background:#16233c!important;color:#fff!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  table.p-items tbody tr:nth-child(even) td,.p-pay,.p-perk{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  [contenteditable]:hover,[contenteditable]:focus{background:none!important;box-shadow:none!important}
+  [contenteditable]:empty::before{content:''}
+  .cell-num,.taxrow input{box-shadow:none!important;background:none!important}
+  table.p-items th.x{display:none}
+  table.p-items td.x{display:none}
+  tr,.p-pay,.p-perk,.p-tot{page-break-inside:avoid}
+  @page{size:letter;margin:.5in}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ APP CHROME (never prints) ============ -->
+<div class="ui-top">
+  <div class="row">
+    <a class="brand" href="/">
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <path d="M16 2 29 9.5v13L16 30 3 22.5v-13L16 2Z" stroke="#46f0ff" stroke-width="1.5"/>
+        <path d="M16 25V14M16 14 10.5 9.5M16 14l5.5-4.5" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <b>INVOICE&nbsp;BUILDER</b>
+    </a>
+    <div class="seg" role="group" aria-label="Document type">
+      <button type="button" id="m-inv" aria-pressed="true">INVOICE</button>
+      <button type="button" id="m-rec" aria-pressed="false">PAID RECEIPT</button>
+    </div>
+    <button class="ui-btn" type="button" id="btn-new">＋ New</button>
+    <button class="ui-btn" type="button" id="btn-save">💾 Save</button>
+    <button class="ui-btn pri" type="button" id="btn-print">🖨 Print / Save PDF</button>
+  </div>
+</div>
+
+<div class="ui-wrap">
+  <div class="sheet-outer">
+    <!-- ============ THE PAPER ============ -->
+    <div class="paper" id="paper" data-mode="invoice">
+
+      <div class="p-head">
+        <div class="p-logo">
+          <img src="img/spindola-logo-dark.png" width="321" height="300" alt="Spindola Software">
+          <div class="tag">Software · Websites · Local business tools</div>
+        </div>
+        <div class="p-title">
+          <div class="kind" id="doc-kind">INVOICE</div>
+          <div class="meta">
+            <div><span class="only-invoice">Invoice</span><span class="only-receipt">Receipt</span>
+              no. <b contenteditable id="f-number">SS-0001</b></div>
+            <div>Date <b contenteditable id="f-date">—</b></div>
+            <div class="only-invoice">Due <b contenteditable id="f-due">On receipt</b></div>
+            <div class="only-receipt">Paid <b contenteditable id="f-paiddate">—</b></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-parties">
+        <div>
+          <h4>From</h4>
+          <div class="who" contenteditable id="f-from-name">Spindola Software</div>
+          <div class="li" contenteditable id="f-from-rest" data-ph="Your name · phone · address"
+               >Rafael Spindola<br>Spindola.Software@gmail.com<br>spindolasoftware.com</div>
+        </div>
+        <div>
+          <h4>Bill to</h4>
+          <div class="who" contenteditable id="f-to-name" data-ph="Customer business name"></div>
+          <div class="li" contenteditable id="f-to-rest"
+               data-ph="Contact name&#10;Street address&#10;City, State ZIP&#10;Phone · email"></div>
+        </div>
+      </div>
+
+      <table class="p-items">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th class="n">Qty</th>
+            <th class="n">Rate</th>
+            <th class="m">Amount</th>
+            <th class="x print-hide"><span class="ui" aria-hidden="true"></span></th>
+          </tr>
+        </thead>
+        <tbody id="items"></tbody>
+      </table>
+
+      <button class="ui-btn ui" type="button" id="btn-add-row" style="margin-top:12px">＋ Add line</button>
+
+      <div class="p-tot">
+        <div class="stamp">PAID<small>Thank you</small></div>
+        <table>
+          <tr><td>Subtotal</td><td id="t-sub">$0.00</td></tr>
+          <tr class="taxrow" id="taxrow"><td>Sales tax (<input type="number" id="f-tax" value="0" min="0" max="100" step="0.001" aria-label="Tax rate percent">%)</td><td id="t-tax">$0.00</td></tr>
+          <tr class="grand"><td>Total</td><td id="t-grand">$0.00</td></tr>
+          <tr class="only-invoice due"><td>Amount due</td><td id="t-due">$0.00</td></tr>
+          <tr class="only-receipt"><td>Amount paid</td><td id="t-paid">$0.00</td></tr>
+        </table>
+      </div>
+
+      <div class="p-pay">
+        <h4><span class="only-invoice">How to pay</span><span class="only-receipt">Payment received</span></h4>
+        <div class="li" contenteditable id="f-pay"
+             data-ph="Payment method / instructions"></div>
+      </div>
+
+      <div class="p-notes">
+        <h4>Notes</h4>
+        <div class="body" contenteditable id="f-notes"
+             data-ph="Anything worth writing down — install location, review link used, follow-up date…"></div>
+      </div>
+
+      <div class="p-perk">
+        <b>Founding customer rate:</b> because you've purchased from Spindola Software, every
+        future service is <b>50% off, for life</b> — websites, apps, booking systems and custom
+        tools. No membership and no expiration.
+      </div>
+
+      <div class="p-foot">
+        <span>Thank you for your business</span>
+        <span class="only-receipt">Paid in full · retain for your records</span>
+        <span class="only-invoice">Questions? Spindola.Software@gmail.com</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SIDEBAR (never prints) ============ -->
+  <aside class="ui-side">
+    <div class="ui-card">
+      <h3>Quick add</h3>
+      <div class="quick" id="quick"></div>
+    </div>
+
+    <div class="ui-card">
+      <h3>Document</h3>
+      <div class="ui-field">
+        <label for="s-number">Number</label>
+        <input id="s-number" type="text" autocomplete="off">
+      </div>
+      <div class="ui-field">
+        <label for="s-date">Date</label>
+        <input id="s-date" type="date">
+      </div>
+      <p class="hint">Numbers auto-increment each time you start a new document, so they never
+        repeat. Every field on the page is editable — click it and type.</p>
+    </div>
+
+    <div class="ui-card">
+      <h3>Saved documents</h3>
+      <div class="saved-list" id="saved"></div>
+      <p class="hint" id="saved-empty" style="margin-top:10px">Nothing saved yet. Hit
+        <b>Save</b> and it's stored in this browser.</p>
+    </div>
+
+    <div class="ui-card">
+      <h3>Printing</h3>
+      <p class="hint">Use <b>Print / Save PDF</b>, then choose <b>Save as PDF</b> as the printer.
+        In the print dialog set margins to Default and switch <b>Background graphics ON</b> so
+        the header bar and highlights come through.</p>
+    </div>
+  </aside>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+
+/* ---------- catalogue: the quick-add buttons ---------- */
+var CATALOG = [
+  { desc: 'Google review NFC placard — 4.75" acrylic, programmed with your Google review link and installed on site', label: 'Placard install',      unit: 40 },
+  { desc: 'Additional Google review NFC placard — programmed and installed on the same visit',                        label: 'Extra placard',       unit: 20 },
+  { desc: 'Wallet-size Google review NFC tap card — programmed to the same review link',                              label: 'Wallet tap card',     unit: 20 },
+  { desc: 'Website design, build and publication — founding customer rate (50% off $500)',                            label: 'Website · $250',      unit: 250 },
+  { desc: 'Website design, build and publication — standard rate',                                                    label: 'Website · $500',      unit: 500 },
+  { desc: 'Google Business Profile setup assistance',                                                                 label: 'GBP setup',           unit: 0 },
+  { desc: '',                                                                                                         label: 'Blank line',          unit: 0 }
+];
+
+var LS_SEQ = 'spindola.invoice.seq.v1';
+var LS_DOCS = 'spindola.invoice.docs.v1';
+var LS_FROM = 'spindola.invoice.from.v1';
+
+var $ = function (id) { return document.getElementById(id); };
+var paper = $('paper');
+var items = [];          // [{desc, qty, unit}]
+var mode = 'invoice';
+
+/* ---------- helpers ---------- */
+function money(n) {
+  return '$' + (Math.round(n * 100) / 100).toLocaleString('en-US',
+    { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function todayISO() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') +
+         '-' + String(d.getDate()).padStart(2, '0');
+}
+function prettyDate(iso) {
+  var p = String(iso || '').split('-');
+  if (p.length !== 3) return iso || '';
+  var M = ['January','February','March','April','May','June','July',
+           'August','September','October','November','December'];
+  return M[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0];
+}
+function toast(msg) {
+  var t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function () { t.classList.remove('show'); }, 2200);
+}
+function readLS(key, fallback) {
+  try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch (e) { return fallback; }
+}
+function writeLS(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); return true; }
+  catch (e) { toast('Could not save — browser storage is full or blocked'); return false; }
+}
+
+/* ---------- numbering ---------- */
+function nextNumber(consume) {
+  var seq = readLS(LS_SEQ, 0);
+  var n = seq + 1;
+  if (consume) writeLS(LS_SEQ, n);
+  return 'SS-' + new Date().getFullYear() + '-' + String(n).padStart(4, '0');
+}
+
+/* ---------- line items ---------- */
+function addItem(desc, qty, unit) {
+  items.push({ desc: desc || '', qty: qty == null ? 1 : qty, unit: unit == null ? 0 : unit });
+  renderItems();
+}
+
+function renderItems() {
+  var tb = $('items');
+  tb.innerHTML = '';
+  items.forEach(function (it, i) {
+    var tr = document.createElement('tr');
+
+    var td1 = document.createElement('td');
+    var d = document.createElement('div');
+    d.className = 'it-desc';
+    d.contentEditable = 'true';
+    d.setAttribute('data-ph', 'Describe the work…');
+    d.textContent = it.desc;
+    d.addEventListener('input', function () { items[i].desc = d.textContent; });
+    td1.appendChild(d);
+    tr.appendChild(td1);
+
+    tr.appendChild(numCell(i, 'qty', it.qty, 1, 'n'));
+    tr.appendChild(rateCell(i, it.unit));
+
+    var td4 = document.createElement('td');
+    td4.className = 'm';
+    td4.textContent = money(it.qty * it.unit);
+    tr.appendChild(td4);
+
+    var td5 = document.createElement('td');
+    td5.className = 'x print-hide';
+    if (items.length > 1) {
+      var b = document.createElement('button');
+      b.className = 'rm ui';
+      b.type = 'button';
+      b.textContent = '×';
+      b.title = 'Remove this line';
+      b.setAttribute('aria-label', 'Remove line ' + (i + 1));
+      b.addEventListener('click', function () { items.splice(i, 1); renderItems(); });
+      td5.appendChild(b);
+    }
+    tr.appendChild(td5);
+
+    tb.appendChild(tr);
+  });
+  totals();
+}
+
+function numCell(i, key, val, step, cls) {
+  var td = document.createElement('td');
+  td.className = cls;
+  var inp = document.createElement('input');
+  inp.type = 'number';
+  inp.className = 'cell-num';
+  inp.step = step;
+  inp.min = 0;
+  inp.value = val;
+  inp.setAttribute('aria-label', (key === 'qty' ? 'Quantity' : 'Rate') + ' for line ' + (i + 1));
+  inp.addEventListener('input', function () {
+    var v = parseFloat(inp.value);
+    items[i][key] = isNaN(v) ? 0 : v;
+    // update just this row's amount and the totals; a full re-render would
+    // steal focus from the field being typed in
+    var row = inp.closest('tr');
+    row.querySelector('td.m').textContent = money(items[i].qty * items[i].unit);
+    totals();
+  });
+  td.appendChild(inp);
+  return td;
+}
+
+/* The rate column is a text field, not a number field, so a printed invoice
+   shows "$40.00" rather than a bare "40". It swaps to the raw number while
+   focused so it stays easy to type into. */
+function rateCell(i, val) {
+  var td = document.createElement('td');
+  td.className = 'n';
+  var inp = document.createElement('input');
+  inp.type = 'text';
+  inp.className = 'cell-num';
+  inp.inputMode = 'decimal';
+  inp.value = money(val);
+  inp.setAttribute('aria-label', 'Rate for line ' + (i + 1));
+  var parse = function (s) {
+    var v = parseFloat(String(s).replace(/[^0-9.\-]/g, ''));
+    return isNaN(v) ? 0 : v;
+  };
+  inp.addEventListener('focus', function () {
+    inp.value = items[i].unit ? String(items[i].unit) : '';
+    inp.select();
+  });
+  inp.addEventListener('input', function () {
+    items[i].unit = parse(inp.value);
+    inp.closest('tr').querySelector('td.m').textContent = money(items[i].qty * items[i].unit);
+    totals();
+  });
+  inp.addEventListener('blur', function () {
+    items[i].unit = parse(inp.value);
+    inp.value = money(items[i].unit);
+    totals();
+  });
+  td.appendChild(inp);
+  return td;
+}
+
+function totals() {
+  var sub = items.reduce(function (a, it) { return a + it.qty * it.unit; }, 0);
+  var rate = parseFloat($('f-tax').value);
+  rate = isNaN(rate) ? 0 : rate;
+  // a "Sales tax 0%" line on an invoice just looks unfinished — hide it
+  $('taxrow').style.display = rate ? '' : 'none';
+  // size the field to its value so the parens hug the number
+  $('f-tax').style.width = Math.max(1, String($('f-tax').value).length) + 'ch';
+  var tax = sub * rate / 100;
+  var grand = sub + tax;
+  $('t-sub').textContent = money(sub);
+  $('t-tax').textContent = money(tax);
+  $('t-grand').textContent = money(grand);
+  $('t-due').textContent = money(grand);
+  $('t-paid').textContent = money(grand);
+}
+
+/* ---------- mode ---------- */
+function setMode(m) {
+  mode = m;
+  paper.dataset.mode = m;
+  $('doc-kind').textContent = m === 'receipt' ? 'RECEIPT' : 'INVOICE';
+  $('doc-kind').classList.toggle('paid', m === 'receipt');
+  $('m-inv').setAttribute('aria-pressed', String(m === 'invoice'));
+  $('m-rec').setAttribute('aria-pressed', String(m === 'receipt'));
+  var pay = $('f-pay');
+  var auto = pay.dataset.auto !== '0';
+  if (auto) {
+    pay.textContent = m === 'receipt'
+      ? 'Paid by card through Stripe. No balance remaining.'
+      : 'Card: pay online at spindolasoftware.com/google-reviews.html — or cash, check or card in person at the install.';
+  }
+}
+$('m-inv').addEventListener('click', function () { setMode('invoice'); });
+$('m-rec').addEventListener('click', function () { setMode('receipt'); });
+// once Rafael edits the payment block by hand, stop overwriting it
+$('f-pay').addEventListener('input', function () { this.dataset.auto = '0'; });
+
+/* ---------- quick add ---------- */
+CATALOG.forEach(function (c) {
+  var b = document.createElement('button');
+  b.type = 'button';
+  b.innerHTML = '';
+  var t = document.createElement('em');
+  t.style.fontStyle = 'normal';
+  t.textContent = c.label;
+  var p = document.createElement('span');
+  p.textContent = c.unit ? '$' + c.unit : '—';
+  b.appendChild(t); b.appendChild(p);
+  b.addEventListener('click', function () {
+    addItem(c.desc, 1, c.unit);
+    toast('Added ' + c.label);
+  });
+  $('quick').appendChild(b);
+});
+$('btn-add-row').addEventListener('click', function () { addItem('', 1, 0); });
+
+/* ---------- paste as plain text, so the paper stays clean ---------- */
+document.addEventListener('paste', function (e) {
+  var el = e.target;
+  if (!el || !el.isContentEditable) return;
+  e.preventDefault();
+  var text = (e.clipboardData || window.clipboardData).getData('text/plain');
+  document.execCommand('insertText', false, text);
+});
+
+/* ---------- sidebar <-> paper mirrors ---------- */
+$('s-number').addEventListener('input', function () { $('f-number').textContent = this.value; });
+$('f-number').addEventListener('input', function () { $('s-number').value = this.textContent; });
+$('s-date').addEventListener('input', function () {
+  $('f-date').textContent = prettyDate(this.value);
+  if (mode === 'receipt' || $('f-paiddate').textContent === '—') {
+    $('f-paiddate').textContent = prettyDate(this.value);
+  }
+});
+$('f-tax').addEventListener('input', totals);
+
+/* ---------- save / load / new ---------- */
+function collect() {
+  return {
+    savedAt: Date.now(),
+    mode: mode,
+    number: $('f-number').textContent,
+    date: $('s-date').value,
+    dateText: $('f-date').textContent,
+    due: $('f-due').textContent,
+    paidDate: $('f-paiddate').textContent,
+    fromName: $('f-from-name').textContent,
+    fromRest: $('f-from-rest').innerHTML,
+    toName: $('f-to-name').textContent,
+    toRest: $('f-to-rest').innerHTML,
+    items: items.slice(),
+    tax: $('f-tax').value,
+    pay: $('f-pay').textContent,
+    payAuto: $('f-pay').dataset.auto,
+    notes: $('f-notes').innerHTML
+  };
+}
+
+function apply(d) {
+  setMode(d.mode || 'invoice');
+  $('f-number').textContent = d.number || '';
+  $('s-number').value = d.number || '';
+  $('s-date').value = d.date || todayISO();
+  $('f-date').textContent = d.dateText || prettyDate(d.date);
+  $('f-due').textContent = d.due || 'On receipt';
+  $('f-paiddate').textContent = d.paidDate || prettyDate(d.date);
+  $('f-from-name').textContent = d.fromName || 'Spindola Software';
+  $('f-from-rest').innerHTML = d.fromRest || '';
+  $('f-to-name').textContent = d.toName || '';
+  $('f-to-rest').innerHTML = d.toRest || '';
+  $('f-tax').value = d.tax || 0;
+  $('f-pay').dataset.auto = d.payAuto || '1';
+  if (d.pay) $('f-pay').textContent = d.pay;
+  $('f-notes').innerHTML = d.notes || '';
+  items = (d.items && d.items.length) ? d.items.slice() : [];
+  if (!items.length) addItem(CATALOG[0].desc, 1, CATALOG[0].unit);
+  else renderItems();
+}
+
+$('btn-save').addEventListener('click', function () {
+  var docs = readLS(LS_DOCS, []);
+  var d = collect();
+  var i = docs.findIndex(function (x) { return x.number === d.number; });
+  if (i >= 0) docs[i] = d; else docs.unshift(d);
+  docs = docs.slice(0, 60);          // keep localStorage from growing forever
+  if (writeLS(LS_DOCS, docs)) {
+    writeLS(LS_FROM, { name: d.fromName, rest: d.fromRest });
+    renderSaved();
+    toast('Saved ' + d.number);
+  }
+});
+
+$('btn-new').addEventListener('click', function () {
+  if (!confirm('Start a new blank document? Save the current one first if you need it.')) return;
+  var from = readLS(LS_FROM, null);
+  apply({
+    mode: 'invoice',
+    number: nextNumber(true),
+    date: todayISO(),
+    fromName: from ? from.name : 'Spindola Software',
+    fromRest: from ? from.rest : $('f-from-rest').innerHTML,
+    items: [{ desc: CATALOG[0].desc, qty: 1, unit: CATALOG[0].unit }],
+    payAuto: '1'
+  });
+  toast('New document');
+});
+
+$('btn-print').addEventListener('click', function () { window.print(); });
+
+function renderSaved() {
+  var docs = readLS(LS_DOCS, []);
+  var box = $('saved');
+  box.innerHTML = '';
+  $('saved-empty').style.display = docs.length ? 'none' : '';
+  docs.forEach(function (d) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    var a = document.createElement('em');
+    a.textContent = d.number + (d.mode === 'receipt' ? ' · PAID' : '');
+    var c = document.createElement('span');
+    var sum = (d.items || []).reduce(function (t, it) { return t + it.qty * it.unit; }, 0);
+    c.textContent = (d.toName || 'no name').slice(0, 14) + ' · ' + money(sum);
+    b.appendChild(a); b.appendChild(c);
+    b.addEventListener('click', function () { apply(d); renderSaved(); toast('Loaded ' + d.number); });
+    box.appendChild(b);
+  });
+}
+
+/* ---------- boot ---------- */
+(function init() {
+  var from = readLS(LS_FROM, null);
+  apply({
+    mode: 'invoice',
+    number: nextNumber(false),
+    date: todayISO(),
+    fromName: from ? from.name : 'Spindola Software',
+    fromRest: from ? from.rest : $('f-from-rest').innerHTML,
+    items: [{ desc: CATALOG[0].desc, qty: 1, unit: CATALOG[0].unit }],
+    payAuto: '1'
+  });
+  renderSaved();
+})();
+</script>
+</body>
+</html>
