@@ -143,6 +143,18 @@ h1{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-weight:900;font-s
   font-weight:700;letter-spacing:.16em;padding:13px 20px;border-radius:10px;
   background:linear-gradient(120deg,#FBBC05,#f59e0b);color:#241a00;white-space:nowrap}
 .svc-card:hover .svc-go{box-shadow:0 0 24px rgba(251,188,5,.45)}
+/* second service card sits under the first; cyan instead of gold so the two
+   read as siblings rather than one being a repeat of the other */
+.svc{display:grid;gap:20px}
+.svc-card.svc-web{border-color:rgba(70,240,255,.30);
+  background:linear-gradient(120deg,rgba(70,240,255,.10),rgba(10,18,38,.72) 46%,rgba(167,139,250,.13))}
+.svc-card.svc-web::before{background:linear-gradient(90deg,transparent,rgba(70,240,255,.8),transparent)}
+.svc-card.svc-web:hover{border-color:rgba(70,240,255,.6);
+  box-shadow:0 16px 46px rgba(0,0,0,.5),0 0 30px rgba(70,240,255,.16)}
+.svc-card.svc-web .svc-kick{color:var(--cyan)}
+.svc-card.svc-web .svc-price{color:var(--cyan)}
+.svc-card.svc-web .svc-go{background:linear-gradient(120deg,#46f0ff,#7c9dff 55%,#a78bfa);color:#04101c}
+.svc-card.svc-web:hover .svc-go{box-shadow:0 0 24px rgba(110,190,255,.5)}
 .contact.svc-link{color:#FBBC05;border-color:rgba(251,188,5,.4)}
 .svc-link .sm{display:none}
 .contact.svc-link:hover{color:#fff;border-color:#FBBC05;box-shadow:0 0 18px rgba(251,188,5,.22)}
@@ -315,6 +327,24 @@ footer a:hover{color:var(--cyan)}
         <div class="svc-foot">
           <span class="svc-price">$40 <small>installed</small></span>
           <span class="svc-go">SEE THE SERVICE ▸</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="svc-card svc-web" href="websites.html">
+      <div class="svc-photo">
+        <img src="img/work/saccitypools.jpg" width="760" height="475" loading="lazy"
+             alt="The Sac City Pools website, one of the sites built by Spindola Software.">
+      </div>
+      <div class="svc-body">
+        <div class="svc-kick">Designed, built and put live</div>
+        <h2>WEBSITES FOR LOCAL BUSINESSES</h2>
+        <p>A real site, built by hand around your business — not a template and not a page
+          builder you pay for every month. One price, paid once, and the domain stays in
+          your name.</p>
+        <div class="svc-foot">
+          <span class="svc-price">$250 <small>if you've bought before · $500 otherwise</small></span>
+          <span class="svc-go">SEE THE WORK ▸</span>
         </div>
       </div>
     </a>
