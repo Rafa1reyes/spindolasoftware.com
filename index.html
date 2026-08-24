@@ -155,6 +155,10 @@ h1{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-weight:900;font-s
 .svc-card.svc-web .svc-price{color:var(--cyan)}
 .svc-card.svc-web .svc-go{background:linear-gradient(120deg,#46f0ff,#7c9dff 55%,#a78bfa);color:#04101c}
 .svc-card.svc-web:hover .svc-go{box-shadow:0 0 24px rgba(110,190,255,.5)}
+.card.more{border-style:dashed;background:rgba(10,18,38,.35)}
+.card.more::before{background:linear-gradient(90deg,transparent,rgba(167,139,250,.5),transparent)}
+.card.more .tile{background:linear-gradient(140deg,rgba(167,139,250,.14),rgba(70,240,255,.10))}
+.card.more h3{color:#c9d8f2}
 .contact.svc-link{color:#FBBC05;border-color:rgba(251,188,5,.4)}
 .svc-link .sm{display:none}
 .contact.svc-link:hover{color:#fff;border-color:#FBBC05;box-shadow:0 0 18px rgba(251,188,5,.22)}
@@ -516,6 +520,8 @@ const APPS=[
   desc:'Backflow-testing compliance for the trade — assemblies, pass/fail tests, district paperwork.'},
  {id:'pooltidy',name:'PoolTidy',icon:'🫧',badge:'LIVE',tag:'FIELD SERVICE',url:'https://pooltidy.com',
   desc:'Two-sided pool service — dead simple for customers, LSI water chemistry and dosing for pros.'},
+ {id:'extermimate',name:'Extermimate',icon:'🐜',badge:'LIVE',tag:'PEST CONTROL',url:'https://extermimate.com',
+  desc:'Pest control in the palm of your hand — routes, chemical logs, photo proof and customer history.'},
  {id:'petfi',name:'Petfi',icon:'🐾',badge:'PREVIEW',tag:'SOCIAL',
   desc:'The social network for pets — profiles, mate match, dog-park territory claims.'},
  {id:'3pass',name:'3Pass',icon:'🛡️',badge:'PREVIEW',tag:'PATROL OPS',
@@ -524,10 +530,6 @@ const APPS=[
   desc:'Chess with consequences — per-piece kill animations, leagues and Elo.'},
  {id:'bodylore',name:'BodyLore',icon:'🖐️',badge:'PREVIEW',tag:'AI · FUN',
   desc:'Scan your hands and face — on-device AI reads folklore and science side by side.'},
- {id:'dealdrop',name:'DealDrop',icon:'📦',badge:'PREVIEW',tag:'MARKETPLACE',
-  desc:'Turn free curbside finds into profit — buyers never see your source.'},
- {id:'piggyplay',name:'PiggyPlay',icon:'🐷',badge:'PREVIEW',tag:'GAME',
-  desc:'Head-to-head skill games with point stakes — Dots & Boxes, Connect 4 — plus free-practice RPS.'}
 ];
 const badgeClass={LIVE:'live',NEW:'new','18+':'adult',PREVIEW:'preview'};
 const LS_KEY='spindola.access.v1';
@@ -564,6 +566,20 @@ for(const app of APPS){
   const hit=tryUnlock(app.id,saved[app.id]);
   if(hit)markUnlocked(app.id,hit.url,false);
 }
+
+/* Ninth tile — fills the 3x3 grid and says the list isn't finished. */
+const more=document.createElement('article');
+more.className='card more';
+more.innerHTML=
+  '<div class="card-top"><div class="tile">✨</div><div>'+
+  '<h3>AND MANY MORE…</h3></div></div>'+
+  '<p class="desc">New tools get built here constantly — some for a single trade, some '+
+  "because somebody asked. If the thing your business needs doesn't exist yet, it can.</p>"+
+  '<button class="btn auth" type="button">⬡ TURN YOUR VISION INTO REALITY</button>';
+grid.appendChild(more);
+more.querySelector('button').addEventListener('click',()=>{
+  document.getElementById('vision-btn').click();
+});
 function markUnlocked(id,url,fresh){
   unlockedUrl[id]=url;
   const el=document.getElementById('card-'+id);
