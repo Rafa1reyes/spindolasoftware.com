@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Referral &amp; Commission Tracker — Spindola Software</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#040914">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤝</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#040914; --ink:#dfe9ff; --dim:#8fa3c8; --cyan:#46f0ff; --violet:#a78bfa;
+  --teal:#2dd4bf; --ok:#4ade80; --warn:#fbbf24; --danger:#ff5470;
+  --line:rgba(120,200,255,.14); --card:#0a1428;
+  --mono:ui-monospace,'Cascadia Mono',Consolas,monospace;
+  /* paper palette — the only colours that reach the printer */
+  --paper:#ffffff; --pi:#16233c; --pdim:#5b6b85; --prule:#dce3ee; --pblue:#1f6fd0;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:'Rajdhani',system-ui,sans-serif;font-size:16px;line-height:1.5}
+h1,h2,h3{margin:0}
+button,input,select{font-family:inherit}
+
+/* ================= APP CHROME (screen only) ================= */
+.top{position:sticky;top:0;z-index:20;background:rgba(4,9,20,.93);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);padding:12px 20px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.brand .dot{width:9px;height:9px;border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 12px var(--cyan)}
+.brand b{font-family:'Orbitron',sans-serif;font-size:.7rem;letter-spacing:.26em}
+.brand span{font-size:.72rem;color:var(--dim);letter-spacing:.08em}
+.btn{font-family:'Orbitron',sans-serif;font-size:.64rem;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;padding:9px 14px;border-radius:8px;cursor:pointer;
+  border:1px solid var(--line);background:#0d1a30;color:var(--ink);transition:.15s}
+.btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn.go{background:linear-gradient(135deg,#0e7490,#155e75);border-color:#22d3ee;color:#e0fbff}
+.btn.go:hover{filter:brightness(1.15)}
+.btn.bad:hover{border-color:var(--danger);color:var(--danger)}
+
+.wrap{max-width:1180px;margin:0 auto;padding:22px 20px 90px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:18px 20px;margin-bottom:18px}
+.card > h3{font-family:var(--mono);font-size:.62rem;letter-spacing:.24em;color:var(--cyan);
+  text-transform:uppercase;margin-bottom:14px}
+.muted{color:var(--dim);font-size:.9rem}
+
+/* drop zone */
+#drop{border:2px dashed rgba(120,200,255,.3);border-radius:14px;padding:30px 20px;
+  text-align:center;cursor:pointer;transition:.15s;background:rgba(70,240,255,.02)}
+#drop:hover,#drop.over{border-color:var(--cyan);background:rgba(70,240,255,.07)}
+#drop > b{display:block;font-family:'Orbitron',sans-serif;font-size:.8rem;letter-spacing:.1em;
+  margin-bottom:8px}
+#drop small{color:var(--dim)}
+
+/* stat strip */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat .k{font-family:var(--mono);font-size:.56rem;letter-spacing:.18em;color:var(--dim);
+  text-transform:uppercase}
+.stat .v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.5rem;margin-top:6px}
+.stat.owed .v{color:var(--warn)}
+.stat.paid .v{color:var(--ok)}
+
+/* column mapper */
+.map{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.map label{display:block;font-family:var(--mono);font-size:.55rem;letter-spacing:.16em;
+  color:var(--dim);text-transform:uppercase;margin-bottom:6px}
+.map select,.fld input,.fld select{width:100%;background:#071223;border:1px solid var(--line);
+  border-radius:8px;padding:9px 10px;color:var(--ink);font-size:.92rem;outline:none}
+.map select:focus,.fld input:focus{border-color:var(--cyan)}
+
+.fld{margin-bottom:10px}
+.fld label{display:block;font-family:var(--mono);font-size:.55rem;letter-spacing:.16em;
+  color:var(--dim);text-transform:uppercase;margin-bottom:6px}
+.row3{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end}
+
+/* tables */
+.tbox{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-family:var(--mono);font-size:.56rem;letter-spacing:.18em;color:var(--dim);
+  text-transform:uppercase;text-align:left;padding:0 10px 9px;border-bottom:1px solid var(--line);
+  white-space:nowrap}
+td{padding:11px 10px;border-bottom:1px solid rgba(120,200,255,.07);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.payee{font-weight:600;font-size:1.02rem;cursor:pointer;border-bottom:1px dotted var(--line)}
+.payee:hover{color:var(--cyan)}
+.chip{display:inline-block;font-family:var(--mono);font-size:.55rem;letter-spacing:.14em;
+  text-transform:uppercase;padding:3px 7px;border-radius:5px;border:1px solid var(--line);
+  color:var(--dim);white-space:nowrap}
+.chip.ok{color:var(--ok);border-color:rgba(74,222,128,.35)}
+.chip.owe{color:var(--warn);border-color:rgba(251,191,36,.35)}
+.rate{width:76px;background:#071223;border:1px solid var(--line);border-radius:7px;
+  padding:6px 8px;color:var(--ink);font-size:.88rem;text-align:right;
+  font-variant-numeric:tabular-nums;outline:none}
+.rate:focus{border-color:var(--cyan)}
+.sub{background:rgba(0,0,0,.22)}
+.sub td{font-size:.9rem;color:var(--dim);padding:8px 10px}
+.sub .ans{color:var(--ink)}
+input[type=checkbox]{width:17px;height:17px;accent-color:#22d3ee;cursor:pointer}
+.mini{font-size:.78rem;color:var(--dim)}
+.empty{text-align:center;color:var(--dim);padding:26px 10px}
+.warnbox{border:1px solid rgba(251,191,36,.35);background:rgba(251,191,36,.07);
+  border-radius:10px;padding:12px 14px;color:#f6dda0;font-size:.9rem;margin-bottom:14px}
+
+/* ================= PRINTED PAYOUT SHEET ================= */
+.sheet{display:none;background:var(--paper);color:var(--pi);padding:44px 46px}
+.sheet h2{font-family:'Orbitron',sans-serif;font-size:1.5rem;letter-spacing:.06em}
+.sheet .meta{font-family:var(--mono);font-size:.7rem;color:var(--pdim);margin-top:8px;line-height:1.9}
+.sheet table{margin-top:22px}
+.sheet th{color:var(--pdim);border-bottom:1px solid var(--prule)}
+.sheet td{border-bottom:1px solid var(--prule);color:var(--pi)}
+.sheet tr.tot td{font-family:'Orbitron',sans-serif;font-weight:900;border-bottom:none;
+  border-top:2px solid var(--pi);padding-top:14px}
+.sheet .sig{margin-top:52px;display:flex;gap:46px}
+.sheet .sig div{flex:1;border-top:1px solid var(--pi);padding-top:7px;
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;color:var(--pdim)}
+
+/* Screen-only breakpoint. Unscoped, this fires on paper too (a Letter page
+   is ~816 CSS px) and collapses the payout sheet to the phone layout. */
+@media screen and (max-width:820px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .wrap{padding:16px 12px 70px}
+  th,td{padding-left:6px;padding-right:6px}
+}
+@media print{
+  @page{size:letter;margin:0}
+  .top,.wrap{display:none !important}
+  .sheet{display:block !important}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="brand"><span class="dot"></span>
+    <b>SPINDOLA</b><span>REFERRAL &amp; COMMISSION TRACKER</span></div>
+  <button class="btn" id="b-import">Load Stripe CSV</button>
+  <button class="btn" id="b-manual">Add sale by hand</button>
+  <button class="btn go" id="b-print">Print payout sheet</button>
+  <button class="btn bad" id="b-clear">Clear all</button>
+  <input type="file" id="file" accept=".csv,text/csv" hidden>
+</div>
+
+<div class="wrap">
+
+  <div class="stats">
+    <div class="stat"><div class="k">Sales tracked</div><div class="v" id="s-sales">0</div></div>
+    <div class="stat"><div class="k">Referred sales</div><div class="v" id="s-ref">0</div></div>
+    <div class="stat owed"><div class="k">Commission owed</div><div class="v" id="s-owed">$0</div></div>
+    <div class="stat paid"><div class="k">Commission paid</div><div class="v" id="s-paid">$0</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Step 1 &middot; bring the sales in</h3>
+    <div id="drop">
+      <b>DROP A STRIPE CSV HERE</b>
+      <small>Or click to pick the file. In Stripe: <b>Payments &rarr; Export</b>, choose
+        <b>All columns</b>, then drop it here. Re-import as often as you like &mdash; sales are
+        matched by their Stripe ID, so nothing you have already marked paid gets lost.</small>
+    </div>
+    <p class="muted" style="margin:12px 0 0">Cash or in-person sale? Use
+      <b>Add sale by hand</b> up top.</p>
+  </div>
+
+  <div class="card" id="c-map" hidden>
+    <h3>Step 2 &middot; check the columns</h3>
+    <p class="muted" style="margin:-6px 0 14px">These are guessed from the CSV headers.
+      Fix any that look wrong.</p>
+    <div class="map">
+      <div><label>Referral answer</label><select id="m-ref"></select></div>
+      <div><label>Amount</label><select id="m-amt"></select></div>
+      <div><label>Refunded amount</label><select id="m-refund"></select></div>
+      <div><label>Date</label><select id="m-date"></select></div>
+      <div><label>Customer</label><select id="m-cust"></select></div>
+      <div><label>Status</label><select id="m-status"></select></div>
+    </div>
+    <p class="muted" style="margin:14px 0 0" id="map-note"></p>
+  </div>
+
+  <div class="card">
+    <h3>Step 3 &middot; what a referral pays</h3>
+    <div class="row3">
+      <div class="fld"><label>Default commission</label>
+        <select id="rule-mode">
+          <option value="flat">Flat dollars per sale</option>
+          <option value="pct">Percent of the sale</option>
+        </select></div>
+      <div class="fld"><label id="rule-lbl">Dollars per sale</label>
+        <input id="rule-val" type="number" min="0" step="0.5" value="10"></div>
+      <div class="muted" style="padding-bottom:14px">Override any one person in the table below.
+        Untick <b>Pays</b> for answers that are not a person &mdash; Google, a sign, drove by.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Who you owe</h3>
+    <div id="warn"></div>
+    <div class="tbox">
+      <table id="t-payees"><thead><tr>
+        <th>Referred by</th><th class="num">Sales</th><th class="num">Gross</th>
+        <th class="num">Rate</th><th>Pays</th><th class="num">Commission</th>
+        <th class="num">Owed</th><th></th>
+      </tr></thead><tbody></tbody></table>
+    </div>
+    <div class="empty" id="e-payees">Nothing loaded yet.</div>
+    <p class="mini" style="margin-top:12px">Click a name to rename it &mdash; renaming two
+      spellings to the same thing merges them into one payout. Click <b>&#9662;</b> to see that
+      person's sales and tick them off as you pay.</p>
+  </div>
+
+  <div class="card">
+    <h3>Every sale, newest first</h3>
+    <div class="tbox">
+      <table id="t-sales"><thead><tr>
+        <th>Date</th><th>Customer</th><th class="num">Amount</th>
+        <th>How they heard about us</th><th></th>
+      </tr></thead><tbody></tbody></table>
+    </div>
+    <div class="empty" id="e-sales">Nothing loaded yet.</div>
+  </div>
+
+</div>
+
+<!-- ============ the part that actually prints ============ -->
+<div class="sheet" id="sheet">
+  <h2>COMMISSION PAYOUT SHEET</h2>
+  <div class="meta">
+    SPINDOLA SOFTWARE &middot; 5 STAR TAP<br>
+    Prepared <span id="p-date"></span><br>
+    <span id="p-range"></span>
+  </div>
+  <table><thead><tr>
+    <th>Referred by</th><th class="num">Sales</th><th class="num">Gross</th>
+    <th class="num">Rate</th><th class="num">Commission</th><th class="num">Still owed</th>
+  </tr></thead><tbody id="p-body"></tbody>
+  <tfoot><tr class="tot">
+    <td>TOTAL</td><td class="num" id="p-n"></td><td class="num" id="p-gross"></td>
+    <td></td><td class="num" id="p-comm"></td><td class="num" id="p-owed"></td>
+  </tr></tfoot></table>
+  <div class="sig"><div>PAID BY</div><div>RECEIVED BY</div><div>DATE</div></div>
+</div>
+
+<script>
+/* =====================================================================
+   Referral & commission tracker.  Everything lives in localStorage on
+   this machine — no server, no Stripe key, nothing leaves the browser.
+   ===================================================================== */
+var KEY = 'ss_referrals_v1';
+var DB  = load();
+var HEADERS = [], ROWS = [], MAPNOTE = '', open = {};
+
+function load(){
+  try{
+    var v = JSON.parse(localStorage.getItem(KEY));
+    if(v && typeof v === 'object') return fill(v);
+  }catch(e){}
+  return fill({});
+}
+function fill(v){
+  v.sales = v.sales || {};   /* id  -> sale record                    */
+  v.paid  = v.paid  || {};   /* id  -> true, commission handed over   */
+  v.alias = v.alias || {};   /* normalised answer -> display name     */
+  v.rates = v.rates || {};   /* payee key -> per-person rate override */
+  v.nopay = v.nopay || {};   /* payee key -> true, not a real person  */
+  v.rule  = v.rule  || {mode:'flat', val:10};
+  return v;
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){} }
+function $(id){ return document.getElementById(id); }
+function money(n){
+  return (n < 0 ? '-$' : '$') +
+    Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+function num(v){
+  var f = parseFloat(String(v == null ? '' : v).replace(/[^0-9.\-]/g, ''));
+  return isFinite(f) ? f : 0;
+}
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+  });
+}
+/* Two answers differing only in case, spacing or punctuation are one person. */
+function normKey(s){
+  return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+/* The name shown and paid: an alias if one is set, else the answer as typed. */
+function payeeOf(sale){
+  var k = normKey(sale.ref);
+  if(!k) return null;
+  return DB.alias[k] || sale.ref.trim();
+}
+
+/* ---------------------------------------------------------------------
+   CSV parser, RFC 4180.  Handles quoted fields containing commas,
+   newlines and doubled quotes, plus CRLF.  Stripe exports all of those.
+   --------------------------------------------------------------------- */
+function parseCSV(text){
+  if(text.charCodeAt(0) === 0xFEFF) text = text.slice(1);      /* strip BOM */
+  var rows = [], row = [], cell = '', q = false, i, c;
+  for(i = 0; i < text.length; i++){
+    c = text[i];
+    if(q){
+      if(c === '"'){
+        if(text[i + 1] === '"'){ cell += '"'; i++; } else q = false;
+      } else cell += c;
+    }
+    else if(c === '"'){ q = true; }
+    else if(c === ','){ row.push(cell); cell = ''; }
+    else if(c === '\n' || c === '\r'){
+      if(c === '\r' && text[i + 1] === '\n') i++;
+      row.push(cell); cell = '';
+      if(row.length > 1 || row[0] !== '') rows.push(row);
+      row = [];
+    }
+    else cell += c;
+  }
+  if(cell !== '' || row.length){ row.push(cell); rows.push(row); }
+  return rows;
+}
+
+/* Guess a column: patterns are tried in order of preference. */
+function guess(headers, pats){
+  var p, h;
+  for(p = 0; p < pats.length; p++){
+    for(h = 0; h < headers.length; h++){
+      if(pats[p].test(headers[h])) return h;
+    }
+  }
+  return -1;
+}
+
+function ingest(text){
+  var rows = parseCSV(text);
+  if(rows.length < 2){ alert('That file has no rows in it.'); return; }
+  HEADERS = rows[0].map(function(h){ return h.trim(); });
+  ROWS    = rows.slice(1);
+
+  var pick = {
+    ref:    guess(HEADERS, [/hear about/i, /referr/i, /\bsource\b/i, /how did you/i]),
+    amt:    guess(HEADERS, [/^amount$/i, /^converted amount$/i, /amount \(/i, /\bamount\b/i]),
+    refund: guess(HEADERS, [/^amount refunded$/i, /refunded/i]),
+    date:   guess(HEADERS, [/^created \(utc\)$/i, /created.*date/i, /^created$/i, /\bdate\b/i]),
+    cust:   guess(HEADERS, [/customer email/i, /^email$/i, /customer description/i,
+                            /business name/i, /card name/i, /customer/i]),
+    status: guess(HEADERS, [/^status$/i, /seller message/i])
+  };
+  ['ref', 'amt', 'refund', 'date', 'cust', 'status'].forEach(function(k){
+    var sel = $('m-' + k);
+    sel.innerHTML = '<option value="-1">&mdash; none &mdash;</option>' +
+      HEADERS.map(function(h, i){
+        return '<option value="' + i + '">' + esc(h || ('column ' + (i + 1))) + '</option>';
+      }).join('');
+    sel.value = String(pick[k]);
+    sel.onchange = build;
+  });
+
+  MAPNOTE = HEADERS.length + ' columns, ' + ROWS.length + ' rows read. ' + (pick.ref < 0
+    ? '<b style="color:var(--warn)">No &ldquo;how did you hear about us&rdquo; column turned up</b> ' +
+      '&mdash; pick it above, or this export is older than the checkout question.'
+    : 'Referral answers are coming from <b>' + esc(HEADERS[pick.ref]) + '</b>.');
+  $('c-map').hidden = false;
+  build();
+}
+
+/* Map the CSV onto sale records and merge them into the store. */
+function build(){
+  var m = {
+    ref:    +$('m-ref').value,     amt:    +$('m-amt').value,
+    refund: +$('m-refund').value,  date:   +$('m-date').value,
+    cust:   +$('m-cust').value,    status: +$('m-status').value
+  };
+  var idCol = guess(HEADERS, [/^id$/i, /payment.*id/i, /charge.*id/i]);
+  var added = 0, skipped = 0;
+
+  ROWS.forEach(function(r, n){
+    var st = m.status >= 0 ? (r[m.status] || '').toLowerCase() : 'paid';
+    /* Only money that actually landed earns anybody a commission. */
+    if(/fail|refus|incomplete|cancel|blocked|dispute/.test(st)){ skipped++; return; }
+
+    var gross  = num(r[m.amt]);
+    var refund = m.refund >= 0 ? num(r[m.refund]) : 0;
+    var net    = gross - refund;
+    if(net <= 0){ skipped++; return; }           /* refunded in full — pays nothing */
+
+    var id = (idCol >= 0 && r[idCol])
+      ? r[idCol]
+      : 'row-' + n + '-' + gross + '-' + (r[m.date] || '');
+    DB.sales[id] = {
+      id:   id,
+      date: m.date >= 0 ? (r[m.date] || '') : '',
+      cust: m.cust >= 0 ? (r[m.cust] || '') : '',
+      amt:  net,
+      ref:  m.ref  >= 0 ? (r[m.ref] || '').trim() : '',
+      src:  'stripe'
+    };
+    added++;
+  });
+  save();
+  render();
+  $('map-note').innerHTML = MAPNOTE + '<br>' + added + ' sale' + (added === 1 ? '' : 's') +
+    ' loaded' + (skipped ? ', ' + skipped + ' skipped (refunded, failed or $0)' : '') + '.';
+}
+
+/* ------------------------------ grouping ------------------------------ */
+function commOf(sale, rate){
+  return DB.rule.mode === 'pct' ? sale.amt * (rate / 100) : +rate;
+}
+function groups(){
+  var g = {};
+  Object.keys(DB.sales).forEach(function(id){
+    var s = DB.sales[id], name = payeeOf(s), k;
+    if(!name) return;
+    k = normKey(name);
+    if(!g[k]) g[k] = {key:k, name:name, sales:[], gross:0};
+    g[k].sales.push(s);
+    g[k].gross += s.amt;
+  });
+  return Object.keys(g).map(function(k){
+    var x = g[k];
+    x.rate = (DB.rates[k] != null) ? DB.rates[k] : DB.rule.val;
+    x.pays = !DB.nopay[k];
+    x.comm = x.pays ? x.sales.reduce(function(t, s){
+               return t + commOf(s, x.rate); }, 0) : 0;
+    x.owed = x.pays ? x.sales.reduce(function(t, s){
+               return t + (DB.paid[s.id] ? 0 : commOf(s, x.rate)); }, 0) : 0;
+    x.sales.sort(function(a, b){ return (b.date || '').localeCompare(a.date || ''); });
+    return x;
+  }).sort(function(a, b){ return b.owed - a.owed || b.gross - a.gross; });
+}
+
+/* ------------------------------ rendering ------------------------------ */
+function render(){
+  $('rule-mode').value = DB.rule.mode;
+  $('rule-val').value  = DB.rule.val;
+  $('rule-lbl').textContent =
+    DB.rule.mode === 'pct' ? 'Percent of each sale' : 'Dollars per sale';
+
+  var all = Object.keys(DB.sales).map(function(k){ return DB.sales[k]; });
+  all.sort(function(a, b){ return (b.date || '').localeCompare(a.date || ''); });
+  var gs = groups();
+
+  var referred = gs.reduce(function(t, g){ return t + g.sales.length; }, 0);
+  var owed     = gs.reduce(function(t, g){ return t + g.owed; }, 0);
+  var paid     = gs.reduce(function(t, g){ return t + (g.comm - g.owed); }, 0);
+  $('s-sales').textContent = all.length;
+  $('s-ref').textContent   = referred;
+  $('s-owed').textContent  = money(owed);
+  $('s-paid').textContent  = money(paid);
+
+  var blank = all.length - referred;
+  $('warn').innerHTML = (all.length && blank)
+    ? '<div class="warnbox">' + blank + ' of ' + all.length + ' sales left the question ' +
+      'blank, so nobody gets credit for them. They are still listed below.</div>'
+    : '';
+
+  /* who you owe */
+  var tb = document.querySelector('#t-payees tbody');
+  tb.innerHTML = '';
+  $('e-payees').style.display = gs.length ? 'none' : 'block';
+  gs.forEach(function(g){
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><span class="payee" data-ren="' + esc(g.key) + '">' + esc(g.name) + '</span></td>' +
+      '<td class="num">' + g.sales.length + '</td>' +
+      '<td class="num">' + money(g.gross) + '</td>' +
+      '<td class="num"><input class="rate" type="number" min="0" step="0.5" ' +
+        'value="' + g.rate + '" data-rate="' + esc(g.key) + '"></td>' +
+      '<td><input type="checkbox" data-pays="' + esc(g.key) + '"' +
+        (g.pays ? ' checked' : '') + '></td>' +
+      '<td class="num">' + money(g.comm) + '</td>' +
+      '<td class="num">' + (g.owed > 0
+          ? '<span class="chip owe">' + money(g.owed) + '</span>'
+          : '<span class="chip ok">settled</span>') + '</td>' +
+      '<td><button class="btn" style="padding:5px 9px" data-open="' + esc(g.key) + '">' +
+        (open[g.key] ? '&#9652;' : '&#9662;') + '</button></td>';
+    tb.appendChild(tr);
+
+    if(open[g.key]) g.sales.forEach(function(s){
+      var sr = document.createElement('tr');
+      sr.className = 'sub';
+      sr.innerHTML =
+        '<td colspan="4">' + esc(s.date ? s.date.slice(0, 10) : '—') + ' &middot; ' +
+          esc(s.cust || 'customer not named') + ' &middot; <span class="ans">&ldquo;' +
+          esc(s.ref) + '&rdquo;</span></td>' +
+        '<td colspan="2" class="num">' + money(s.amt) + ' sale &rarr; ' +
+          money(commOf(s, g.rate)) + ' commission</td>' +
+        '<td colspan="2"><label style="cursor:pointer"><input type="checkbox" ' +
+          'data-paid="' + esc(s.id) + '"' + (DB.paid[s.id] ? ' checked' : '') +
+          '> paid</label></td>';
+      tb.appendChild(sr);
+    });
+  });
+
+  /* every sale */
+  var sb = document.querySelector('#t-sales tbody');
+  sb.innerHTML = '';
+  $('e-sales').style.display = all.length ? 'none' : 'block';
+  all.forEach(function(s){
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>' + esc(s.date ? s.date.slice(0, 10) : '—') + '</td>' +
+      '<td>' + esc(s.cust || '—') + '</td>' +
+      '<td class="num">' + money(s.amt) + '</td>' +
+      '<td>' + (s.ref ? esc(s.ref) : '<span class="mini">no answer</span>') + '</td>' +
+      '<td class="num"><button class="btn bad" style="padding:5px 9px" ' +
+        'data-del="' + esc(s.id) + '">&times;</button></td>';
+    sb.appendChild(tr);
+  });
+
+  buildSheet(gs);
+}
+
+function buildSheet(gs){
+  var pay = gs.filter(function(g){ return g.pays && g.comm > 0; });
+  var dates = [];
+  $('p-date').textContent = new Date().toLocaleDateString('en-US',
+    {year:'numeric', month:'long', day:'numeric'});
+  Object.keys(DB.sales).forEach(function(k){
+    if(DB.sales[k].date) dates.push(DB.sales[k].date.slice(0, 10));
+  });
+  dates.sort();
+  $('p-range').textContent = dates.length
+    ? 'Sales from ' + dates[0] + ' to ' + dates[dates.length - 1] : '';
+  $('p-body').innerHTML = pay.map(function(g){
+    return '<tr><td>' + esc(g.name) + '</td>' +
+      '<td class="num">' + g.sales.length + '</td>' +
+      '<td class="num">' + money(g.gross) + '</td>' +
+      '<td class="num">' + (DB.rule.mode === 'pct'
+          ? g.rate + '%' : money(g.rate) + '/sale') + '</td>' +
+      '<td class="num">' + money(g.comm) + '</td>' +
+      '<td class="num">' + money(g.owed) + '</td></tr>';
+  }).join('') || '<tr><td colspan="6">No commissions to pay.</td></tr>';
+  $('p-n').textContent     = pay.reduce(function(t, g){ return t + g.sales.length; }, 0);
+  $('p-gross').textContent = money(pay.reduce(function(t, g){ return t + g.gross; }, 0));
+  $('p-comm').textContent  = money(pay.reduce(function(t, g){ return t + g.comm; }, 0));
+  $('p-owed').textContent  = money(pay.reduce(function(t, g){ return t + g.owed; }, 0));
+}
+
+/* ------------------------------- events ------------------------------- */
+document.addEventListener('click', function(e){
+  var t = e.target, k, cur, v;
+  if(!t || !t.getAttribute) return;
+
+  if((k = t.getAttribute('data-open')) != null){
+    open[k] = !open[k]; render(); return;
+  }
+  if((k = t.getAttribute('data-ren')) != null){
+    cur = t.textContent;
+    v = prompt('Pay this person under what name?\n\n' +
+      'Give two spellings the same name and they merge into one payout.', cur);
+    if(v == null) return;
+    v = v.trim();
+    /* Re-point every answer that currently lands on this payee. */
+    Object.keys(DB.sales).forEach(function(id){
+      var s = DB.sales[id];
+      if(normKey(payeeOf(s) || '') === k){
+        if(v) DB.alias[normKey(s.ref)] = v;
+        else  delete DB.alias[normKey(s.ref)];
+      }
+    });
+    save(); render(); return;
+  }
+  if((k = t.getAttribute('data-del')) != null){
+    if(confirm('Remove this sale from the tracker?')){
+      delete DB.sales[k]; delete DB.paid[k]; save(); render();
+    }
+    return;
+  }
+});
+
+document.addEventListener('change', function(e){
+  var t = e.target, k;
+  if(!t || !t.getAttribute) return;
+  if((k = t.getAttribute('data-paid')) != null){
+    if(t.checked) DB.paid[k] = true; else delete DB.paid[k];
+    save(); render(); return;
+  }
+  if((k = t.getAttribute('data-pays')) != null){
+    if(t.checked) delete DB.nopay[k]; else DB.nopay[k] = true;
+    save(); render(); return;
+  }
+  if((k = t.getAttribute('data-rate')) != null){
+    DB.rates[k] = num(t.value); save(); render(); return;
+  }
+});
+
+$('rule-mode').onchange = function(){
+  DB.rule.mode = this.value;
+  DB.rule.val  = 10;              /* $10 a sale, or 10% — both start at 10 */
+  save(); render();
+};
+$('rule-val').oninput = function(){ DB.rule.val = num(this.value); save(); render(); };
+
+/* file in */
+$('b-import').onclick = function(){ $('file').click(); };
+$('drop').onclick     = function(){ $('file').click(); };
+$('file').onchange    = function(){ if(this.files[0]) read(this.files[0]); this.value = ''; };
+['dragenter', 'dragover'].forEach(function(ev){
+  $('drop').addEventListener(ev, function(e){
+    e.preventDefault(); this.classList.add('over');
+  });
+});
+['dragleave', 'drop'].forEach(function(ev){
+  $('drop').addEventListener(ev, function(e){
+    e.preventDefault(); this.classList.remove('over');
+  });
+});
+$('drop').addEventListener('drop', function(e){
+  if(e.dataTransfer && e.dataTransfer.files[0]) read(e.dataTransfer.files[0]);
+});
+function read(f){
+  var r = new FileReader();
+  r.onload = function(){ ingest(String(r.result)); };
+  r.readAsText(f);
+}
+
+$('b-manual').onclick = function(){
+  var who = prompt('How did they hear about you? (the rep or affiliate name)');
+  if(who == null) return;
+  var amt = num(prompt('What did the sale come to, in dollars?', '40'));
+  if(!amt){ alert('No amount, no sale.'); return; }
+  var cust = prompt('Customer or business name (optional)') || '';
+  var when = prompt('Date (YYYY-MM-DD)', new Date().toISOString().slice(0, 10)) || '';
+  var id   = 'manual-' + Date.now();
+  DB.sales[id] = {id:id, date:when, cust:cust, amt:amt, ref:who.trim(), src:'manual'};
+  save(); render();
+};
+$('b-print').onclick = function(){ window.print(); };
+$('b-clear').onclick = function(){
+  if(confirm('Wipe every sale, payout and name in this tracker? This cannot be undone.')){
+    DB = fill({}); save(); render();
+    $('c-map').hidden = true;
+  }
+};
+
+render();
+</script>
+</body>
+</html>

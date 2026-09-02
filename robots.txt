@@ -4,3 +4,4 @@ Allow: /
 # Internal tools — not for customers or search results
 Disallow: /invoice.html
 Disallow: /STRIPE-SETUP.md
+Disallow: /referrals.html
