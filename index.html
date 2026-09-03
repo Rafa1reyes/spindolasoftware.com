@@ -143,6 +143,11 @@ h1{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-weight:900;font-s
   font-weight:700;letter-spacing:.16em;padding:13px 20px;border-radius:10px;
   background:linear-gradient(120deg,#FBBC05,#f59e0b);color:#241a00;white-space:nowrap}
 .svc-card:hover .svc-go{box-shadow:0 0 24px rgba(251,188,5,.45)}
+/* The long call to action does not fit beside the price. Give it its own
+   full-width row under it rather than letting flex squeeze it into a column
+   of single words. */
+.svc-go.long{flex:1 0 100%;margin-left:0;max-width:none;text-align:center;
+  white-space:normal;line-height:1.5;letter-spacing:.11em}
 /* second service card sits under the first; cyan instead of gold so the two
    read as siblings rather than one being a repeat of the other */
 .svc{display:grid;gap:20px}
@@ -330,7 +335,7 @@ footer a:hover{color:var(--cyan)}
           No app, no QR code, no monthly fee.</p>
         <div class="svc-foot">
           <span class="svc-price">$40 <small>installed</small></span>
-          <span class="svc-go">SEE THE SERVICE ▸</span>
+          <span class="svc-go long">LET'S GET YOUR COUNTER WORKING FOR YOU ▸</span>
         </div>
       </div>
     </a>
