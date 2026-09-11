@@ -160,7 +160,10 @@ h1{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-weight:900;font-s
 .svc-card.svc-web .svc-price{color:var(--cyan)}
 .svc-card.svc-web .svc-go{background:linear-gradient(120deg,#46f0ff,#7c9dff 55%,#a78bfa);color:#04101c}
 .svc-card.svc-web:hover .svc-go{box-shadow:0 0 24px rgba(110,190,255,.5)}
-.card.more{border-style:dashed;background:rgba(10,18,38,.35)}
+/* The CTA tile is not a product, so it spans the whole last row rather than
+   sitting alone in one column whenever the app count is a multiple of 3. */
+.card.more{border-style:dashed;background:rgba(10,18,38,.35);grid-column:1/-1}
+.card.more .desc{min-height:0}
 .card.more::before{background:linear-gradient(90deg,transparent,rgba(167,139,250,.5),transparent)}
 .card.more .tile{background:linear-gradient(140deg,rgba(167,139,250,.14),rgba(70,240,255,.10))}
 .card.more h3{color:#c9d8f2}
@@ -535,6 +538,8 @@ const APPS=[
   desc:'Chess with consequences — per-piece kill animations, leagues and Elo.'},
  {id:'bodylore',name:'BodyLore',icon:'🖐️',badge:'PREVIEW',tag:'AI · FUN',
   desc:'Scan your hands and face — on-device AI reads folklore and science side by side.'},
+ {id:'whisperpicture',name:'Whisper Picture',icon:'🖼️',badge:'LIVE',tag:'PRIVACY · CRYPTO',url:'https://whisperpicture.com',
+  desc:'Hide an AES-256 encrypted file or message inside an ordinary photo — runs entirely in your browser, nothing is ever uploaded.'}
 ];
 const badgeClass={LIVE:'live',NEW:'new','18+':'adult',PREVIEW:'preview'};
 const LS_KEY='spindola.access.v1';
@@ -572,7 +577,7 @@ for(const app of APPS){
   if(hit)markUnlocked(app.id,hit.url,false);
 }
 
-/* Ninth tile — fills the 3x3 grid and says the list isn't finished. */
+/* Closing CTA tile — spans the last row and says the list isn't finished. */
 const more=document.createElement('article');
 more.className='card more';
 more.innerHTML=
