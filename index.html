@@ -314,11 +314,11 @@ footer a:hover{color:var(--cyan)}
     <p class="sub">Endless products, planted one seed at a time. The live ones link straight through —
       the previews stay encrypted until you enter an access code.</p>
     <div class="stats">
-      <span class="stat"><b>APPS</b></span>
-      <span class="stat"><b>LIVE</b>&nbsp;WEBSITES</span>
+      <span class="stat"><b id="st-apps">9</b>&nbsp;APPS</span>
+      <span class="stat"><b id="st-sites">7</b>&nbsp;LIVE&nbsp;WEBSITES</span>
       <span class="stat"><b>NFC</b>&nbsp;PROGRAMMING</span>
       <span class="stat"><b>∞</b>&nbsp;IDEAS</span>
-      <span class="stat"><b>OPEN</b>&nbsp;·&nbsp;CODE-GATED</span>
+      <span class="stat"><b id="st-open">5</b>&nbsp;OPEN&nbsp;·&nbsp;<b id="st-gated">4</b>&nbsp;CODE-GATED</span>
     </div>
     <div class="scrollcue">▼&nbsp;&nbsp;THE&nbsp;FLEET&nbsp;&nbsp;▼</div>
   </section>
@@ -530,9 +530,9 @@ const APPS=[
   desc:'Two-sided pool service — dead simple for customers, LSI water chemistry and dosing for pros.'},
  {id:'extermimate',name:'Extermimate',icon:'🐜',badge:'LIVE',tag:'PEST CONTROL',url:'https://extermimate.com',
   desc:'Pest control in the palm of your hand — routes, chemical logs, photo proof and customer history.'},
- {id:'petfi',name:'Petfi',icon:'🐾',badge:'PREVIEW',tag:'SOCIAL',
+ {id:'petfi',name:'Petfi',icon:'🐾',badge:'PREVIEW',tag:'SOCIAL',site:true,
   desc:'The social network for pets — profiles, mate match, dog-park territory claims.'},
- {id:'3pass',name:'3Pass',icon:'🛡️',badge:'PREVIEW',tag:'PATROL OPS',
+ {id:'3pass',name:'3Pass',icon:'🛡️',badge:'PREVIEW',tag:'PATROL OPS',site:true,
   desc:'Shared trespass registry for guard companies — subjects, sites, 602 flow.'},
  {id:'gorechess',name:'GoreChess',icon:'♟️',badge:'18+',tag:'GAME',url:'https://gorechess.com',
   desc:'Chess with consequences — per-piece kill animations, leagues and Elo.'},
@@ -576,6 +576,18 @@ for(const app of APPS){
   const hit=tryUnlock(app.id,saved[app.id]);
   if(hit)markUnlocked(app.id,hit.url,false);
 }
+
+/* Hero counters are derived from APPS, not typed by hand, so adding or
+   ungating a product can never leave a stale number in the header.
+   `site` marks a product whose website is live while its card stays gated. */
+(()=>{
+  const open=APPS.filter(a=>a.url).length;
+  const put=(id,n)=>{const e=document.getElementById(id);if(e)e.textContent=n;};
+  put('st-apps',APPS.length);
+  put('st-sites',APPS.filter(a=>a.url||a.site).length);
+  put('st-open',open);
+  put('st-gated',APPS.length-open);
+})();
 
 /* Closing CTA tile — spans the last row and says the list isn't finished. */
 const more=document.createElement('article');
