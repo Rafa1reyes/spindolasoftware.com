@@ -1,10 +1,13 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "com.spindola.lifereel",
       "sha256_cert_fingerprints": [
+        "A3:B5:11:97:31:B1:63:84:83:D3:D0:7A:E7:4A:8A:86:77:77:EE:6A:2A:60:6F:14:EB:81:CC:B6:F1:C8:5F:36",
         "52:BA:F6:A1:29:AF:DC:95:F4:CC:5A:B2:5B:8D:F1:5B:9F:4F:A9:9C:6D:A8:E2:7F:0D:B2:0B:84:11:D0:E0:23"
       ]
     }
