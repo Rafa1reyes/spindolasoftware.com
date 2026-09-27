@@ -87,8 +87,8 @@
   .muted{color:var(--ink-faint);font-size:12.5px;line-height:1.5}
 
   /* ---------- top bar + meter ---------- */
-  .topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;padding:calc(8px + var(--sat)) 2px 10px;
-    margin:calc(-12px - var(--sat)) -2px 8px;background:linear-gradient(180deg,var(--bg0) 78%,transparent)}
+  .topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;padding:calc(8px + var(--sat)) 16px 10px;
+    margin:calc(-12px - var(--sat)) -16px 8px;background:linear-gradient(180deg,var(--bg0) 78%,transparent)}
   .backbtn{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:9px 14px;font-size:15px;flex-shrink:0}
   .meter{flex:1;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:7px 12px;min-width:0}
   .meter .mrow{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-dim);gap:8px}
@@ -363,7 +363,7 @@
    LIFE REEL v2 — life-story interview → one master movie prompt
    Everything stays on the device: text in localStorage, photos in IndexedDB.
    ===================================================================== */
-const APP_VERSION='2.0.0';
+const APP_VERSION='2.0.1';
 
 /* ---------------- question bank ----------------
    type: text (default) | short | year | select.  age: default age of the
@@ -588,7 +588,8 @@ function go(name,push=true){
   if(push) try{ history.pushState({s:name,ch:curCh},''); }catch(e){}
 }
 window.addEventListener('popstate',e=>{
-  if($('psheet').classList.contains('on')){ closePhoto(); return; }
+  if(ignorePop){ ignorePop=false; return; }                    // our own history.back() after closing the photo sheet
+  if($('psheet').classList.contains('on')){ closePhoto(true); return; }
   const st=e.state||{s:'home'};
   if(st.s==='chapter'&&typeof st.ch==='number'){ openChapter(st.ch,false); return; }
   go(st.s||'home',false);
@@ -597,7 +598,7 @@ window.addEventListener('popstate',e=>{
 /* ---------------- progress ---------------- */
 function chProgress(c){
   if(c.type==='events'){ const n=S.ev.filter(e=>words(e.story)>0).length; return {done:n,total:null,lbl:plural(n,'moment')+' added'}; }
-  if(c.type==='cast'){ const n=S.cast.filter(p=>p.name||p.look).length; return {done:n,total:null,lbl:plural(n,'person')+' added'}; }
+  if(c.type==='cast'){ const n=S.cast.filter(p=>p.name||p.look).length; return {done:n,total:null,lbl:(n===1?'1 person':n+' people')+' added'}; }
   const total=c.qs.length;
   const done=c.qs.filter(q=> q.type ? !!val(q.id) : words(S.a[q.id])>0 ).length;
   return {done,total,lbl:`${done}/${total} answered`};
@@ -905,12 +906,13 @@ function readExif(file){
 function readColors(canvas){
   try{
     const d=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
-    let sat=0,r=0,b=0,lum=0,n=0;
-    for(let i=0;i<d.length;i+=16){ const R=d[i],G=d[i+1],B=d[i+2],mx=Math.max(R,G,B),mn=Math.min(R,G,B);
-      sat+=mx?(mx-mn)/mx:0; r+=R; b+=B; lum+=R*.299+G*.587+B*.114; n++; }
+    let sat=0,r=0,b=0,lum=0,n=0,vivid=0;
+    for(let i=0;i<d.length;i+=16){ const R=d[i],G=d[i+1],B=d[i+2],mx=Math.max(R,G,B),mn=Math.min(R,G,B),s=mx?(mx-mn)/mx:0;
+      sat+=s; if(s>0.25&&mx>40) vivid++; r+=R; b+=B; lum+=R*.299+G*.587+B*.114; n++; }
     if(!n) return null;
     sat/=n; r/=n; b/=n; lum/=n;
-    const bw=sat<0.09, warm=(r-b)/255, faded=!bw&&sat<0.22, yellowed=!bw&&warm>0.12&&sat<0.45;
+    /* a grey object on white has low average colour too — a real B&W print has almost no coloured pixels at all */
+    const bw=sat<0.09&&vivid/n<0.02, warm=(r-b)/255, faded=!bw&&sat<0.22, yellowed=!bw&&warm>0.12&&sat<0.45;
     const bits=[bw?'black-and-white photograph':faded?'faded, low-saturation color photograph':'color photograph'];
     if(yellowed) bits.push('warm yellowed tones like an aged print'); else if(!bw&&warm<-0.05) bits.push('cool blue-tinted tones');
     if(lum<70) bits.push('dark, dimly lit'); else if(lum>185) bits.push('bright, washed-out exposure');
@@ -931,11 +933,19 @@ async function openPhoto(pid){
   renderPsNote(); renderWho(); renderPsTags();
   $('psRemove').textContent='Remove photo'; delete $('psRemove').dataset.armed; $('psRemove').style.color='';
   $('psheet').classList.add('on');
-  try{ history.pushState({s:curScreen,ch:curCh,sheet:1},''); }catch(e){}
+  try{ history.pushState({s:curScreen,ch:curCh,sheet:1},''); sheetPushed=true; }catch(e){}
 }
-function closePhoto(){
-  if(!$('psheet').classList.contains('on')) return;
+/* the sheet adds a history entry so the phone's Back button closes it; closing it any other way
+   must take that entry back off, or the next Back press would do nothing */
+let sheetPushed=false, ignorePop=false;
+function hideSheet(fromPop){
   stopMic(); $('psheet').classList.remove('on');
+  if(sheetPushed&&!fromPop){ ignorePop=true; try{ history.back(); }catch(e){ ignorePop=false; } }
+  sheetPushed=false;
+}
+function closePhoto(fromPop){
+  if(!$('psheet').classList.contains('on')) return;
+  hideSheet(fromPop===true);
   const m=S.pm[curPid]; if(m) refreshStrip(m.slot); curPid=null; save();
 }
 function renderPsNote(){
@@ -962,14 +972,14 @@ function renderWho(){
   const m=S.pm[curPid]; if(!m) return; const who=m.who||[];
   const people=[{id:'me',n:'Me'}].concat(S.cast.map(p=>({id:p.id,n:castName(p)})));
   $('psWho').innerHTML=people.map(p=>`<button class="chip ${who.includes(p.id)?'on':''}" onclick="toggleWho('${p.id}')">${esc(p.n)}</button>`).join('')
-    +`<button class="chip" onclick="closePhoto();openChapter(${CH.findIndex(c=>c.type==='cast')})">＋ Add someone to your cast</button>`;
+    +`<button class="chip" onclick="closePhoto();setTimeout(()=>openChapter(${CH.findIndex(c=>c.type==='cast')}),80)">＋ Add someone to your cast</button>`;
 }
 function toggleWho(id){ const m=S.pm[curPid]; if(!m) return; m.who=m.who||[]; m.who=m.who.includes(id)?m.who.filter(x=>x!==id):m.who.concat(id); renderWho(); save(); }
 function renderPsTags(){ const m=S.pm[curPid]; $('psTags').innerHTML=m&&m.look?`<span class="ptag">🎞️ ${esc(m.look)}</span>`:''; }
 async function removePhoto(btn){
   if(!armed(btn,'Tap again to remove')) return;
   const pid=curPid, m=S.pm[pid]; if(!m) return;
-  $('psheet').classList.remove('on'); stopMic();
+  hideSheet(false);
   dropPhoto(pid); save(); refreshStrip(m.slot); curPid=null; renderHome();
 }
 function dropPhoto(pid){
@@ -1078,13 +1088,20 @@ function eraLook(year){
   return `${year}, ${stock} — ${d}s clothes, hair, cars and props`;
 }
 /* reference handles, one per person per life stage (3–16 letters/digits/underscores — Runway and Flow both accept this shape) */
-function handleBase(t){ const b=String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]+/g,''); return (b||'Person').slice(0,10); }
+function handleBase(t,max=10){ const b=String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]+/g,''); return (b||'Person').slice(0,max); }
 function meHandle(age){ const b=handleBase(nickName()==='our hero'?'Me':nickName()); const band=ageBand(age); return '@'+b+'_'+(band==='child'?'kid':band==='teen'?'teen':'adult'); }
 function castHandles(){
   const used={}, out={};
-  S.cast.forEach(p=>{ let h=handleBase(p.name||p.rel); if(h.length<3) h=(h+'_'+handleBase(p.rel)).slice(0,16); const k=h.toLowerCase(); used[k]=(used[k]||0)+1; out[p.id]='@'+(used[k]>1?h.slice(0,14)+used[k]:h); });
+  S.cast.forEach(p=>{ let h=handleBase(p.name||p.rel,16); if(h.length<3) h=(h+'_'+handleBase(p.rel,12)).slice(0,16); const k=h.toLowerCase(); used[k]=(used[k]||0)+1; out[p.id]='@'+(used[k]>1?h.slice(0,14)+used[k]:h); });
   return out;
 }
+/* "1985 – 2009" / "since 2008" / "2008 – today": years a cast member is part of the story (null = unknown) */
+function castYears(p){
+  const ys=(p.era||'').match(/\b(19\d{2}|20\d{2})\b/g)||[];
+  if(!ys.length) return null;
+  return {from:parseInt(ys[0],10), to:ys.length>1?parseInt(ys[1],10):9999};   // one year given = from then on
+}
+function castInScene(p,year){ const y=castYears(p); if(!y||!year) return 'yes'; return year>y.to+1?'memory':year<y.from-1?'before':'yes'; }
 function movieTitle(){ return val('titleIdeas') ? firstSentence(val('titleIdeas'),70).replace(/^["“]|["”.]$/g,'') : `The Story of ${nickName()==='our hero'?'My Life':nickName()}`; }
 
 /* ages: a trusted photo date beats a year written early in the answer, which beats "when I was 12", which beats the question's default */
@@ -1093,7 +1110,12 @@ function ageFromText(t){
   const y=s.match(/\b(19\d{2}|20[0-2]\d)\b/);
   if(y&&by!==null){ const a=parseInt(y[1],10)-by; if(a>=0&&a<=110) return {age:a,src:'text-year'}; }
   const a=s.match(/\b(?:when I was|I was|at age|aged?|at the age of)\s+(\d{1,2}|[a-z]+(?:[- ][a-z]+)?)\b/i);
-  if(a){ const n=/^\d/.test(a[1])?parseInt(a[1],10):wordNum(a[1]); if(n!==null&&n<=110) return {age:n,src:'text-age'}; }
+  if(a){
+    /* "nine we rented…" — try the two-word number first, then just the first word */
+    let n=/^\d/.test(a[1])?parseInt(a[1],10):wordNum(a[1]);
+    if(n===null&&!/^\d/.test(a[1])) n=wordNum(a[1].split(/[- ]/)[0]);
+    if(n!==null&&n<=110) return {age:n,src:'text-age'};
+  }
   return null;
 }
 /* voice typing often writes small numbers as words: "when I was six", "twenty-one" */
@@ -1113,12 +1135,14 @@ function parseEvAge(s){
   const n=s.match(/\d{1,3}/); return n?parseInt(n[0],10):null;
 }
 function evYearRaw(s){ const yr=(s||'').match(/\b(19\d{2}|20\d{2})\b/); return yr?parseInt(yr[1],10):null; }
+/* words people use as a name on their own ("Mom got home…"), so a bare match is safe */
+const NAME_LIKE=new Set(['mom','mama','mami','mum','ma','dad','daddy','papa','papi','pops','grandma','grandpa','abuela','abuelo','nana','granny','gramps']);
 function castInText(t){
   const low=' '+(t||'').toLowerCase().replace(/[^a-z0-9áéíóúñü' ]+/g,' ')+' ';
   return S.cast.filter(p=>{
     const first=(p.name||'').trim().split(/\s+/)[0]||'';
     if(first.length>=3&&low.includes(' '+first.toLowerCase()+' ')) return true;
-    return (REL_WORDS[p.rel]||[]).some(w=>low.includes(' my '+w+' ')||low.includes(' '+w+"'s ")||low.includes(' our '+w+' '));
+    return (REL_WORDS[p.rel]||[]).some(w=>low.includes(' my '+w+' ')||low.includes(' '+w+"'s ")||low.includes(' our '+w+' ')||(NAME_LIKE.has(w)&&w.length>2&&low.includes(' '+w+' ')));
   }).map(p=>p.id);
 }
 function ageBand(a){ return a===null||a===undefined?'':a<13?'child':a<23?'teen':'adult'; }
@@ -1231,10 +1255,11 @@ function subjectLook(age){
 }
 /* the subject's best reference photos for a scene's age; if none match the age, fall back and say so */
 function subjectRefs(M,age){
+  if(age!=null&&age<=2) return {files:[],note:''};              // a newborn: no face reference fits
   const band=ageBand(age);
-  const same=M.meP.filter(p=>band?p.band===band:true);
+  /* no age known → the person as they are today is the safest face to show */
+  const same=band?M.meP.filter(p=>p.band===band):M.meP.filter(p=>p.band==='adult').concat(M.meP.filter(p=>!p.band));
   if(same.length) return {files:same.slice(0,2).map(p=>p.file),note:''};
-  if(age!=null&&age<=2) return {files:[],note:''};
   const any=M.meP.filter(p=>p.band==='adult'||!p.band).concat(M.meP).slice(0,1);
   if(!any.length) return {files:[],note:''};
   const pr=pron(), o=pr?pr.o:'them';
@@ -1260,11 +1285,11 @@ function briefFull(M){
     `• If you can generate video: follow the SCENE PLAN in PART 7 in order, keep every character consistent, then assemble the scenes with the narration and music into one film. Long films are built from many short shots — that is expected.`,
     `• If you are a chat assistant: reply with (1) a logline and a one-paragraph treatment, (2) the full screenplay with narration, and (3) a numbered SHOT LIST for a video generator. Each shot prompt must stand alone: 60–100 words, start with the year and film look, name characters by their @handle from PART 4 with their age in that shot, one camera move and one action, then the voiceover on its own line as Voiceover (voice, tone, pace): "…". Describe what should be seen rather than what should not.`,
     `• In tools with character references (ingredients, @tags, elements), create one reference per @handle in PART 4 from its listed photos (up to 3 each) and reuse it in every shot.`,
-    `• Keep to the order of the person’s life unless PART 7 says otherwise. If something important is missing, make a reasonable, modest choice and list your assumptions at the end — never invent major events.`,'');
+    `• PART 7 tells childhood and youth in life order, then groups the adult years by theme — love & work, the storm, the light, who they became — each act in date order. Keep that shape, or tell it strictly chronologically if that plays better, but never change the facts. If something important is missing, make a reasonable, modest choice and list your assumptions at the end — never invent major events.`,'');
   L.push('PART 1 — THE FILM',sub,
     `Title: ${M.title}${val('titleIdeas')?'':' (working title — suggest 3 better ones)'}`,
     `Opening card: “${truthCard()}”`,
-    `Target length: about ${M.goal} minute${M.goal===1?'':'s'} — ${M.scenes.length+2} scenes planned in PART 7.${M.natMinutes<M.goal*0.7?` The story as told fills about ${M.natMinutes} min at a natural pace; reach the target with visual storytelling (montages, music, quiet moments), never with invented events.`:''}${M.goal>=20?' If your tool has a shorter limit, make the scenes marked ★ first.':''}`,
+    `Target length: about ${M.goal} minute${M.goal===1?'':'s'} — ${M.scenes.length} scenes plus a title card and end credits, planned in PART 7.${M.natMinutes<M.goal*0.7?` The story as told fills about ${M.natMinutes} min at a natural pace; reach the target with visual storytelling (montages, music, quiet moments), never with invented events.`:''}${M.goal>=20?' If your tool has a shorter limit, make the scenes marked ★ first.':''}`,
     `Genre & tone: ${opt('tone')} — ${toneDesc()}`,
     `Visual style: ${visualDesc()}`,
     `Format: ${aspectDesc()}`,
@@ -1341,14 +1366,15 @@ function briefFull(M){
   });
   L.push('');
   /* scene plan */
-  L.push(`PART 7 — SCENE PLAN (${M.scenes.length+2} scenes, ~${M.goal} min — a starting structure: improve it, but keep the order of the life)`,sub);
+  L.push(`PART 7 — SCENE PLAN (${M.scenes.length} scenes + title and credits, ~${M.goal} min — a starting structure: improve it, but never change the facts)`,sub);
   L.push(`Scene 1 — Title card (10s): slow cinematic opening over meaningful personal objects (old photos, keys, a watch); the title “${M.title}” fades in, followed by the card “${truthCard()}”`);
   let curAct='', n=1; const H=castHandles();
   M.scenes.forEach(s=>{
     if(s.actName!==curAct){ curAct=s.actName; L.push('',`${curAct}`); }
     n++;
     const tag=yearTag(s,M);
-    const cast=s.cast.map(id=>S.cast.find(p=>p.id===id)).filter(Boolean).map(p=>`${H[p.id]} (${castName(p)})`);
+    const cast=s.cast.map(id=>S.cast.find(p=>p.id===id)).filter(Boolean).map(p=>{ const w=castInScene(p,s.year);
+      return `${H[p.id]} (${castName(p)}${w==='memory'?`, in memory only — last in the story ${castYears(p).to}`:w==='before'?', mentioned — not in the story yet':''})`; });
     const ref=subjectRefs(M,s.age);
     const files=[...new Set([...ref.files,...s.photos.map(pid=>M.fileOf[pid])].filter(Boolean))];
     L.push(`Scene ${n}${s.star?' ★':''} — ${s.title}${tag?` — ${tag}`:''} (${s.sec}s)`);
@@ -1373,24 +1399,30 @@ function posterPrompt(M){
 const SHORT_LIMIT=2400;   // fits the tightest common prompt box (Kling, 2,500 characters)
 function briefShort(M){
   const nick=nickName(), by=M.by;
-  const head=`AUTOBIOGRAPHICAL FILM: “${M.title}” — the true life of ${fullName()||nick}${by?` (born ${by})`:''}. ${opt('tone')}, ${visualDesc()}, ${aspectDesc()}, about ${M.goal} min. Narration: ${narrationDesc()}. ${careRule()} Keep every person consistent with the attached reference photos and age them correctly for each year; match each era’s clothes, cars and film look. No on-screen text except title and credits.`;
-  const me=`MAIN CHARACTER: ${nick}${val('lookNow')?' — '+trunc(bare(val('lookNow')),170):''}${val('lookKid')?' | as a child: '+trunc(bare(val('lookKid')),110):''}${M.meP.length?' | photos: '+M.meP.slice(0,3).map(p=>p.file).join(', '):''}`;
-  const cast=M.cast.slice(0,5).map(({p,files})=>`${p.name||p.rel} (${p.rel})${p.look?': '+trunc(bare(p.look),80):''}${files.length?' ['+files[0]+']':''}`).join('; ');
+  const H=castHandles();
+  const head=`AUTOBIOGRAPHICAL FILM “${M.title}” — the true life of ${fullName()||nick}${by?` (born ${by})`:''}. ${opt('tone')}, ${visualShort()}, ${aspectDesc()}, about ${M.goal} min, first-person narration in their own words. Keep every person consistent with the attached photos and aged right for each year, in era-accurate settings. ${opt('care').split('—')[0].trim()} with hard moments, nothing graphic. No on-screen text except title and credits.`;
+  const me=`MAIN CHARACTER ${meHandle(30)}: ${nick}${val('lookNow')?' — '+trunc(bare(val('lookNow')),120):''}${M.meP.length?' ['+M.meP.slice(0,2).map(p=>p.file).join(', ')+']':''}`;
+  const cast=M.cast.slice(0,4).map(({p})=>`${H[p.id]} ${p.rel.toLowerCase()}${p.look?': '+trunc(bare(p.look),50):''}`).join('; ');
   const keys=M.scenes.filter(s=>s.star); const list=(keys.length?keys:M.scenes).slice(0,12);
-  let out=head+'\n\n'+me+(cast?'\nCAST: '+cast:'')+'\n\nSCENES IN ORDER:';
+  let out=head+'\n'+me+(cast?'\nCAST: '+cast:'')+'\n\nSCENES IN ORDER:';
+  /* share what's left of the limit evenly, so all the key scenes fit rather than the first three */
+  const ending=val('message')?sent(trunc(val('message'),110)):'what this life meant.';
+  const room=SHORT_LIMIT-out.length-ending.length-20;
+  const per=Math.max(40,Math.floor(room/Math.max(1,list.length)));
   let i=0;
   for(const s of list){
-    const line=`\n${++i}. ${s.title}${yearTag(s,M)?' ('+yearTag(s,M)+')':''}: ${trunc(s.text,150)}`;
-    if((out+line).length>SHORT_LIMIT-160) break;
+    const tag=yearTag(s,M), headL=`\n${++i}. ${s.title}${tag?' ('+tag+')':''}: `;
+    const line=headL+trunc(s.text,Math.max(20,per-headL.length));
+    if((out+line).length>SHORT_LIMIT-ending.length-20) break;
     out+=line;
   }
-  out+=`\n\nEnd on: ${val('message')?sent(trunc(val('message'),140)):'what this life meant.'}`;
+  out+=`\n\nEnd on: ${ending}`;
   return out.slice(0,SHORT_LIMIT);
 }
 
 /* ---- one self-contained prompt per scene, for clip-by-clip video apps ---- */
 function sceneVideoPrompt(s,M){
-  const cast=s.cast.map(id=>S.cast.find(p=>p.id===id)).filter(Boolean);
+  const cast=s.cast.map(id=>S.cast.find(p=>p.id===id)).filter(p=>p&&castInScene(p,s.year)==='yes');
   /* 60–100 words: era + film look first, one shot, characters by @handle with their words-only look (so it still works when a tool refuses real faces) */
   const look=subjectLook(s.age), baby=s.age!=null&&s.age<=2, H=castHandles();
   const bits=[];
@@ -1401,8 +1433,9 @@ function sceneVideoPrompt(s,M){
   cast.slice(0,2).forEach(p=>bits.push(sent(`${H[p.id]} (${p.rel.toLowerCase()})${p.look?': '+trunc(bare(p.look),70):''}`)));
   const ph=s.photos.map(pid=>S.pm[pid]).find(m=>m&&m.desc);
   if(ph) bits.push(sent('Match the real photo: '+trunc(bare(ph.desc),110)));
-  bits.push(`${cap(bare(s.mood))}. ${cap(aspectDesc())}, clean frame.`);
-  return trunc(bits.join(' '),700);
+  /* the mood and format close every prompt, so trim the middle if it runs long — never the end */
+  const tail=`${cap(bare(s.mood))}. ${cap(aspectDesc())}, clean frame.`;
+  return trunc(bits.join(' '),880-tail.length)+' '+tail;
 }
 function scenesText(M){
   const H=castHandles();
@@ -1417,7 +1450,7 @@ function scenesText(M){
     L.push(`SCENE ${i+1}${s.star?' ★':''} — ${s.title}${yearTag(s,M)?' — '+yearTag(s,M):''} — ~${s.sec}s  [${s.actName}]`);
     if(files.length) L.push(`REFERENCE PHOTOS: ${files.join(', ')}`);
     L.push(`VIDEO PROMPT: ${sceneVideoPrompt(s,M)}`);
-    if(s.text) L.push(`Voiceover (${voice}): "${s.text.replace(/"/g,'”')}"`);
+    if(s.text) L.push(`Voiceover (${voice}): “${s.text}”`);
     L.push('');
   });
   L.push('POSTER PROMPT: '+posterPrompt(M));
@@ -1461,7 +1494,7 @@ function openOutput(){
     <div class="ttl" style="text-align:center;margin-top:4px">${esc(M.title)}</div><div class="tagline" style="margin-top:6px">YOUR MOVIE PROMPT IS READY</div></div>
     <div class="statgrid">
       <div class="stat"><div class="v">${Math.max(1,Math.round(secs/60))}</div><div class="l">min planned</div></div>
-      <div class="stat"><div class="v">${M.scenes.length+2}</div><div class="l">scenes</div></div>
+      <div class="stat"><div class="v">${M.scenes.length}</div><div class="l">scenes</div></div>
       <div class="stat"><div class="v">${M.photos.length}</div><div class="l">photos</div></div>
       <div class="stat"><div class="v">${M.cast.length+1}</div><div class="l">people</div></div>
     </div>`;

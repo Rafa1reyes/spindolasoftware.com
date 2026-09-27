@@ -1,7 +1,7 @@
 /* Life Reel service worker — keeps the app working offline.
    Pages: network first (so updates land), cache as the fallback.
    Everything else from this folder: cache first. Other origins: untouched. */
-const CACHE = 'lifereel-v2.0.0';
+const CACHE = 'lifereel-v2.0.1';
 const SHELL = ['./', 'index.html', 'privacy.html', 'manifest.webmanifest', 'fonts/montserrat-latin.woff2',
   'icons/heart.webp', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/favicon-48.png'];
 
