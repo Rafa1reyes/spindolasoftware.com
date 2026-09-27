@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Life Reel — The Story of You</title>
+<meta name="description" content="Answer questions about your life, add your photos, and Life Reel writes one master prompt you can paste into an AI movie maker to build the movie of your life.">
+<meta name="theme-color" content="#081330">
+<meta name="color-scheme" content="dark">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Life Reel">
+<meta property="og:title" content="Life Reel — The Story of You">
+<meta property="og:description" content="Tell your life story, add your photos, and get one prompt that turns it into a movie.">
+<meta property="og:image" content="https://spindolasoftware.com/lifereel/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<style>
+  @font-face{font-family:'Montserrat';font-style:normal;font-weight:300 800;font-display:swap;
+    src:url(fonts/montserrat-latin.woff2) format('woff2')}
+  :root{
+    --bg0:#040a1a; --bg1:#081330; --bg2:#0c1b40;
+    --card:#0d1c3c; --card2:#13264d; --line:#223b69; --line2:#2d4a80;
+    --ink:#f6f1e7; --ink-dim:#c4cce0; --ink-faint:#8d9ab8;
+    --gold:#f4b555; --gold-hi:#ffe2a1; --gold-soft:#f4b55524; --amber:#e9892d;
+    --red:#ef6b5b; --red-soft:#ef6b5b24; --teal:#5fd3b8; --teal-soft:#5fd3b822;
+    --radius:18px; --shadow:0 12px 40px rgba(0,0,0,.45);
+    --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+    --head:'Montserrat',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{min-height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:radial-gradient(900px 620px at 50% -12%, #16366b88 0%, transparent 62%),
+               radial-gradient(700px 600px at 110% 40%, #0f2a5a55 0%, transparent 60%),
+               linear-gradient(180deg,var(--bg1),var(--bg0) 70%);
+    background-attachment:fixed;color:var(--ink);overflow-x:hidden;font-size:15px}
+  button,input,select,textarea{font:inherit;color:inherit}
+  button{cursor:pointer}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .wrap{max-width:760px;margin:0 auto;padding:calc(12px + var(--sat)) 16px calc(96px + var(--sab))}
+  .screen{display:none;animation:fadeUp .35s ease both}
+  .screen.on{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.screen{animation:none}*{transition:none!important}}
+  h2,h3,.head{font-family:var(--head)}
+
+  /* ---------- brand ---------- */
+  .brand{display:flex;flex-direction:column;align-items:center;text-align:center;padding:18px 0 4px}
+  .brand-heart{width:168px;height:auto;filter:drop-shadow(0 10px 30px #f0a04a40)}
+  .wordmark{font-family:var(--head);font-size:44px;letter-spacing:1px;line-height:1;margin-top:6px;display:flex;gap:.28em;align-items:flex-end}
+  .w-life{font-weight:800;background:linear-gradient(180deg,#ffffff 0%,#e7ebf3 45%,#aab4c8 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .w-reel{font-weight:400;position:relative;background:linear-gradient(180deg,var(--gold-hi) 0%,#f2b457 50%,#c98a2e 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .spark{position:absolute;right:-.42em;top:-.38em;width:.46em;height:.46em;filter:drop-shadow(0 0 6px #ffd58a)}
+  .tagline{font-family:var(--head);font-weight:500;letter-spacing:.3em;font-size:12.5px;color:#e9b867;margin-top:10px;padding-left:.3em}
+  .pitch{color:var(--ink-dim);margin-top:16px;font-size:15.5px;line-height:1.55;max-width:520px}
+  .pitch b{color:var(--ink)}
+
+  /* ---------- buttons ---------- */
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px 16px;border-radius:15px;
+    border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:15px;font-weight:700;text-align:center;line-height:1.25}
+  .btn:active{transform:scale(.985)}
+  .btn.pri{border:none;color:#241503;font-size:17px;font-weight:800;padding:17px;
+    background:linear-gradient(135deg,var(--gold-hi) -20%,var(--gold) 35%,var(--amber));box-shadow:0 8px 28px #f4b55540}
+  .btn.ghost{background:transparent;color:var(--ink-dim);font-weight:600}
+  .btn.small{padding:10px 12px;font-size:13px;border-radius:12px;width:auto}
+  .btn.warn{color:var(--red)}
+  .btn[disabled]{opacity:.5;pointer-events:none}
+  .stack{display:grid;gap:10px;margin-top:18px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .linkrow{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;margin-top:18px;font-size:13px}
+  .linkrow a,.linkrow button{color:var(--ink-faint);background:none;border:none;text-decoration:underline;text-underline-offset:3px}
+
+  /* ---------- cards ---------- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-top:14px}
+  .card h3{font-size:13px;letter-spacing:1.5px;color:var(--gold);font-weight:700;margin-bottom:6px;text-transform:uppercase}
+  .step{display:flex;gap:12px;margin-top:12px;align-items:flex-start}
+  .step .n{width:28px;height:28px;border-radius:50%;background:var(--gold-soft);color:var(--gold);display:flex;align-items:center;
+    justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;font-family:var(--head)}
+  .step p{font-size:14px;color:var(--ink-dim);line-height:1.5}
+  .step p b{color:var(--ink)}
+  .notice{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:12px;
+    padding:12px 14px;font-size:13.5px;color:var(--ink-dim);line-height:1.55;margin:12px 0}
+  .notice b{color:var(--ink)}
+  .muted{color:var(--ink-faint);font-size:12.5px;line-height:1.5}
+
+  /* ---------- top bar + meter ---------- */
+  .topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;padding:calc(8px + var(--sat)) 2px 10px;
+    margin:calc(-12px - var(--sat)) -2px 8px;background:linear-gradient(180deg,var(--bg0) 78%,transparent)}
+  .backbtn{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:9px 14px;font-size:15px;flex-shrink:0}
+  .meter{flex:1;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:7px 12px;min-width:0}
+  .meter .mrow{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-dim);gap:8px}
+  .meter .mrow b{color:var(--gold);white-space:nowrap}
+  .meter .bar{height:6px;border-radius:99px;background:#00000066;margin-top:5px;overflow:hidden}
+  .meter .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--amber),var(--gold));transition:width .4s}
+  .savedflash{font-size:11px;color:var(--teal);opacity:0;transition:opacity .3s;flex-shrink:0;width:44px;text-align:right}
+  .savedflash.show{opacity:1}
+
+  /* ---------- chapter grid ---------- */
+  .ttl{font-family:var(--head);font-size:22px;font-weight:700;margin:6px 0 2px}
+  .sub{font-size:13.5px;color:var(--ink-dim);line-height:1.5}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
+  .chcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;text-align:left;position:relative;overflow:hidden;
+    transition:transform .12s,border-color .12s}
+  .chcard:active{transform:scale(.97)}
+  .chcard.done{border-color:#5fd3b877}
+  .chcard .ic{font-size:26px;line-height:1}
+  .chcard .t{font-size:14.5px;font-weight:700;margin-top:8px;font-family:var(--head)}
+  .chcard .s{font-size:11.5px;color:var(--ink-faint);margin-top:3px;line-height:1.35}
+  .chcard .p{font-size:11.5px;margin-top:8px;color:var(--ink-dim)}
+  .pbar{height:4px;border-radius:99px;background:#00000066;margin-top:5px;overflow:hidden}
+  .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--amber),var(--gold))}
+  .chcard.done .pbar i{background:var(--teal)}
+
+  /* ---------- question cards ---------- */
+  .chhead{display:flex;align-items:center;gap:12px;padding:6px 0 12px}
+  .chhead .ic{font-size:34px}
+  .chhead h2{font-size:22px;font-weight:700}
+  .chhead .s{font-size:13px;color:var(--ink-dim);margin-top:2px}
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+  .qcard .q{font-size:16px;font-weight:700;line-height:1.4}
+  .qcard .hint{font-size:13px;color:var(--ink-dim);margin-top:6px;line-height:1.5}
+  .arow{display:flex;gap:10px;margin-top:12px;align-items:flex-start}
+  textarea,.inp,select.inp{width:100%;background:#00000045;border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:12px;font-size:15px;line-height:1.5}
+  textarea{flex:1;min-height:104px;resize:vertical}
+  textarea:focus,.inp:focus{outline:none;border-color:var(--gold)}
+  textarea::placeholder,.inp::placeholder{color:#7483a3}
+  select.inp{appearance:none;-webkit-appearance:none;background:#0b1834 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23f4b555' stroke-width='2' fill='none'/%3E%3C/svg%3E") no-repeat right 14px center;padding-right:36px}
+  .inp.short{margin-top:12px}
+  .micbtn{width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:var(--card2);font-size:22px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;transition:background .15s}
+  .micbtn.live{background:var(--red);border-color:var(--red);animation:pulse 1.2s ease-in-out infinite}
+  @keyframes pulse{50%{box-shadow:0 0 0 12px #ef6b5b22}}
+  .livestrip{display:none;margin-top:8px;font-size:13px;color:#ffb1a6;background:var(--red-soft);border:1px dashed #ef6b5b66;border-radius:10px;padding:8px 10px;line-height:1.45}
+  .livestrip.on{display:block}
+  .livestrip .interim{color:var(--ink-dim);font-style:italic}
+  .qmeta{display:flex;justify-content:space-between;gap:8px;margin-top:7px;font-size:11.5px;color:var(--ink-faint)}
+  .qmeta .wc b{color:var(--gold)}
+  .selrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .selopt{padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:#00000033;color:var(--ink-dim);font-size:14px;text-align:left}
+  .selopt.on{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+  .navrow{display:flex;gap:10px;margin-top:18px}
+  .navrow .btn{flex:1;font-size:14px;padding:14px 10px}
+
+  /* ---------- photo strips ---------- */
+  .pwrap{margin-top:12px}
+  .pstrip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+  .pth{width:78px;height:78px;border-radius:12px;object-fit:cover;flex-shrink:0;border:1px solid var(--line2);background:#0a1530;position:relative}
+  .pthb{position:relative;flex-shrink:0;border:none;background:none;padding:0}
+  .pthb .badge{position:absolute;left:4px;bottom:4px;font-size:10px;font-weight:700;background:#000000b0;color:var(--gold-hi);border-radius:6px;padding:2px 5px}
+  .pthb .warnb{position:absolute;right:4px;top:4px;font-size:11px;background:#000000b0;border-radius:6px;padding:1px 4px}
+  .padd{width:78px;height:78px;flex-shrink:0;border-radius:12px;border:1px dashed #f4b55588;background:var(--gold-soft);color:var(--gold);
+    font-size:12px;font-weight:700;line-height:1.3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+  .padd .pi{font-size:22px}
+  .phint{font-size:11.5px;color:var(--ink-faint);margin-top:4px}
+  .phint b{color:var(--gold)}
+
+  /* ---------- timeline + cast cards ---------- */
+  .evcard{background:var(--card2);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:14px;position:relative}
+  .evtop{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-right:34px}
+  .evtop .full{grid-column:1/-1}
+  .evdel{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--ink-faint);font-size:15px;padding:6px;border-radius:8px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+  .chip{font-size:12.5px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;color:var(--ink-dim);background:#ffffff08}
+  .chip.on{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+  .addbig{width:100%;padding:15px;border-radius:14px;border:1px dashed #f4b55577;background:var(--gold-soft);color:var(--gold);font-size:15px;font-weight:700;margin-bottom:14px}
+
+  /* ---------- output ---------- */
+  .statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 6px;text-align:center}
+  .stat .v{font-size:21px;font-weight:800;color:var(--gold);font-family:var(--head)}
+  .stat .l{font-size:10.5px;color:var(--ink-faint);margin-top:3px}
+  .check{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid #ffffff0d;font-size:13.5px;color:var(--ink-dim);line-height:1.45}
+  .check:first-of-type{border-top:none}
+  .check .ok{color:var(--teal);font-weight:800;width:18px;flex-shrink:0}
+  .check .no{color:var(--ink-faint);width:18px;flex-shrink:0}
+  .check button{margin-left:auto;flex-shrink:0;background:none;border:1px solid var(--line);color:var(--gold);border-radius:9px;font-size:12px;font-weight:700;padding:5px 10px}
+  .toolcard{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin-top:10px}
+  .toolcard .tt{font-weight:800;font-size:14.5px;font-family:var(--head)}
+  .toolcard .td{font-size:13px;color:var(--ink-dim);margin-top:4px;line-height:1.5}
+  .toolcard .tn{font-size:12px;color:var(--gold);margin-top:6px}
+  details.fold{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-top:14px;overflow:hidden}
+  details.fold summary{list-style:none;padding:15px 16px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:8px}
+  details.fold summary::-webkit-details-marker{display:none}
+  details.fold summary:after{content:'▾';color:var(--gold);transition:transform .2s}
+  details.fold[open] summary:after{transform:rotate(180deg)}
+  details.fold .fb{padding:0 16px 16px}
+  pre.brief{white-space:pre-wrap;word-break:break-word;font:12.5px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--ink-dim);
+    background:#00000040;border:1px solid var(--line);border-radius:12px;padding:12px;max-height:420px;overflow:auto}
+  .acthead{margin:22px 0 4px;font-size:12.5px;letter-spacing:2px;color:var(--gold);font-weight:800;font-family:var(--head)}
+  .acthead small{display:block;letter-spacing:0;color:var(--ink-faint);font-weight:400;margin-top:3px;font-size:12px;font-family:inherit}
+  .scene{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:13px;margin-top:10px}
+  .scene .shead{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+  .scene .sn{font-size:11.5px;color:var(--ink-faint);font-weight:700;letter-spacing:1px}
+  .scene .st{font-size:15.5px;font-weight:800;margin-top:2px}
+  .scene .stag{font-size:11.5px;color:var(--teal);margin-top:2px}
+  .scene .dur{font-size:11px;color:var(--ink-faint);white-space:nowrap}
+  .blk{margin-top:10px}
+  .blk .bl{font-size:10.5px;letter-spacing:1.5px;color:var(--ink-faint);font-weight:800;display:flex;justify-content:space-between;align-items:center}
+  .blk .bt{font-size:13px;line-height:1.55;color:var(--ink-dim);background:#00000038;border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:5px;white-space:pre-wrap;word-break:break-word}
+  .blk.vo .bt{color:var(--ink);font-style:italic}
+  .copybtn{border:1px solid var(--line);background:var(--card);color:var(--gold);border-radius:8px;padding:5px 10px;font-size:11.5px;font-weight:700}
+  .ptags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .ptag{font-size:10.5px;padding:4px 9px;border-radius:999px;background:var(--teal-soft);color:var(--teal);border:1px solid #5fd3b844}
+  .ptag.gold{background:var(--gold-soft);color:var(--gold);border-color:#f4b55544}
+
+  /* ---------- sheets / modals ---------- */
+  .sheet{position:fixed;inset:0;z-index:150;background:#01040dcc;display:none;align-items:flex-end;justify-content:center}
+  .sheet.on{display:flex}
+  .sheet-card{width:100%;max-width:640px;max-height:94vh;overflow:auto;background:var(--bg1);border:1px solid var(--line);border-bottom:none;
+    border-radius:22px 22px 0 0;padding:16px 16px calc(18px + var(--sab));animation:slideUp .25s ease}
+  @keyframes slideUp{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+  .sheet-card .grab{width:44px;height:5px;border-radius:9px;background:var(--line2);margin:0 auto 12px}
+  .ps-img{width:100%;max-height:46vh;object-fit:contain;border-radius:14px;background:#000}
+  .ps-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .ps-grid label{font-size:12px;color:var(--ink-faint);display:block;margin-bottom:5px}
+  .lbl{font-size:12.5px;color:var(--ink-faint);margin:14px 0 6px}
+
+  .toast{position:fixed;left:50%;bottom:calc(22px + var(--sab));transform:translateX(-50%) translateY(120px);z-index:300;background:#0f2146;border:1px solid var(--gold);
+    color:var(--ink);padding:12px 18px;border-radius:14px;font-size:14px;max-width:90vw;text-align:center;line-height:1.45;transition:transform .3s;box-shadow:var(--shadow)}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .busy{position:fixed;inset:0;z-index:250;background:#01040dcc;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;font-weight:700}
+  .busy.on{display:flex}
+  .spinner{width:44px;height:44px;border-radius:50%;border:4px solid #ffffff22;border-top-color:var(--gold);animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media (max-width:430px){ .wordmark{font-size:38px} .statgrid{grid-template-columns:repeat(2,1fr)} .brand-heart{width:148px} }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="sparkle" viewBox="0 0 40 40"><path d="M20 0 C21.5 13 27 18.5 40 20 C27 21.5 21.5 27 20 40 C18.5 27 13 21.5 0 20 C13 18.5 18.5 13 20 0Z" fill="#fff4d6"/></symbol>
+</defs></svg>
+<div class="wrap">
+
+  <!-- ================= HOME ================= -->
+  <section class="screen on" id="scr-home">
+    <div class="brand">
+      <img class="brand-heart" src="icons/heart.webp" width="400" height="377" alt="">
+      <div class="wordmark" aria-label="Life Reel"><span class="w-life">LIFE</span><span class="w-reel">REEL<svg class="spark"><use href="#sparkle"/></svg></span></div>
+      <div class="tagline">THE STORY OF YOU</div>
+      <p class="pitch">Tell your life story — out loud or typed — and add your photos. Life Reel turns it into <b>one master prompt</b> you paste into an AI movie maker to build <b>the movie of your life</b>.</p>
+    </div>
+    <div class="stack">
+      <button class="btn pri" id="startBtn" onclick="continueStory()">🎬 Start my story</button>
+      <button class="btn" id="buildBtn" style="display:none" onclick="openOutput()">🎞️ Build my movie prompt</button>
+    </div>
+    <p class="muted" id="homeProgress" style="text-align:center;margin-top:10px"></p>
+
+    <div class="card">
+      <h3>How it works</h3>
+      <div class="step"><div class="n">1</div><p><b>Answer questions about your life.</b> Tap 🎤 and just talk — it keeps listening while you pause to think. Skip anything you want.</p></div>
+      <div class="step"><div class="n">2</div><p><b>Add photos to any answer.</b> Life Reel reads each photo’s date to work out how old you were and matches the look of that era.</p></div>
+      <div class="step"><div class="n">3</div><p><b>Name the cast.</b> Mom, Dad, your best friend, your partner — describe them and add their photos so they look right on screen.</p></div>
+      <div class="step"><div class="n">4</div><p><b>Get your movie prompt.</b> One tap copies a complete film brief — plus a kit with your photos — ready for an AI movie app.</p></div>
+    </div>
+    <div class="card">
+      <h3>🔒 Private by design</h3>
+      <p class="muted" style="font-size:13.5px;color:var(--ink-dim)">Your story and photos stay on this device. There’s no account, and nothing is uploaded unless you copy or share it yourself. Use <b>Back up my story</b> in Settings to keep a copy safe.</p>
+    </div>
+    <div class="linkrow">
+      <button onclick="go('settings')">⚙️ Settings &amp; backup</button>
+      <a href="privacy.html">Privacy</a>
+    </div>
+  </section>
+
+  <!-- ================= CHAPTERS ================= -->
+  <section class="screen" id="scr-chapters">
+    <div class="topbar">
+      <button class="backbtn" onclick="go('home')" aria-label="Back to home">←</button>
+      <div class="meter" data-meter></div>
+      <span class="savedflash" data-saved>Saved ✓</span>
+    </div>
+    <h2 class="ttl">Your story, chapter by chapter</h2>
+    <p class="sub">Go in any order. The more you tell, the longer and richer your movie gets.</p>
+    <div class="grid" id="chGrid"></div>
+    <div class="stack"><button class="btn pri" onclick="openOutput()">🎞️ Build my movie prompt</button></div>
+  </section>
+
+  <!-- ================= CHAPTER ================= -->
+  <section class="screen" id="scr-chapter">
+    <div class="topbar">
+      <button class="backbtn" onclick="go('chapters')" aria-label="Back to chapters">←</button>
+      <div class="meter" data-meter></div>
+      <span class="savedflash" data-saved>Saved ✓</span>
+    </div>
+    <div id="chBody"></div>
+    <div class="navrow" id="chNav"></div>
+  </section>
+
+  <!-- ================= OUTPUT ================= -->
+  <section class="screen" id="scr-out">
+    <div class="topbar">
+      <button class="backbtn" onclick="go('chapters')" aria-label="Back to chapters">←</button>
+      <div class="meter" data-meter></div>
+    </div>
+    <div id="outBody"></div>
+  </section>
+
+  <!-- ================= SETTINGS ================= -->
+  <section class="screen" id="scr-settings">
+    <div class="topbar">
+      <button class="backbtn" onclick="go('home')" aria-label="Back to home">←</button>
+      <div class="ttl" style="margin:0;font-size:19px">Settings</div>
+    </div>
+    <div class="card">
+      <h3>🎤 Voice typing language</h3>
+      <p class="muted">The language you speak when you tap the mic.</p>
+      <select class="inp short" id="langSel" onchange="setLang(this.value)"></select>
+    </div>
+    <div class="card">
+      <h3>💾 Back up my story</h3>
+      <p class="muted">Everything lives on this device only. Save a backup file (answers + photos) to keep it safe or move it to another phone or computer.</p>
+      <div class="stack">
+        <button class="btn" onclick="backup()">⬇ Save a backup file</button>
+        <button class="btn" onclick="$('restoreInput').click()">⬆ Restore from a backup file</button>
+      </div>
+      <p class="muted" id="restoreNote" style="margin-top:8px"></p>
+    </div>
+    <div class="card">
+      <h3>🧹 Start over</h3>
+      <p class="muted">Erase every answer and photo on this device. Save a backup first if you might want it back.</p>
+      <div class="stack"><button class="btn warn" onclick="eraseAll(this)">Erase everything</button></div>
+    </div>
+    <div class="linkrow"><a href="privacy.html">Privacy policy</a><span class="muted" id="verLbl"></span></div>
+  </section>
+</div>
+
+<!-- photo details sheet -->
+<div class="sheet" id="psheet" role="dialog" aria-modal="true" aria-label="Photo details" onclick="if(event.target===this)closePhoto()">
+  <div class="sheet-card">
+    <div class="grab"></div>
+    <img class="ps-img" id="psImg" alt="Your photo">
+    <div class="ps-grid">
+      <div><label for="psYear">Year it was taken</label><input class="inp" id="psYear" inputmode="numeric" maxlength="4" placeholder="e.g. 1992" oninput="psYearInput(this)"></div>
+      <div><label for="psAge">…or your age then</label><input class="inp" id="psAge" inputmode="numeric" maxlength="3" placeholder="e.g. 7" oninput="psAgeInput(this)"></div>
+    </div>
+    <div class="notice" id="psNote" style="display:none"></div>
+    <div class="lbl">Who’s in this photo?</div>
+    <div class="chips" id="psWho" style="margin-top:0"></div>
+    <div class="lbl">What’s happening in it? <span style="color:var(--ink-faint)">(goes into your movie prompt)</span></div>
+    <div class="arow" style="margin-top:0">
+      <textarea id="ta-psdesc" data-bind="" placeholder="Me at about 8 with a buzzcut and a striped shirt, in front of our green house on Elm St…" oninput="onField(this)"></textarea>
+      <button class="micbtn" id="mic-psdesc" onclick="toggleMic('psdesc')" aria-label="Describe it by voice">🎤</button>
+    </div>
+    <div class="livestrip" id="live-psdesc">⏺ <b>Listening…</b> tap ⏹ when done. <span class="interim" id="int-psdesc"></span></div>
+    <div class="ptags" id="psTags"></div>
+    <div class="row2" style="margin-top:16px">
+      <button class="btn warn" id="psRemove" onclick="removePhoto(this)">Remove photo</button>
+      <button class="btn pri" style="font-size:15px;padding:15px" onclick="closePhoto()">Done</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="onPhotosChosen(this)">
+<input type="file" id="restoreInput" accept=".zip,application/zip" style="display:none" onchange="restore(this)">
+<div class="busy" id="busy"><div class="spinner"></div><div id="busyMsg">Working…</div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =====================================================================
+   LIFE REEL v2 — life-story interview → one master movie prompt
+   Everything stays on the device: text in localStorage, photos in IndexedDB.
+   ===================================================================== */
+const APP_VERSION='2.0.0';
+
+/* ---------------- question bank ----------------
+   type: text (default) | short | year | select.  age: default age of the
+   memory (number or 'cur'), used only when the answer and its photos
+   don't say.  photo: a suggestion shown under the photo strip.            */
+const CH = [
+{id:'basics',icon:'🪪',title:'The Basics',sub:'Who, when, where',qs:[
+ {id:'fullname',type:'short',q:'What’s your full name?',ph:'e.g. Maria Elena Delgado'},
+ {id:'nickname',type:'short',q:'What do people actually call you?',hint:'Your nickname — or leave it blank if it’s just your first name.',ph:'e.g. Mo'},
+ {id:'pronouns',type:'select',q:'How should the movie refer to you?',opts:['He / him','She / her','They / them']},
+ {id:'byear',type:'year',q:'What year were you born?',hint:'Life Reel uses this to work out your age — and the era — of every scene.',ph:'e.g. 1985'},
+ {id:'name',q:'Is there a story behind your name or nickname?',hint:'Who named you? Who gave you the nickname, and why did it stick?',ph:'My grandma named me after…',shot:'portrait of the main character looking into the camera, confident, title-card energy',age:'cur'},
+ {id:'birth',q:'Where were you born — and is there a family story about the day you arrived?',hint:'City, state, country. The hospital, the drive, the weather — whatever the family still tells.',ph:'I was born in El Paso, Texas. My mom always said…',shot:'establishing shot of the hometown on the day of the birth, era-accurate streets, cars and weather, morning light',age:0},
+ {id:'grewup',q:'Where did you grow up? List every place if you moved around.',hint:'Neighborhoods, cities, countries — and roughly how old you were in each.',ph:'Until I was 9 we lived in…, then we moved to…',shot:'montage of childhood streets and houses, kids playing outside, era-accurate',age:6},
+ {id:'era',q:'What was the world like when you were young?',hint:'The decade, the news, the mood — what was going on around you growing up.',ph:'I’m a 90s kid. I remember when…',shot:'nostalgic era montage: period television, storefronts, cars and fashion of that decade',age:10},
+ {id:'now',q:'Where are you in life right now?',hint:'Where you live, who you live with, what a normal day looks like.',ph:'These days I live in… with…',shot:'present-day scene of the main character at home in the evening, warm lamp light, reflective mood',photo:'A recent photo of you',age:'cur'},
+]},
+{id:'look',icon:'🎭',title:'Your Look',sub:'So movie-you looks like YOU',qs:[
+ {id:'lookNow',q:'Describe how you look today, like you’re describing a movie character.',hint:'Hair (color, length, style), eyes, skin tone, heritage, height, build, facial hair, glasses, tattoos. This keeps you consistent in every scene.',ph:'Tall, shaved head, brown eyes, goatee, medium build, usually wearing…',photo:'A clear, recent photo of your face — the most important photo in the whole app'},
+ {id:'lookKid',q:'What did you look like as a kid?',hint:'Haircut, teeth, skinny or chubby, the clothes your parents put you in.',ph:'Skinny kid with a bowl cut and a gap in my teeth…',photo:'Childhood photos'},
+ {id:'lookTeen',q:'What did you look like as a teenager and young adult?',hint:'The phase everyone remembers — the hair, the style choices you’d never repeat.',ph:'Long hair, band shirts, the works…',photo:'Teenage photos'},
+ {id:'style',q:'How do you dress? Any signature item?',hint:'A hat you always wear, boots, a chain, a jacket — the thing people know you by.',ph:'Always in a baseball cap and work boots…',photo:'A photo in your usual clothes'},
+ {id:'feature',q:'What’s the first thing people notice or remember about how you look?',hint:'Your laugh lines, your height, your walk, a scar with a story.',ph:'People always mention my…'},
+]},
+{id:'world',icon:'🏠',title:'The World You Grew Up In',sub:'Your childhood as a movie set',qs:[
+ {id:'home',q:'Describe your childhood home like a movie set.',hint:'Walk us through it: the kitchen, your room, the yard, the couch, the smell of it.',ph:'A small two-bedroom house with a chain-link fence…',shot:'slow push-in through a lived-in family home interior, era-accurate furniture and wallpaper',photo:'A photo of the house (old or current)',age:8},
+ {id:'hood',q:'What was your neighborhood or town like?',hint:'Quiet or loud? Safe or rough? Who was on the corner? What could you hear at night?',ph:'It was the kind of street where…',shot:'wide shot of the childhood neighborhood at golden hour, kids on bikes, era-accurate',photo:'A photo of the street or neighborhood',age:9},
+ {id:'money',q:'What was your family’s money situation growing up?',hint:'Struggling, comfortable, up and down? How did it show in daily life?',ph:'We didn’t have much, but…',shot:'quiet kitchen-table scene, bills and coffee cups, honest working-family atmosphere',age:10},
+ {id:'culture',q:'What culture, language, or faith did you grow up in?',hint:'Traditions, holidays, church or temple, the language spoken at home, family rules.',ph:'We spoke Spanish at home, and every Sunday…',shot:'warm family tradition scene — holiday table, celebration, cultural details, several generations',age:9},
+ {id:'senses',q:'What are the sounds, smells and foods of your childhood?',hint:'Grandma’s cooking, the train at night, cut grass, a song on the kitchen radio.',ph:'The smell of tortillas in the morning, the sound of…',shot:'close-up sensory montage: hands cooking in a family kitchen, steam rising, radio on the counter',age:8},
+ {id:'eratech',q:'What music, TV and tech surrounded you growing up?',hint:'The songs on the radio, the shows everyone watched, your first phone or console.',ph:'MTV was always on, my first console was…',shot:'nostalgic tech-and-music montage of the era: television glow, cassettes or CDs, video games',age:12},
+]},
+{id:'family',icon:'👪',title:'Family',sub:'The people who raised you',qs:[
+ {id:'raisedBy',q:'Who raised you, and what were they like?',hint:'Parents, grandparents, whoever. What did they do for work? Strict, warm, funny?',ph:'My mom raised us alone. She was short, tough, always…',shot:'portrait scene of the parents or guardians in their era, at work or at home, dignified and real',photo:'A photo of the people who raised you',age:6},
+ {id:'parentScene',q:'Tell one scene that captures who they were.',hint:'A single memory — the night they worked a double shift and still came to your game. Details.',ph:'I remember the night my dad…',shot:'intimate cinematic memory scene between parent and child, emotional, era-accurate',age:9},
+ {id:'siblings',q:'Brothers and sisters — who are they, and what was life with them like?',hint:'Names, ages, alliances, fights, the trouble you got into together. Only child? What was that like?',ph:'I’m the middle of three. My brother and I…',shot:'siblings scene — kids sharing a room, playing or fighting, authentic family chaos',photo:'A photo of you with your siblings',age:10},
+ {id:'elders',q:'Which grandparent or relative mattered most, and why?',hint:'What did they teach you? A phrase they always said.',ph:'My grandma was the heart of the family. She always said…',shot:'tender scene with an elder — porch, kitchen or garden, hands and faces, golden light',photo:'A photo of them',age:8},
+ {id:'famhard',q:'What was the hardest thing about your family?',hint:'Divorce, distance, addiction, silence, pressure. As much or as little as you want.',ph:'The hardest part was…',shot:'quiet dramatic scene — an empty chair at a table, a door closing, muted colors'},
+ {id:'fambest',q:'What’s your single best family memory?',hint:'The trip, the holiday, the ordinary Tuesday that was somehow perfect.',ph:'The summer we all…',shot:'joyful family scene — laughter around a table or a backyard gathering, warm golden light',photo:'A photo from that day'},
+]},
+{id:'friends',icon:'🤝',title:'Friends & People',sub:'The supporting cast',qs:[
+ {id:'bff',q:'Who was your childhood best friend? Tell me about them.',hint:'Name, how you met, what the two of you were always doing.',ph:'His name was… we met when…',shot:'two kids on an adventure — bikes, creek, rooftops — era-accurate childhood friendship',photo:'A photo of the two of you as kids',age:9},
+ {id:'crew',q:'Who was your crew as a teenager, and what did you get up to?',hint:'The group, the hangout spot, the adventures and the near-disasters.',ph:'There were five of us, and every Friday…',shot:'teenage friend group at their hangout spot at dusk, laughing, era-accurate clothes and cars',photo:'A photo of the crew',age:16},
+ {id:'mentor',q:'Who believed in you — a teacher, coach, boss, or mentor?',hint:'What did they see in you? What did they say or do that stuck?',ph:'My 8th grade teacher told me…',shot:'mentor scene — an adult and a young person, a moment of guidance, classroom or workshop',age:14},
+ {id:'rival',q:'Every story has an antagonist. Who was yours?',hint:'A bully, a rival, a boss, a doubter — even life itself. What did they put you through?',ph:'There was this guy who…',shot:'tense confrontation scene, two figures facing off, dramatic shadows',age:15},
+ {id:'friendNow',q:'Who are your closest people today?',hint:'Who do you call with good news? With bad news?',ph:'These days it’s…',shot:'present-day scene of true friendship — two people talking over coffee or working side by side',photo:'A recent photo together',age:'cur'},
+]},
+{id:'cast',icon:'🎬',title:'Your Cast',sub:'Put faces to the names',type:'cast'},
+{id:'school',icon:'🎒',title:'School & Work',sub:'The grind',qs:[
+ {id:'school',q:'What kind of student were you? What do you remember most about school?',hint:'Class clown? Invisible? Honor roll? Detention? One moment that sums it up.',ph:'School and I didn’t always get along…',shot:'era-accurate school scene — hallway lockers, classroom, cafeteria — from the main character’s point of view',photo:'A school photo',age:12},
+ {id:'firstjob',q:'What was your first job, and what did it teach you?',hint:'The uniform, the boss, the paycheck, the lesson.',ph:'My first job was at…, I made $… an hour…',shot:'first-job scene — a teenager in a work uniform behind a counter or on a job site, era-accurate',age:16},
+ {id:'service',q:'Military, college, a trade, a calling — what trained you?',hint:'Boot camp, the academy, an apprenticeship, night school, the job that taught you everything.',ph:'At 18 I enlisted in…',shot:'training montage — early mornings, uniforms or classrooms, sweat and discipline, era-accurate',photo:'A photo from those days',age:19},
+ {id:'path',q:'Walk me through your work life — the jobs, the moves, the hustle.',hint:'From first job to now. The jumps, the risks, the layoffs, the businesses.',ph:'After that I went to…, then…',shot:'working-life montage — different jobs and uniforms through the years, time passing',age:28},
+ {id:'workproud',q:'What’s your proudest achievement in work or school?',hint:'The promotion, the diploma, the business, the thing you built.',ph:'The day I finally…',shot:'triumphant scene — a handshake, a diploma, a finished build, proud posture, warm light',photo:'A photo of it'},
+ {id:'workhard',q:'What was your hardest professional moment?',hint:'Fired, failed, went broke, started over. What happened and how did you respond?',ph:'When I lost that job…',shot:'low-point work scene — a box of belongings, an empty parking lot at night, muted tones'},
+]},
+{id:'love',icon:'❤️',title:'Love',sub:'The heart of the film',qs:[
+ {id:'crush',q:'Who was your first crush or first date? How did it go?',hint:'The nerves, the outfit, where you went, how badly or beautifully it went.',ph:'I was 14 and terrified…',shot:'sweet awkward first-date scene — movie theater, school dance or diner, era-accurate, nervous energy',age:14},
+ {id:'firstlove',q:'Tell me about your first real love.',hint:'Who were they? What did it feel like? How did it end?',ph:'My first real love was…',shot:'romantic era-accurate scene — a young couple on a car hood at sunset or a boardwalk at night, film grain',photo:'A photo from those years',age:17},
+ {id:'heartbreak',q:'What heartbreak changed you?',hint:'The breakup, the betrayal, the one that got away. What did it do to you?',ph:'When it ended, I…',shot:'heartbreak scene — rain on a window, a long walk alone at night, desaturated colors'},
+ {id:'partner',q:'Tell me the story of your greatest love — how did you meet?',hint:'The exact scene: where you were, what they wore, what was said. Movie detail.',ph:'We met at… I remember they were wearing…',shot:'the meet-cute — two people noticing each other across a real place, cinematic warm light',photo:'A photo of the two of you',age:25},
+ {id:'kids',q:'Kids, the family you’ve built, or the loved ones you’ve chosen — tell me about them.',hint:'Names, births, personalities, what they mean to you. Pets absolutely count.',ph:'My daughter was born in…',shot:'tender family scene — holding a newborn, teaching a kid to ride a bike, a loyal dog at your side',photo:'A family photo',age:30},
+]},
+{id:'struggle',icon:'🌧️',title:'Struggles',sub:'The storm — this is what makes it a movie',qs:[
+ {id:'darkest',q:'What was the darkest period of your life?',hint:'When was it, what was happening, what did the days feel like? Share only what you’re comfortable putting in the film.',ph:'The worst stretch was around…',shot:'dark-night-of-the-soul scene — the main character alone in the dark, rain, a single lamp, heavy silence'},
+ {id:'loss',q:'Who or what have you lost?',hint:'The people you’ve buried, the goodbyes. How you carry them now.',ph:'Losing… changed everything…',shot:'grief scene — a funeral, an empty room, a folded photograph in worn hands, muted tones'},
+ {id:'health',q:'Have you fought any health battles — body or mind?',hint:'Illness, injury, anxiety, depression, addiction, recovery. Whatever you want on the record.',ph:'For years I struggled with…',shot:'hospital corridor or quiet recovery scene — small window light, courage in stillness'},
+ {id:'moneyhard',q:'Tell me about the broke times.',hint:'Empty fridge, borrowed rent, side hustles at 2am. What kept you moving?',ph:'There was a stretch where…',shot:'hard-times scene — counting bills on a kitchen table at night, tired but determined face'},
+ {id:'regret',q:'What’s your biggest mistake or regret?',hint:'The thing you’d redo. What it cost you and what it taught you.',ph:'If I could take one thing back…',shot:'regret scene — the main character staring at an old photo or standing at a crossroads, dusk light'},
+ {id:'survived',q:'What almost broke you — and how did you get through it?',hint:'The comeback: the person, the habit, the faith, the stubbornness.',ph:'What got me through was…',shot:'survival scene — walking out of shadow into morning light, small but unbroken'},
+]},
+{id:'triumph',icon:'🌟',title:'Triumphs & Joy',sub:'The wins, big and small',qs:[
+ {id:'happiest',q:'Describe the happiest day of your life like a scene.',hint:'Where, who was there, the weather, the moment you knew this day was IT.',ph:'The happiest day of my life was…',shot:'the happiest-day scene — a bright celebration, genuine laughter, golden light everywhere',photo:'A photo from that day'},
+ {id:'proudest',q:'What achievement are you proudest of?',hint:'Public (a degree, a business) or private (getting sober, showing up).',ph:'What I’m proudest of is…',shot:'moment-of-glory scene — the finish line, the stage, the keys in hand, triumphant framing'},
+ {id:'lucky',q:'What’s the luckiest break you ever got?',hint:'The right person, right place, right time. The coincidence that changed the road.',ph:'By pure luck, I happened to…',shot:'twist-of-fate scene — a chance meeting, a door opening, a beam of light, hopeful energy'},
+ {id:'funny',q:'What’s the funniest story people beg you to retell?',hint:'The disaster that became legend. Every detail.',ph:'Okay so one time we…',shot:'comedy scene — a chaotic funny moment mid-action, everyone reacting, bright colors'},
+ {id:'travel',q:'What adventure or trip do you still think about?',hint:'The road trip, the flight, the place that blew your mind.',ph:'The trip I’ll never forget…',shot:'adventure montage — open road, landmarks, wind through a car window, big landscapes',photo:'A photo from the trip'},
+ {id:'smallJoy',q:'What small, everyday joy means the most to you?',hint:'Sunday coffee, the dog at the door, that one chair in the evening light.',ph:'Honestly, my favorite part of any day is…',shot:'quiet-joy scene — a small everyday ritual filmed beautifully, soft morning light, peace',age:'cur'},
+]},
+{id:'turning',icon:'🔀',title:'Turning Points',sub:'Where the plot turned',qs:[
+ {id:'decision',q:'What one decision changed the direction of your life?',hint:'The move, the yes, the no, the leap. What would have happened if you’d chosen differently?',ph:'Everything changed when I decided to…',shot:'decision scene — the main character at a literal or symbolic crossroads, packing a car, signing a page, dawn light'},
+ {id:'almost',q:'What’s the biggest “almost” of your life?',hint:'The near miss, the job you almost took, the accident you barely avoided, the person you almost stayed with.',ph:'I almost…',shot:'sliding-doors scene — two paths, a train leaving, a phone ringing unanswered, moody light'},
+ {id:'became',q:'When did you become who you are? Was there a moment?',hint:'The day something in you settled — or snapped into place.',ph:'I think I truly became myself when…',shot:'transformation scene — the main character seeing themselves in a mirror or standing taller, sunrise tones'},
+ {id:'belief',q:'What did you once believe that you no longer believe?',hint:'About people, money, faith, love, yourself. What changed your mind?',ph:'I used to think… now I know…',shot:'reflective scene — older self and an echo of the younger self in the same place, time blending'},
+]},
+{id:'timeline',icon:'📅',title:'Big Moments',sub:'Every big event you remember',type:'events'},
+{id:'person',icon:'🪞',title:'The Person You Are',sub:'The soul of the movie',qs:[
+ {id:'personality',q:'How would your best friend describe you to a stranger?',hint:'The good, the bad, the loud, the quiet. Be honest.',ph:'They’d probably say I’m…',shot:'character montage — the main character being completely themselves in different situations',age:'cur'},
+ {id:'habits',q:'What are your catchphrases, habits and quirks?',hint:'The thing you always say, how you drink your coffee, the superstition.',ph:'I always say… and I can’t start the day without…',shot:'quirk montage — close-ups of signature habits and rituals, playful editing',age:'cur'},
+ {id:'dream',q:'What dream are you still chasing?',hint:'The unfinished business. The thing you still intend to do.',ph:'One day, I’m going to…',shot:'dream sequence — the future imagined vividly, aspirational wide hopeful shots',age:'cur'},
+ {id:'younger',q:'What would you tell your younger self?',hint:'Pick an age — 8, 16, 25 — and say it to them directly.',ph:'Hey kid, listen…',shot:'the present-day main character sitting beside their younger self, golden hour, a quiet talk',age:'cur'},
+ {id:'message',q:'If this movie says ONE thing about your life, what should it be?',hint:'What should someone feel when the credits roll?',ph:'I want people to understand that…',shot:'closing statement — the main character speaking straight to camera, honest and unguarded',age:'cur'},
+ {id:'audience',q:'Who is this movie for?',hint:'Your kids? Your younger self? The people who doubted you? Say it to them.',ph:'This is for…',shot:'dedication — a hand resting on an old photograph, a letter being written, soft intimate light',age:'cur'},
+]},
+{id:'moviestyle',icon:'🎥',title:'Movie Style',sub:'How your film should look and feel',qs:[
+ {id:'tone',type:'select',q:'What kind of movie is it?',opts:['Epic drama','Documentary','Feel-good','Gritty & raw','Comedy','Romantic']},
+ {id:'vstyle',type:'select',q:'What should it look like?',opts:['Realistic (live-action)','Documentary with my real photos','3D animated','Hand-drawn animation','Anime']},
+ {id:'runtime',type:'select',q:'How long should the movie be?',hint:'AI apps build long movies from many short clips, so a 5-minute short is the easiest place to start. You can always make a longer cut later.',opts:['1-minute trailer','5-minute short','20-minute film','60-minute feature']},
+ {id:'aspect',type:'select',q:'Screen shape?',opts:['Widescreen 16:9 (TV, YouTube)','Vertical 9:16 (phones, TikTok)']},
+ {id:'truth',type:'select',q:'How true should it claim to be?',opts:['100% true story','Based on a true story','Inspired by real events (dramatized)']},
+ {id:'narrator',type:'select',q:'Whose voice tells the story?',opts:['My own voice','Warm storyteller','Deep movie-trailer voice','Documentary voice']},
+ {id:'vlang',type:'select',q:'What language is the narration in?',opts:['English','Spanish','Bilingual (English + Spanish)']},
+ {id:'care',type:'select',q:'How should hard moments be shown?',opts:['Honestly — nothing graphic','Gently — suggested, not shown','Family-friendly — fine for kids']},
+ {id:'music',q:'What music should score your life?',hint:'Artists, genres or specific songs for each chapter of your life.',ph:'Open with…, the hard years get…, end on…'},
+ {id:'titleIdeas',q:'Any title ideas for your movie?',hint:'Leave it blank and the AI will suggest some.',ph:''},
+ {id:'boundaries',q:'Anything to leave out, or names to change?',hint:'People who shouldn’t appear, names to swap, topics that stay private. The AI will be told to respect this.',ph:'Don’t show my ex. Call my brother “Tony” instead of his real name…'},
+]},
+];
+const DEFAULTS={tone:'Epic drama',vstyle:'Realistic (live-action)',runtime:'60-minute feature',aspect:'Widescreen 16:9 (TV, YouTube)',
+  truth:'Based on a true story',narrator:'My own voice',vlang:'English',care:'Honestly — nothing graphic'};
+const RUNTIME_MIN={'1-minute trailer':1,'5-minute short':5,'20-minute film':20,'60-minute feature':60};
+const EV_TYPES=[{v:'happy',l:'😊 Happy'},{v:'sad',l:'😢 Sad'},{v:'turning',l:'🔀 Turning point'},{v:'win',l:'🏆 Victory'},{v:'funny',l:'😂 Funny'},{v:'scary',l:'😨 Scary'},{v:'love',l:'❤️ Love'}];
+const EV_IDEAS=['First day of school','Moving to a new home','Learning to drive','Graduation','First job','Falling in love','Wedding','A baby is born','Losing someone','Biggest win','The big trip','Starting over'];
+const RELS=['Mother','Father','Stepparent','Grandmother','Grandfather','Brother','Sister','Partner / spouse','Ex','Son','Daughter','Grandchild','Best friend','Friend','Mentor / teacher','Boss / coworker','Rival','Pet','Other'];
+const CAST_IDEAS=[['Mom','Mother'],['Dad','Father'],['Grandma','Grandmother'],['Grandpa','Grandfather'],['Brother','Brother'],['Sister','Sister'],['Partner','Partner / spouse'],['Son','Son'],['Daughter','Daughter'],['Best friend','Best friend']];
+const REL_WORDS={'Mother':['mom','mother','mama','mami','ma','mum'],'Father':['dad','father','papa','pops','daddy','papi'],'Stepparent':['stepmom','stepdad','stepmother','stepfather'],
+  'Grandmother':['grandma','grandmother','abuela','nana','granny'],'Grandfather':['grandpa','grandfather','abuelo','gramps'],'Brother':['brother','bro'],'Sister':['sister','sis'],
+  'Partner / spouse':['wife','husband','partner','girlfriend','boyfriend','fiance','fiancee','fiancé','spouse'],'Ex':['ex'],'Son':['son'],'Daughter':['daughter'],'Grandchild':['grandson','granddaughter','grandkid'],
+  'Best friend':['best friend','bff','best friends'],'Mentor / teacher':['teacher','coach','mentor'],'Boss / coworker':['boss','coworker','co-worker'],'Pet':['dog','cat','pet']};
+const LANGS=[['en-US','English (US)'],['en-GB','English (UK)'],['es-US','Español (EE. UU.)'],['es-MX','Español (México)'],['es-ES','Español (España)'],['pt-BR','Português (Brasil)'],['fr-FR','Français'],['de-DE','Deutsch'],['it-IT','Italiano'],['tl-PH','Filipino']];
+const PHOTOS_PER_SLOT=12;
+
+/* ---------------- state ---------------- */
+const KEY='lifereel_v2', V1KEY='lifereel_v1', V1PKEY='lifereel_photos_v1';
+function blank(){ return {v:2,a:{},ev:[],cast:[],ph:{},pm:{},set:{lang:''},created:Date.now()}; }
+let S=blank();
+try{ const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(blank(),JSON.parse(raw)); }catch(e){}
+let saveTimer=null, storageWarned=false;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    try{ localStorage.setItem(KEY,JSON.stringify(S)); }
+    catch(e){ if(!storageWarned){ storageWarned=true; toast('⚠️ This device is out of storage space for your story. Save a backup in Settings.',7000);} return; }
+    document.querySelectorAll('[data-saved]').forEach(el=>{el.classList.add('show');setTimeout(()=>el.classList.remove('show'),900);});
+    updateMeters();
+  },300);
+}
+function saveNow(){ clearTimeout(saveTimer); try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
+function uid(){ return Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4); }
+
+/* ---------------- photo store (IndexedDB) ---------------- */
+const DB={
+  db:null,
+  open(){ if(this.db) return Promise.resolve(this.db);
+    return new Promise((res,rej)=>{ const r=indexedDB.open('lifereel',1);
+      r.onupgradeneeded=()=>{ r.result.createObjectStore('photos',{keyPath:'id'}); };
+      r.onsuccess=()=>{ this.db=r.result; res(this.db); }; r.onerror=()=>rej(r.error); }); },
+  async tx(mode,fn){ const db=await this.open(); return new Promise((res,rej)=>{ const t=db.transaction('photos',mode); const st=t.objectStore('photos');
+      const out=fn(st); t.oncomplete=()=>res(out&&out.result!==undefined?out.result:out); t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error); }); },
+  put(rec){ return this.tx('readwrite',st=>{st.put(rec);}); },
+  get(id){ return this.tx('readonly',st=>st.get(id)); },
+  del(id){ return this.tx('readwrite',st=>{st.delete(id);}); },
+  clear(){ return this.tx('readwrite',st=>{st.clear();}); },
+};
+const THUMB=new Map();
+async function thumbURL(id){
+  if(THUMB.has(id)) return THUMB.get(id);
+  try{ const rec=await DB.get(id); if(!rec) return ''; const u=URL.createObjectURL(rec.thumb||rec.full); THUMB.set(id,u); return u; }catch(e){ return ''; }
+}
+function hydrateThumbs(root=document){
+  root.querySelectorAll('img[data-pid]').forEach(async img=>{ if(img.getAttribute('src')) return; const u=await thumbURL(img.dataset.pid); if(u) img.src=u; });
+}
+
+/* ---------------- helpers ---------------- */
+const $=id=>document.getElementById(id);
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function toast(msg,ms=2800){const t=$('toast');t.innerHTML=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),ms);}
+function busy(on,msg){ $('busy').classList.toggle('on',!!on); if(msg) $('busyMsg').textContent=msg; }
+function words(t){t=(t||'').trim();return t?t.split(/\s+/).length:0;}
+function val(id){return String(S.a[id]||'').trim();}
+function opt(id){ return val(id)||DEFAULTS[id]||''; }
+function clean1(t){ return String(t||'').replace(/\s+/g,' ').trim(); }
+function trunc(t,max){ t=clean1(t); if(t.length<=max) return t; const s=t.slice(0,max), sp=s.lastIndexOf(' '); return (sp>max*.55?s.slice(0,sp):s).replace(/[,;:\s]+$/,'')+'…'; }
+function firstSentence(t,max=140){ t=clean1(t); if(!t) return ''; const m=t.match(/^.*?[.!?](?=\s|$)/); return trunc(m?m[0]:t,max); }
+/* join-safe text: no doubled periods when user text already ends in punctuation */
+function bare(t){ return clean1(t).replace(/[\s.!?…,;:]+$/,''); }
+function sent(t){ const c=clean1(t); if(c.endsWith('…')) return c; const b=bare(c); return b?b+(/[!?]$/.test(c)?c.slice(-1):'.'):''; }
+function cap(t){ t=String(t||''); return t.charAt(0).toUpperCase()+t.slice(1); }
+function localDate(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function slug(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,28); }
+function nowYear(){ return new Date().getFullYear(); }
+function plural(n,w){ return n+' '+w+(n===1?'':'s'); }
+
+function birthYear(){
+  const y=parseInt(val('byear'),10); if(y>=1900&&y<=nowYear()) return y;
+  const m=(val('birth')+' '+val('name')).match(/\b(19\d{2}|20[0-2]\d)\b/); return m?parseInt(m[1],10):null;
+}
+function curAge(){ const by=birthYear(); return by===null?null:nowYear()-by; }
+function nickName(){ return val('nickname') || (val('fullname').split(/\s+/)[0]||'') || 'our hero'; }
+function fullName(){ return val('fullname'); }
+function pron(){ const p=val('pronouns'); return p.startsWith('She')?{s:'she',o:'her',p:'her'}:p.startsWith('They')?{s:'they',o:'them',p:'their'}:p.startsWith('He')?{s:'he',o:'him',p:'his'}:null; }
+
+/* word totals → runtime estimate (≈140 spoken words a minute, ×1.5 for visual breathing room) */
+function totalWords(){
+  let w=0;
+  CH.forEach(c=>{ if(c.qs) c.qs.forEach(q=>{ if(!q.type) w+=words(S.a[q.id]); }); });
+  S.ev.forEach(e=>{ w+=words(e.story); });
+  S.cast.forEach(p=>{ w+=Math.round(words(p.look)/3); });
+  return w;
+}
+function estMinutes(){ return totalWords()/140*1.5; }
+function goalMinutes(){ return RUNTIME_MIN[opt('runtime')]||60; }
+function fmtMin(m){ return m<1?'<1 min':Math.round(m)+' min'; }
+function meterHTML(){
+  const m=estMinutes(), g=goalMinutes(), pct=Math.min(100,m/g*100);
+  const label= m>=g ? `🎉 Enough story for a ${g}-min movie` : `${fmtMin(m)} of movie so far`;
+  return `<div class="mrow"><span>${label}</span><b>goal ${g} min</b></div><div class="bar"><i style="width:${pct}%"></i></div>`;
+}
+function updateMeters(){ document.querySelectorAll('[data-meter]').forEach(el=>el.innerHTML=meterHTML()); }
+
+/* ---------------- navigation ---------------- */
+let curScreen='home';
+function go(name,push=true){
+  stopMic();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  $('scr-'+name).classList.add('on'); curScreen=name;
+  window.scrollTo(0,0);
+  if(name==='chapters') renderChapters();
+  if(name==='home') renderHome();
+  if(name==='settings') renderSettings();
+  updateMeters();
+  if(push) try{ history.pushState({s:name,ch:curCh},''); }catch(e){}
+}
+window.addEventListener('popstate',e=>{
+  if($('psheet').classList.contains('on')){ closePhoto(); return; }
+  const st=e.state||{s:'home'};
+  if(st.s==='chapter'&&typeof st.ch==='number'){ openChapter(st.ch,false); return; }
+  go(st.s||'home',false);
+});
+
+/* ---------------- progress ---------------- */
+function chProgress(c){
+  if(c.type==='events'){ const n=S.ev.filter(e=>words(e.story)>0).length; return {done:n,total:null,lbl:plural(n,'moment')+' added'}; }
+  if(c.type==='cast'){ const n=S.cast.filter(p=>p.name||p.look).length; return {done:n,total:null,lbl:plural(n,'person')+' added'}; }
+  const total=c.qs.length;
+  const done=c.qs.filter(q=> q.type ? !!val(q.id) : words(S.a[q.id])>0 ).length;
+  return {done,total,lbl:`${done}/${total} answered`};
+}
+function overall(){
+  let d=0,t=0; CH.forEach(c=>{ if(c.qs){ const p=chProgress(c); d+=p.done; t+=p.total; } });
+  return {d,t};
+}
+function renderHome(){
+  const any=totalWords()>0||Object.keys(S.a).length>0;
+  $('startBtn').textContent= any ? '▶ Continue my story' : '🎬 Start my story';
+  $('buildBtn').style.display= totalWords()>=30 ? 'flex' : 'none';
+  const o=overall(), ph=Object.keys(S.pm).length;
+  $('homeProgress').textContent= any ? `${o.d} of ${o.t} questions answered · ${plural(S.ev.filter(e=>words(e.story)).length,'big moment')} · ${plural(ph,'photo')}` : '';
+}
+function continueStory(){
+  if(totalWords()===0&&!Object.keys(S.a).length){ openChapter(0); return; }
+  go('chapters');
+}
+function renderChapters(){
+  $('chGrid').innerHTML=CH.map((c,i)=>{
+    const p=chProgress(c);
+    const pct=p.total===null?(p.done?100:0):p.done/p.total*100;
+    const full=p.total===null?p.done>0:p.done===p.total;
+    return `<button class="chcard ${full?'done':''}" onclick="openChapter(${i})">
+      <div class="ic">${c.icon}</div><div class="t">${c.title}</div><div class="s">${c.sub}</div>
+      <div class="p">${p.lbl}</div><div class="pbar"><i style="width:${pct}%"></i></div></button>`;
+  }).join('');
+}
+
+/* ---------------- chapter screen ---------------- */
+let curCh=0;
+function openChapter(i,push=true){
+  stopMic(); curCh=i; const c=CH[i];
+  let html=`<div class="chhead"><div class="ic">${c.icon}</div><div><h2>${c.title}</h2><div class="s">${c.sub}</div></div></div>`;
+  if(c.type==='events') html+=eventsIntro()+`<div id="evList"></div><button class="addbig" onclick="addEvent()">＋ Add a moment</button>`;
+  else if(c.type==='cast') html+=castIntro()+`<div id="castList"></div><button class="addbig" onclick="addCast()">＋ Add a person</button>`;
+  else {
+    if(c.id==='moviestyle') html+=`<div class="notice">🎥 <b>Your choices shape the whole prompt.</b> Anything you skip uses the default shown first.</div>`;
+    else html+=`<div class="notice">🎤 <b>Don’t type — talk.</b> Tap the mic and tell it like you’d tell a friend. It keeps listening through pauses until you tap ⏹. ${micFallbackTip()}</div>`;
+    html+=c.qs.map(q=>qCardHTML(q)).join('');
+  }
+  $('chBody').innerHTML=html;
+  if(c.type==='events') renderEvents();
+  if(c.type==='cast') renderCast();
+  const prev=i>0?`<button class="btn" onclick="openChapter(${i-1})">← ${CH[i-1].icon} ${CH[i-1].title}</button>`:'';
+  const next=i<CH.length-1?`<button class="btn pri" style="font-size:14px" onclick="openChapter(${i+1})">${CH[i+1].icon} ${CH[i+1].title} →</button>`
+                          :`<button class="btn pri" style="font-size:14px" onclick="openOutput()">🎞️ Build my movie prompt</button>`;
+  $('chNav').innerHTML=prev+next;
+  go('chapter',false);
+  if(push) try{ history.pushState({s:'chapter',ch:i},''); }catch(e){}
+  hydrateThumbs($('chBody'));
+}
+function micFallbackTip(){
+  if(!SR) return /Android|iPhone|iPad/i.test(navigator.userAgent)?'Or use the 🎤 on your keyboard.':'No mic? Press <b>Win + H</b> for Windows voice typing.';
+  return /Android/i.test(navigator.userAgent)?'':'No mic? Press <b>Win + H</b> for Windows voice typing.';
+}
+function qCardHTML(q){
+  if(q.type==='select'){
+    const cur=val(q.id);
+    return `<div class="qcard"><div class="q">${q.q}</div>${q.hint?`<div class="hint">${q.hint}</div>`:''}
+      <div class="selrow">${q.opts.map(o=>`<button class="selopt ${cur===o?'on':''}" data-q="${q.id}" data-v="${esc(o)}" onclick="pick(this)">${esc(o)}</button>`).join('')}</div></div>`;
+  }
+  if(q.type==='short'||q.type==='year'){
+    const extra=q.type==='year'?'inputmode="numeric" maxlength="4"':'maxlength="80" autocomplete="off"';
+    return `<div class="qcard"><div class="q">${q.q}</div>${q.hint?`<div class="hint">${q.hint}</div>`:''}
+      <input class="inp short" ${extra} data-bind="a.${q.id}" value="${esc(S.a[q.id]||'')}" placeholder="${esc(q.ph||'')}" oninput="onField(this)"></div>`;
+  }
+  const v=S.a[q.id]||'';
+  return `<div class="qcard">
+    <div class="q">${q.q}</div>${q.hint?`<div class="hint">${q.hint}</div>`:''}
+    <div class="arow">
+      <textarea id="ta-${q.id}" data-bind="a.${q.id}" placeholder="${esc(q.ph||'')}" oninput="onField(this)">${esc(v)}</textarea>
+      <button class="micbtn" id="mic-${q.id}" onclick="toggleMic('${q.id}')" aria-label="Answer by voice">🎤</button>
+    </div>
+    <div class="livestrip" id="live-${q.id}">⏺ <b>Listening… take your time, pauses are fine.</b> Tap ⏹ when you’re done. <span class="interim" id="int-${q.id}"></span></div>
+    <div class="qmeta"><span class="wc" id="wc-${q.id}">${wcLabel(v)}</span><span>skip anything you want</span></div>
+    ${stripHTML('q:'+q.id,q.photo)}
+  </div>`;
+}
+function wcLabel(v){ const w=words(v); return w?`<b>${w}</b> words ≈ ${fmtMin(w/140*1.5)} of film`:'not answered yet'; }
+function pick(el){
+  const q=el.dataset.q, v=el.dataset.v;
+  S.a[q]= S.a[q]===v ? '' : v;
+  el.parentElement.querySelectorAll('.selopt').forEach(o=>o.classList.toggle('on',o.dataset.v===S.a[q]));
+  save();
+}
+/* every input/textarea carries data-bind="a.<qid>" | "ev.<id>.<field>" | "cast.<id>.<field>" | "pm.<pid>.desc" */
+function onField(el){
+  const bind=el.dataset.bind; if(!bind) return;
+  const [k,id,f]=bind.split('.'); const v=el.value;
+  if(k==='a'){ S.a[id]=v; const wc=$('wc-'+id); if(wc) wc.innerHTML=wcLabel(v); }
+  else if(k==='ev'){ const e=S.ev.find(x=>x.id===id); if(e){ e[f]=v; if(f==='story'){ const wc=$('wc-ev'+id); if(wc) wc.innerHTML=wcLabel(v);} } }
+  else if(k==='cast'){ const p=S.cast.find(x=>x.id===id); if(p) p[f]=v; }
+  else if(k==='pm'){ if(S.pm[id]) S.pm[id][f]=v; }
+  save();
+}
+
+/* ---------------- timeline ---------------- */
+function eventsIntro(){
+  return `<div class="notice">🎞️ <b>This is the heart of your movie.</b> Add every big moment you remember — happy, sad, scary, hilarious. Each one becomes its own scene. Give it an age or a year so it lands in the right part of your life.</div>
+  <div class="chips">${EV_IDEAS.map(t=>`<button class="chip" onclick="addEvent('${esc(t)}')">＋ ${esc(t)}</button>`).join('')}</div>`;
+}
+function addEvent(title=''){
+  const e={id:uid(),title,age:'',type:/Losing|Starting/.test(title)?'sad':/love|Wedding|baby/i.test(title)?'love':/win|Graduation/i.test(title)?'win':'happy',story:''};
+  S.ev.push(e); save(); renderEvents();
+  setTimeout(()=>{ const el=$('ev-'+e.id); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); const ta=$('ta-ev'+e.id); if(ta&&title) ta.focus({preventScroll:true}); } },60);
+}
+function delEvent(id,btn){
+  if(!armed(btn,'Sure?')) return;
+  stopMic(); const slot='ev:'+id; (S.ph[slot]||[]).forEach(pid=>dropPhoto(pid));
+  delete S.ph[slot]; S.ev=S.ev.filter(e=>e.id!==id); save(); renderEvents();
+}
+function renderEvents(){
+  const list=$('evList'); if(!list) return;
+  list.innerHTML=S.ev.map(e=>`<div class="evcard" id="ev-${e.id}">
+    <button class="evdel" onclick="delEvent('${e.id}',this)" aria-label="Delete this moment">✕</button>
+    <div class="evtop">
+      <input class="inp full" data-bind="ev.${e.id}.title" placeholder="Name this moment (e.g. “The day the truck flipped”)" value="${esc(e.title)}" oninput="onField(this)">
+      <input class="inp" data-bind="ev.${e.id}.age" placeholder="Age or year" value="${esc(e.age)}" inputmode="numeric" oninput="onField(this)">
+      <select class="inp" onchange="setEvType('${e.id}',this.value)">${EV_TYPES.map(t=>`<option value="${t.v}" ${e.type===t.v?'selected':''}>${t.l}</option>`).join('')}</select>
+    </div>
+    <div class="arow">
+      <textarea id="ta-ev${e.id}" data-bind="ev.${e.id}.story" placeholder="Tell the whole story: where you were, who was there, what the place looked like, what was said, how it felt…" oninput="onField(this)">${esc(e.story)}</textarea>
+      <button class="micbtn" id="mic-ev${e.id}" onclick="toggleMic('ev${e.id}')" aria-label="Tell it by voice">🎤</button>
+    </div>
+    <div class="livestrip" id="live-ev${e.id}">⏺ <b>Listening… take your time.</b> Tap ⏹ when done. <span class="interim" id="int-ev${e.id}"></span></div>
+    <div class="qmeta"><span class="wc" id="wc-ev${e.id}">${wcLabel(e.story)}</span><span></span></div>
+    ${stripHTML('ev:'+e.id,'Photos from this moment')}
+  </div>`).join('') || '';
+  hydrateThumbs(list);
+}
+function setEvType(id,v){ const e=S.ev.find(x=>x.id===id); if(e){e.type=v;save();} }
+
+/* ---------------- cast ---------------- */
+function castIntro(){
+  return `<div class="notice">🎭 <b>AI movie makers need to know what everyone looks like.</b> Add the main people in your life, describe them, and add a photo or two — they’ll look the same in every scene.</div>
+  <div class="chips">${CAST_IDEAS.map(([n,r])=>`<button class="chip" onclick="addCast('${esc(r)}')">＋ ${esc(n)}</button>`).join('')}</div>`;
+}
+function addCast(rel='Other'){
+  const p={id:uid(),name:'',rel,look:'',era:''}; S.cast.push(p); save(); renderCast();
+  setTimeout(()=>{ const el=$('cast-'+p.id); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); const n=el.querySelector('input'); if(n) n.focus({preventScroll:true}); } },60);
+}
+function delCast(id,btn){
+  if(!armed(btn,'Sure?')) return;
+  stopMic(); const slot='cast:'+id; (S.ph[slot]||[]).forEach(pid=>dropPhoto(pid)); delete S.ph[slot];
+  Object.values(S.pm).forEach(m=>{ if(m.who) m.who=m.who.filter(w=>w!==id); });
+  S.cast=S.cast.filter(p=>p.id!==id); save(); renderCast();
+}
+function renderCast(){
+  const list=$('castList'); if(!list) return;
+  list.innerHTML=S.cast.map(p=>`<div class="evcard" id="cast-${p.id}">
+    <button class="evdel" onclick="delCast('${p.id}',this)" aria-label="Remove this person">✕</button>
+    <div class="evtop">
+      <input class="inp" data-bind="cast.${p.id}.name" placeholder="Their name" value="${esc(p.name)}" oninput="onField(this)" maxlength="60">
+      <select class="inp" onchange="setCastRel('${p.id}',this.value)">${RELS.map(r=>`<option ${p.rel===r?'selected':''}>${esc(r)}</option>`).join('')}</select>
+      <input class="inp full" data-bind="cast.${p.id}.era" placeholder="When are they in your story? (e.g. 1985 – today)" value="${esc(p.era)}" oninput="onField(this)" maxlength="60">
+    </div>
+    <div class="arow">
+      <textarea id="ta-cs${p.id}" data-bind="cast.${p.id}.look" placeholder="What do they look like? Hair, build, skin tone, style — and how they changed over the years. What are they like as a person?" oninput="onField(this)">${esc(p.look)}</textarea>
+      <button class="micbtn" id="mic-cs${p.id}" onclick="toggleMic('cs${p.id}')" aria-label="Describe by voice">🎤</button>
+    </div>
+    <div class="livestrip" id="live-cs${p.id}">⏺ <b>Listening…</b> tap ⏹ when done. <span class="interim" id="int-cs${p.id}"></span></div>
+    ${stripHTML('cast:'+p.id,'A clear photo of their face')}
+  </div>`).join('');
+  hydrateThumbs(list);
+}
+function setCastRel(id,v){ const p=S.cast.find(x=>x.id===id); if(p){p.rel=v;save();} }
+function castName(p){ return p.name||p.rel; }
+
+/* two-tap confirm instead of blocking confirm() dialogs */
+function armed(btn,txt){
+  if(btn.dataset.armed) { delete btn.dataset.armed; return true; }
+  const old=btn.textContent; btn.dataset.armed='1'; btn.textContent=txt; btn.style.color='var(--red)';
+  setTimeout(()=>{ if(btn.isConnected&&btn.dataset.armed){ delete btn.dataset.armed; btn.textContent=old; btn.style.color=''; } },2600);
+  return false;
+}
+
+/* ---------------- photos ---------------- */
+function slotDom(slot){ return slot.replace(/[^a-z0-9]+/gi,'-'); }
+function stripHTML(slot,hint){
+  const ids=S.ph[slot]||[];
+  const thumbs=ids.map(pid=>{ const m=S.pm[pid]||{}; const age=photoAge(m);
+    const badge=m.year?`${m.year}${age!==null?' · '+age:''}`:'';
+    return `<button class="pthb" onclick="openPhoto('${pid}')" aria-label="Photo details"><img class="pth" data-pid="${pid}" alt="">${badge?`<span class="badge">${badge}</span>`:''}${m.scan&&!m.ysrc?'<span class="warnb">⚠️</span>':''}</button>`; }).join('');
+  const add=ids.length<PHOTOS_PER_SLOT?`<button class="padd" onclick="pickPhotos('${slot}')"><span class="pi">📷</span>${ids.length?'Add more':'Add photos'}</button>`:'';
+  const tip=ids.length?'Tap a photo to set its year and say who’s in it.':(hint?`Suggested: <b>${esc(hint)}</b>`:'Optional — a real photo makes the movie look like your real life.');
+  return `<div class="pwrap" id="pw-${slotDom(slot)}"><div class="pstrip">${thumbs}${add}</div><div class="phint">${tip}</div></div>`;
+}
+function refreshStrip(slot){
+  const el=$('pw-'+slotDom(slot)); if(!el) return;
+  const hintEl=el.querySelector('.phint b'); const hint=hintEl?hintEl.textContent:slotHint(slot);
+  el.outerHTML=stripHTML(slot,hint); const nel=$('pw-'+slotDom(slot)); if(nel) hydrateThumbs(nel);
+}
+function slotHint(slot){
+  const [k,id]=slot.split(':');
+  if(k==='q'){ const q=qById()[id]; return q&&q.photo||''; }
+  if(k==='ev') return 'Photos from this moment';
+  if(k==='cast') return 'A clear photo of their face';
+  return '';
+}
+let pendingSlot=null;
+function pickPhotos(slot){ pendingSlot=slot; $('photoInput').value=''; $('photoInput').click(); }
+async function onPhotosChosen(input){
+  const files=[...(input.files||[])]; const slot=pendingSlot; pendingSlot=null;
+  if(!files.length||!slot) return;
+  const room=PHOTOS_PER_SLOT-(S.ph[slot]||[]).length;
+  const todo=files.slice(0,room);
+  if(files.length>room) toast(`Only ${PHOTOS_PER_SLOT} photos fit on one answer — added the first ${room}.`,4000);
+  busy(true,todo.length>1?`Adding ${todo.length} photos…`:'Adding your photo…');
+  let added=0, dated=0, failed=0;
+  try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(()=>{}); }catch(e){}
+  for(const f of todo){
+    try{
+      const r=await processPhoto(f);
+      const pid=uid();
+      await DB.put({id:pid,full:r.full,thumb:r.thumb});
+      const who=defaultWho(slot);
+      S.pm[pid]={slot,year:r.year,exifYear:r.exifYear,ysrc:r.year?'camera':'',scan:r.scan,look:r.look,bw:r.bw,desc:'',who,t:Date.now()};
+      (S.ph[slot]=S.ph[slot]||[]).push(pid); added++; if(r.year) dated++;
+    }catch(e){ failed++; }
+  }
+  saveNow(); busy(false); refreshStrip(slot); renderHome();
+  if(added){
+    const by=birthYear();
+    let msg=added===1?'📷 Photo added':`📷 ${added} photos added`;
+    if(dated) msg+= added===1 ? (()=>{ const m=S.pm[S.ph[slot][S.ph[slot].length-1]]; const a=photoAge(m); return ` — taken in ${m.year}${a!==null?`, when you were ${a}`:''}.`; })() : ` — ${dated} had a date inside.`;
+    else msg+='. Tap it to set the year.';
+    if(!by&&dated) msg+='<br>Add your birth year in The Basics to get your age in each photo.';
+    toast(msg,4200);
+  }
+  if(failed) toast(`Couldn’t read ${plural(failed,'photo')} — try a JPG or PNG.`,4200);
+}
+function defaultWho(slot){
+  const [k,id]=slot.split(':');
+  if(k==='cast') return [id];
+  if(k==='q'&&/^look|^style$|^now$/.test(id)) return ['me'];
+  return [];
+}
+/* decode (EXIF rotation applied), shrink to a reference-quality JPEG + a thumbnail, read the date and the colors */
+async function processPhoto(file){
+  const [bmp,exif]=await Promise.all([decodeImage(file),readExif(file)]);
+  const full=await toJpeg(bmp,1600,.86);
+  const tc=drawScaled(bmp,320);
+  const thumb=await new Promise(r=>tc.toBlob(r,'image/jpeg',.78));
+  const look=readColors(tc);
+  if(bmp.close) try{bmp.close();}catch(e){}
+  let year=exif, scan=false;
+  /* a recent camera date on an obviously old-looking print = a scan or a photo of a photo: the date is the scan's, not the moment's */
+  if(year && look && (look.bw||look.aged) && year>=2003){ scan=true; year=null; }
+  return {full,thumb,year,exifYear:exif,scan,look:look?look.text:'',bw:look?look.bw:false};
+}
+async function decodeImage(file){
+  if(window.createImageBitmap){ try{ return await createImageBitmap(file,{imageOrientation:'from-image'}); }catch(e){} }
+  const url=URL.createObjectURL(file);
+  try{ const img=new Image(); img.src=url; await img.decode(); return img; } finally{ setTimeout(()=>URL.revokeObjectURL(url),1000); }
+}
+function drawScaled(src,max){
+  const w=src.width||src.naturalWidth, h=src.height||src.naturalHeight;
+  const s=Math.min(1,max/Math.max(w,h)); const c=document.createElement('canvas');
+  c.width=Math.max(1,Math.round(w*s)); c.height=Math.max(1,Math.round(h*s));
+  c.getContext('2d').drawImage(src,0,0,c.width,c.height); return c;
+}
+function toJpeg(src,max,q){ const c=drawScaled(src,max); return new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('encode')),'image/jpeg',q)); }
+/* the year the camera stamped inside the file (EXIF DateTimeOriginal / DateTime) */
+function readExif(file){
+  return new Promise(res=>{
+    const fr=new FileReader(); fr.onerror=()=>res(null);
+    fr.onload=()=>{ try{
+      const v=new DataView(fr.result);
+      if(v.byteLength<4||v.getUint16(0)!==0xFFD8){ res(null); return; }
+      let off=2;
+      while(off<v.byteLength-4){
+        const marker=v.getUint16(off);
+        if(marker===0xFFE1&&v.getUint32(off+4)===0x45786966){
+          const base=off+10, little=v.getUint16(base)===0x4949;
+          res(scan(v,base+v.getUint32(base+4,little),base,little,0)); return;
+        }
+        if((marker&0xFF00)!==0xFF00){ res(null); return; }
+        off+=2+v.getUint16(off+2);
+      }
+      res(null);
+    }catch(e){ res(null); } };
+    fr.readAsArrayBuffer(file.slice(0,262144));
+  });
+  function scan(v,start,base,little,depth){
+    if(depth>2||start+2>v.byteLength) return null;
+    const n=v.getUint16(start,little); let exifPtr=null, dt=null;
+    for(let i=0;i<n;i++){
+      const e=start+2+i*12; if(e+12>v.byteLength) break;
+      const tag=v.getUint16(e,little);
+      if(tag===0x8769) exifPtr=base+v.getUint32(e+8,little);
+      if(tag===0x9003||tag===0x0132){
+        const len=v.getUint32(e+4,little), p=len>4?base+v.getUint32(e+8,little):e+8;
+        let s=''; for(let j=0;j<Math.min(len,20)&&p+j<v.byteLength;j++){ const c=v.getUint8(p+j); if(c) s+=String.fromCharCode(c); }
+        const y=parseInt(s.slice(0,4),10);
+        if(y>=1900&&y<=nowYear()){ if(tag===0x9003) return y; dt=y; }
+      }
+    }
+    const deeper=exifPtr?scan(v,exifPtr,base,little,depth+1):null;
+    return deeper||dt;
+  }
+}
+/* look at the pixels: black & white? faded? yellowed? dark? */
+function readColors(canvas){
+  try{
+    const d=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+    let sat=0,r=0,b=0,lum=0,n=0;
+    for(let i=0;i<d.length;i+=16){ const R=d[i],G=d[i+1],B=d[i+2],mx=Math.max(R,G,B),mn=Math.min(R,G,B);
+      sat+=mx?(mx-mn)/mx:0; r+=R; b+=B; lum+=R*.299+G*.587+B*.114; n++; }
+    if(!n) return null;
+    sat/=n; r/=n; b/=n; lum/=n;
+    const bw=sat<0.09, warm=(r-b)/255, faded=!bw&&sat<0.22, yellowed=!bw&&warm>0.12&&sat<0.45;
+    const bits=[bw?'black-and-white photograph':faded?'faded, low-saturation color photograph':'color photograph'];
+    if(yellowed) bits.push('warm yellowed tones like an aged print'); else if(!bw&&warm<-0.05) bits.push('cool blue-tinted tones');
+    if(lum<70) bits.push('dark, dimly lit'); else if(lum>185) bits.push('bright, washed-out exposure');
+    return {bw,aged:faded||yellowed,text:bits.join(', ')};
+  }catch(e){ return null; }
+}
+function photoAge(m){ const by=birthYear(); if(!m||!m.year||by===null) return null; const a=m.year-by; return (a>=0&&a<=120)?a:null; }
+
+/* --- photo details sheet --- */
+let curPid=null;
+async function openPhoto(pid){
+  const m=S.pm[pid]; if(!m) return; curPid=pid; stopMic();
+  const rec=await DB.get(pid).catch(()=>null);
+  const img=$('psImg'); if(img._u) URL.revokeObjectURL(img._u);
+  img._u=rec?URL.createObjectURL(rec.full||rec.thumb):''; img.src=img._u||'';
+  $('psYear').value=m.year||''; const a=photoAge(m); $('psAge').value=a!==null?a:'';
+  const ta=$('ta-psdesc'); ta.value=m.desc||''; ta.dataset.bind='pm.'+pid+'.desc';
+  renderPsNote(); renderWho(); renderPsTags();
+  $('psRemove').textContent='Remove photo'; delete $('psRemove').dataset.armed; $('psRemove').style.color='';
+  $('psheet').classList.add('on');
+  try{ history.pushState({s:curScreen,ch:curCh,sheet:1},''); }catch(e){}
+}
+function closePhoto(){
+  if(!$('psheet').classList.contains('on')) return;
+  stopMic(); $('psheet').classList.remove('on');
+  const m=S.pm[curPid]; if(m) refreshStrip(m.slot); curPid=null; save();
+}
+function renderPsNote(){
+  const m=S.pm[curPid], el=$('psNote'); if(!m) return;
+  let t='';
+  if(m.scan&&!m.ysrc) t=`⚠️ <b>This looks like a scan of an older photo.</b> The file says ${m.exifYear}, but that’s probably when it was scanned. Enter the year the photo was really taken (a guess is fine).`;
+  else if(m.ysrc==='camera') t=`📅 Date read from the photo file. Change it if it’s wrong.`;
+  else if(!m.year) t=`No date inside this photo — add the year (or your age) so the movie gets the era right.`;
+  if(m.year&&birthYear()===null) t+=` Add your birth year in <b>The Basics</b> to see your age here.`;
+  el.innerHTML=t; el.style.display=t?'block':'none';
+}
+function psYearInput(el){
+  const m=S.pm[curPid]; if(!m) return; const y=parseInt(el.value,10);
+  if(el.value.length===4&&y>=1900&&y<=nowYear()){ m.year=y; m.ysrc='you'; const a=photoAge(m); $('psAge').value=a!==null?a:''; }
+  else if(!el.value){ m.year=null; m.ysrc=''; $('psAge').value=''; }
+  renderPsNote(); save();
+}
+function psAgeInput(el){
+  const m=S.pm[curPid]; if(!m) return; const by=birthYear(); const a=parseInt(el.value,10);
+  if(by===null){ if(el.value) toast('Add your birth year in The Basics first — then ages work.'); return; }
+  if(a>=0&&a<=120){ m.year=by+a; m.ysrc='you'; $('psYear').value=m.year; renderPsNote(); save(); }
+}
+function renderWho(){
+  const m=S.pm[curPid]; if(!m) return; const who=m.who||[];
+  const people=[{id:'me',n:'Me'}].concat(S.cast.map(p=>({id:p.id,n:castName(p)})));
+  $('psWho').innerHTML=people.map(p=>`<button class="chip ${who.includes(p.id)?'on':''}" onclick="toggleWho('${p.id}')">${esc(p.n)}</button>`).join('')
+    +`<button class="chip" onclick="closePhoto();openChapter(${CH.findIndex(c=>c.type==='cast')})">＋ Add someone to your cast</button>`;
+}
+function toggleWho(id){ const m=S.pm[curPid]; if(!m) return; m.who=m.who||[]; m.who=m.who.includes(id)?m.who.filter(x=>x!==id):m.who.concat(id); renderWho(); save(); }
+function renderPsTags(){ const m=S.pm[curPid]; $('psTags').innerHTML=m&&m.look?`<span class="ptag">🎞️ ${esc(m.look)}</span>`:''; }
+async function removePhoto(btn){
+  if(!armed(btn,'Tap again to remove')) return;
+  const pid=curPid, m=S.pm[pid]; if(!m) return;
+  $('psheet').classList.remove('on'); stopMic();
+  dropPhoto(pid); save(); refreshStrip(m.slot); curPid=null; renderHome();
+}
+function dropPhoto(pid){
+  const m=S.pm[pid]; if(!m) return;
+  if(S.ph[m.slot]) S.ph[m.slot]=S.ph[m.slot].filter(x=>x!==pid);
+  delete S.pm[pid];
+  if(THUMB.has(pid)){ URL.revokeObjectURL(THUMB.get(pid)); THUMB.delete(pid); }
+  DB.del(pid).catch(()=>{});
+}
+
+/* ---------------- speech: tap to start, keeps listening through pauses, tap to stop ---------------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+const IS_ANDROID=/Android/i.test(navigator.userAgent);
+let rec=null, micField=null, micWanted=false;
+function dictLang(){ return S.set.lang || (/^es/i.test(navigator.language||'')?'es-US':'en-US'); }
+function micTip(){
+  toast(IS_ANDROID?'🎤 Allow the microphone when asked. You can also tap the 🎤 on your keyboard.':'🎤 Allow the microphone when the browser asks.<br>No mic? Press <b>Win + H</b> for Windows voice typing, then speak into the box.',6000);
+}
+function toggleMic(fid){
+  if(micWanted&&micField===fid){ stopMic(); return; }
+  stopMic();
+  if(!SR){ micTip(); return; }
+  micField=fid; micWanted=true;
+  startRec();
+  const btn=$('mic-'+fid); if(btn){btn.classList.add('live');btn.textContent='⏹';btn.setAttribute('aria-label','Stop listening');}
+  const strip=$('live-'+fid); if(strip) strip.classList.add('on');
+}
+function startRec(){
+  rec=new SR();
+  /* Android's recognizer repeats earlier text in "continuous" mode — one phrase per session + auto-restart is clean there */
+  rec.continuous=!IS_ANDROID; rec.interimResults=true; rec.lang=dictLang(); rec.maxAlternatives=1;
+  rec.onresult=ev=>{
+    let interim='';
+    for(let i=ev.resultIndex;i<ev.results.length;i++){ const r=ev.results[i]; if(r.isFinal) appendToField(micField,r[0].transcript); else interim+=r[0].transcript; }
+    const el=$('int-'+micField); if(el) el.textContent=interim?'“'+interim+'…”':'';
+  };
+  rec.onend=()=>{ if(micWanted&&micField) setTimeout(()=>{ if(micWanted){ try{ startRec(); }catch(e){} } },120); };
+  rec.onerror=e=>{ if(e.error==='not-allowed'||e.error==='service-not-allowed'||e.error==='audio-capture'){ stopMic(); micTip(); } };
+  try{ rec.start(); }catch(e){}
+}
+function appendToField(fid,text){
+  text=(text||'').trim(); if(!text) return;
+  const ta=$('ta-'+fid); if(!ta) return;
+  const before=ta.value;
+  if(!before.trim()||/[.!?]["”’)]?\s*$/.test(before)) text=text.charAt(0).toUpperCase()+text.slice(1);
+  ta.value=before+(before&&!/\s$/.test(before)?' ':'')+text;
+  onField(ta);
+}
+function stopMic(){
+  micWanted=false;
+  if(rec){ try{ rec.onend=null; rec.stop(); }catch(e){} rec=null; }
+  if(micField){
+    const btn=$('mic-'+micField); if(btn){btn.classList.remove('live');btn.textContent='🎤';btn.setAttribute('aria-label','Answer by voice');}
+    const strip=$('live-'+micField); if(strip) strip.classList.remove('on');
+    const i=$('int-'+micField); if(i) i.textContent='';
+  }
+  micField=null;
+}
+document.addEventListener('visibilitychange',()=>{ if(document.hidden){ stopMic(); saveNow(); } });
+
+/* =====================================================================
+   THE GENERATOR — story → one master film brief (+ short version + scenes)
+   ===================================================================== */
+let _qb=null; function qById(){ if(!_qb){ _qb={}; CH.forEach(c=>{ if(c.qs) c.qs.forEach(q=>{ _qb[q.id]=Object.assign({ch:c},q); }); }); } return _qb; }
+const ACT_OF={
+  birth:'OPENING', name:'OPENING',
+  grewup:'I',era:'I',home:'I',hood:'I',money:'I',culture:'I',senses:'I',eratech:'I',raisedBy:'I',parentScene:'I',siblings:'I',elders:'I',fambest:'I',bff:'I',
+  school:'II',crew:'II',mentor:'II',rival:'II',crush:'II',firstlove:'II',firstjob:'II',service:'II',
+  path:'III',partner:'III',kids:'III',friendNow:'VI',now:'VI',
+  famhard:'IV',heartbreak:'IV',workhard:'IV',darkest:'IV',loss:'IV',health:'IV',moneyhard:'IV',regret:'IV',
+  survived:'V',workproud:'V',happiest:'V',proudest:'V',lucky:'V',funny:'V',travel:'V',smallJoy:'V',
+  decision:'VI',almost:'VI',became:'VI',belief:'VI',personality:'VI',habits:'VI',dream:'VI',
+  younger:'CLOSING',message:'CLOSING',audience:'CLOSING'};
+const ACTS=[['OPENING','OPENING','Where it all began'],['I','ACT I — ROOTS','Childhood'],['II','ACT II — COMING OF AGE','Growing up'],['III','ACT III — LOVE & WORK','Building a life'],
+  ['IV','ACT IV — THE STORM','The hard years'],['V','ACT V — THE LIGHT','The wins'],['VI','ACT VI — WHO I BECAME','The turning points'],['CLOSING','CLOSING','What it all meant']];
+const ACT_MOOD={OPENING:'warm nostalgic light',I:'warm nostalgic light, soft film grain',II:'vivid youthful energy',III:'grounded warm realism',IV:'muted heavy tones, rain-washed',V:'golden triumphant light',VI:'reflective dusk tones',CLOSING:'intimate soft light'};
+const EV_MOOD={happy:'warm golden light, joyful energy',sad:'muted desaturated tones, quiet heavy atmosphere',turning:'dramatic high-contrast light, a held breath before everything changes',
+  win:'triumphant framing, sunrise light',funny:'bright playful colors, comic timing',scary:'tense dim light, unsteady camera, dread in the air',love:'romantic warm light, soft focus'};
+const WEIGHT={birth:3,parentScene:3,bff:2,firstlove:3,partner:3,kids:3,darkest:4,loss:4,survived:4,happiest:4,proudest:3,decision:4,became:3,message:4,younger:3,raisedBy:2,heartbreak:2,service:2,now:2,funny:2};
+function toneDesc(){ return {'Documentary':'documentary realism, handheld camera, natural light, archival texture','Feel-good':'warm heartfelt cinema, golden-hour glow, gentle humor',
+  'Gritty & raw':'gritty realism, muted desaturated grade, heavy film grain','Comedy':'bright cinematic comedy, punchy colors, playful framing',
+  'Romantic':'romantic drama, soft warm light, intimate close-ups'}[opt('tone')]||'epic cinematic drama, rich color grade, shallow depth of field, sweeping score'; }
+function visualDesc(){ return {'Documentary with my real photos':'documentary style: the real photos brought to life with slow Ken Burns moves and gentle animation, mixed with realistic re-enactments that match them',
+  '3D animated':'high-end 3D animated feature-film look; stylized characters that still clearly resemble the real people in the photos',
+  'Hand-drawn animation':'hand-drawn 2D animation, painterly backgrounds, warm line work; characters drawn to resemble the real people',
+  'Anime':'cinematic anime style, detailed painted backgrounds, expressive light; characters drawn to resemble the real people'}[opt('vstyle')]||'photorealistic live-action cinema, real locations, natural skin texture, 35mm film look'; }
+function truthCard(){ return {'100% true story':'WHAT YOU ARE ABOUT TO SEE IS A TRUE STORY.','Inspired by real events (dramatized)':'INSPIRED BY REAL EVENTS. SOME MOMENTS HAVE BEEN DRAMATIZED — BECAUSE THAT’S HOW THEY FELT.'}[opt('truth')]||'BASED ON A TRUE STORY.'; }
+function careRule(){ const c=opt('care');
+  if(c.startsWith('Gently')) return 'Handle hard moments gently: suggest them through faces, objects, light and sound — never show violence, injury, drug use or death on screen.';
+  if(c.startsWith('Family')) return 'Keep the whole film family-friendly (suitable for children): hard moments are implied only, no violence, blood, drugs, alcohol abuse, sexual content or frightening images.';
+  return 'Show hard moments honestly and with emotional weight, but never graphically: no gore, no explicit violence, no sexual content, and no nudity.'; }
+function narrationDesc(){ const n=opt('narrator'), l=opt('vlang');
+  const lang=l.startsWith('Spanish')?'in Spanish':l.startsWith('Bilingual')?'mixing English and Spanish the way the subject naturally speaks':'in English';
+  if(n==='My own voice') return `first-person voiceover ${lang}, spoken as the subject (they may record it themselves — keep the lines in their words)`;
+  return `first-person voiceover ${lang}, read in a ${n.toLowerCase()} voice`; }
+function aspectDesc(){ return opt('aspect').startsWith('Vertical')?'vertical 9:16 (phone screens)':'widescreen 16:9'; }
+function visualShort(){ return {'Documentary with my real photos':'documentary re-enactment','3D animated':'3D animated film','Hand-drawn animation':'hand-drawn 2D animation','Anime':'cinematic anime'}[opt('vstyle')]||'photoreal live-action'; }
+function isLiveAction(){ return /^Realistic|^Documentary/.test(opt('vstyle')); }
+/* video models follow an era cue best when it comes first: decade + film stock */
+function eraLook(year){
+  if(!year) return '';
+  const d=Math.floor(year/10)*10;
+  if(!isLiveAction()) return `set in ${year} — ${d}s clothes, hair, cars and props`;
+  const stock= d<1950?'black-and-white film, soft grain':d<1960?'1950s Kodachrome color film, soft grain':d<1970?'1960s saturated color film, soft grain':
+    d<1980?'warm grainy 1970s color film':d<1990?'1980s color film, soft grain, slightly faded':d<2000?'1990s 35mm color film':d<2010?'early-2000s film look, clean color':d<2020?'2010s digital cinema look':'modern digital cinema';
+  return `${year}, ${stock} — ${d}s clothes, hair, cars and props`;
+}
+/* reference handles, one per person per life stage (3–16 letters/digits/underscores — Runway and Flow both accept this shape) */
+function handleBase(t){ const b=String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]+/g,''); return (b||'Person').slice(0,10); }
+function meHandle(age){ const b=handleBase(nickName()==='our hero'?'Me':nickName()); const band=ageBand(age); return '@'+b+'_'+(band==='child'?'kid':band==='teen'?'teen':'adult'); }
+function castHandles(){
+  const used={}, out={};
+  S.cast.forEach(p=>{ let h=handleBase(p.name||p.rel); if(h.length<3) h=(h+'_'+handleBase(p.rel)).slice(0,16); const k=h.toLowerCase(); used[k]=(used[k]||0)+1; out[p.id]='@'+(used[k]>1?h.slice(0,14)+used[k]:h); });
+  return out;
+}
+function movieTitle(){ return val('titleIdeas') ? firstSentence(val('titleIdeas'),70).replace(/^["“]|["”.]$/g,'') : `The Story of ${nickName()==='our hero'?'My Life':nickName()}`; }
+
+/* ages: a trusted photo date beats a year written early in the answer, which beats "when I was 12", which beats the question's default */
+function ageFromText(t){
+  const by=birthYear(); const s=(t||'').slice(0,160);
+  const y=s.match(/\b(19\d{2}|20[0-2]\d)\b/);
+  if(y&&by!==null){ const a=parseInt(y[1],10)-by; if(a>=0&&a<=110) return {age:a,src:'text-year'}; }
+  const a=s.match(/\b(?:when I was|I was|at age|aged?|at the age of)\s+(\d{1,2}|[a-z]+(?:[- ][a-z]+)?)\b/i);
+  if(a){ const n=/^\d/.test(a[1])?parseInt(a[1],10):wordNum(a[1]); if(n!==null&&n<=110) return {age:n,src:'text-age'}; }
+  return null;
+}
+/* voice typing often writes small numbers as words: "when I was six", "twenty-one" */
+function wordNum(w){
+  const U={one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19};
+  const T={twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
+  const [a,b]=String(w).toLowerCase().split(/[- ]/);
+  if(U[a]!==undefined&&!b) return U[a];
+  if(T[a]!==undefined) return T[a]+(b&&U[b]&&U[b]<10?U[b]:0);
+  return null;
+}
+function photosFor(slot){ return (S.ph[slot]||[]).filter(pid=>S.pm[pid]); }
+function median(a){ if(!a.length) return null; const s=[...a].sort((x,y)=>x-y); return s[Math.floor((s.length-1)/2)]; }
+function parseEvAge(s){
+  s=(s||'').trim(); if(!s) return null; const by=birthYear();
+  const yr=s.match(/\b(19\d{2}|20\d{2})\b/); if(yr) return by!==null?parseInt(yr[1],10)-by:null;
+  const n=s.match(/\d{1,3}/); return n?parseInt(n[0],10):null;
+}
+function evYearRaw(s){ const yr=(s||'').match(/\b(19\d{2}|20\d{2})\b/); return yr?parseInt(yr[1],10):null; }
+function castInText(t){
+  const low=' '+(t||'').toLowerCase().replace(/[^a-z0-9áéíóúñü' ]+/g,' ')+' ';
+  return S.cast.filter(p=>{
+    const first=(p.name||'').trim().split(/\s+/)[0]||'';
+    if(first.length>=3&&low.includes(' '+first.toLowerCase()+' ')) return true;
+    return (REL_WORDS[p.rel]||[]).some(w=>low.includes(' my '+w+' ')||low.includes(' '+w+"'s ")||low.includes(' our '+w+' '));
+  }).map(p=>p.id);
+}
+function ageBand(a){ return a===null||a===undefined?'':a<13?'child':a<23?'teen':'adult'; }
+
+function buildModel(){
+  const by=birthYear(), ca=curAge(), QB=qById();
+  /* ---- photos, numbered in story order so the files and the prompt agree ---- */
+  const slots=[];
+  ['lookNow','lookKid','lookTeen','style'].forEach(id=>slots.push('q:'+id));
+  S.cast.forEach(p=>slots.push('cast:'+p.id));
+  CH.forEach(c=>{ if(c.qs) c.qs.forEach(q=>{ if(!/^look|^style$/.test(q.id)) slots.push('q:'+q.id); }); });
+  const evSorted=S.ev.map(e=>({e,age:evAge(e)})).sort((a,b)=>(a.age==null?999:a.age)-(b.age==null?999:b.age));
+  evSorted.forEach(x=>slots.push('ev:'+x.e.id));
+  const photos=[]; const seen=new Set();
+  slots.forEach(slot=>photosFor(slot).forEach(pid=>{ if(seen.has(pid)) return; seen.add(pid); photos.push({pid,slot,m:S.pm[pid]}); }));
+  const LOOK_LABEL={lookNow:'You today',lookKid:'You as a child',lookTeen:'You as a teenager',style:'Your usual style'};
+  const SLOT_BAND={lookKid:'child',lookTeen:'teen',lookNow:'adult',style:'adult',now:'adult'};
+  photos.forEach((p,i)=>{
+    const a=photoAge(p.m); const who=(p.m.who||[]);
+    const people=who.map(w=>w==='me'?{s:'me',n:nickName()+' (main character)'}:(c=>c?{s:castName(c),n:castName(c)}:null)(S.cast.find(c=>c.id===w))).filter(Boolean);
+    const [k,id]=p.slot.split(':');
+    const ev=k==='ev'?(S.ev.find(e=>e.id===id)||{}):null;
+    const label=k==='q'?(LOOK_LABEL[id]||(QB[id]?QB[id].ch.title+' — '+shortQ(QB[id]):id)):k==='ev'?'Big moment — '+(ev.title||'untitled'):'Cast — '+castName(S.cast.find(c=>c.id===id)||{rel:'person'});
+    const namePart=people.length?people.slice(0,2).map(x=>slug(x.s)).join('-'):slug(k==='ev'?(ev.title||'moment'):k==='q'?id:'person');
+    p.file=`photo-${String(i+1).padStart(2,'0')}-${namePart||'photo'}${a!==null?'-age'+a:p.m.year?'-'+p.m.year:''}.jpg`.replace(/-+/g,'-');
+    p.age=a; p.whoNames=people.map(x=>x.n); p.label=label;
+    p.band=ageBand(a)||(k==='q'&&who.includes('me')?SLOT_BAND[id]||'':'');
+  });
+  const fileOf={}; photos.forEach(p=>fileOf[p.pid]=p.file);
+  /* ---- cast ---- */
+  const meP=photos.filter(p=>(p.m.who||[]).includes('me'));
+  const cast=S.cast.filter(p=>p.name||p.look||photosFor('cast:'+p.id).length).map(p=>({
+    p, files:photos.filter(x=>(x.m.who||[]).includes(p.id)).map(x=>x.file)}));
+  /* ---- story units ---- */
+  const units=[];
+  CH.forEach(c=>{ if(!c.qs) return; c.qs.forEach(q=>{
+    if(q.type||!val(q.id)||!ACT_OF[q.id]) return;
+    const text=val(q.id), ph=photosFor('q:'+q.id);
+    const trusted=ph.map(pid=>photoAge(S.pm[pid])).filter(a=>a!==null);
+    let age=null, src='';
+    if(trusted.length){ age=median(trusted); src='photo'; }
+    else { const t=ageFromText(text); if(t){ age=t.age; src=t.src; } else if(q.age==='cur'){ age=ca; src='default'; } else if(typeof q.age==='number'){ age=q.age; src='default'; } }
+    units.push({kind:'q',id:q.id,act:ACT_OF[q.id],title:sceneName(q.id),q:q.q,text,age,src,shot:q.shot||'cinematic scene that shows what the narration describes',
+      mood:ACT_MOOD[ACT_OF[q.id]],photos:ph,cast:castInText(text),w:(WEIGHT[q.id]||1)+Math.min(3,words(text)/70),order:units.length});
+  }); });
+  evSorted.forEach(({e,age})=>{
+    if(!words(e.story)&&!e.title) return;
+    const ph=photosFor('ev:'+e.id);
+    /* childhood and youth stay in life order; adult moments go where they belong in the arc */
+    const byType={sad:'IV',scary:'IV',win:'V',happy:'V',funny:'V',turning:'VI',love:'III'};
+    let act;
+    if(age!==null&&age!==undefined) act=age<13?'I':age<23?'II':({sad:'IV',scary:'IV',win:'V',turning:'VI'}[e.type]||'III');
+    else act=byType[e.type]||'V';
+    units.push({kind:'ev',id:e.id,act,title:e.title||'A Moment That Mattered',text:clean1(e.story),age:age==null?null:age,src:age==null?'':'moment',
+      shot:`dramatized real-life scene: ${e.title||'a defining moment'}`,mood:EV_MOOD[e.type]||'cinematic natural light',type:e.type,photos:ph,
+      cast:castInText(e.title+' '+e.story),w:({turning:4,win:3,sad:3,love:3}[e.type]||2)+Math.min(3,words(e.story)/70),order:units.length});
+  });
+  /* ---- scene plan ---- */
+  const goal=goalMinutes();
+  const maxScenes={1:7,5:14,20:36,60:999}[goal]||999;
+  let chosen=units.slice();
+  if(chosen.length>maxScenes){ const keep=new Set([...chosen].sort((a,b)=>b.w-a.w).slice(0,maxScenes)); chosen=chosen.filter(u=>keep.has(u)); }
+  const star=new Set([...units].sort((a,b)=>b.w-a.w).slice(0,12));
+  const scenes=[];
+  const hometown=firstSentence(val('grewup')||val('birth'),120);
+  ACTS.forEach(([key,name])=>{
+    let list=chosen.filter(u=>u.act===key);
+    if(key!=='CLOSING') list.sort((a,b)=>((a.age==null?500:a.age)-(b.age==null?500:b.age))||(a.order-b.order));
+    list.forEach(u=>{
+      const year=(u.age!==null&&u.age!==undefined&&by!==null)?by+u.age:null;
+      scenes.push(Object.assign({},u,{actName:name,year,star:star.has(u),place:(u.age!==null&&u.age<13&&hometown)?hometown:''}));
+    });
+  });
+  /* seconds: natural pace from the narration length, then scaled to the chosen runtime */
+  const nat=scenes.map(s=>Math.max(8,Math.min(150,words(s.text)/140*60*1.5)));
+  const fixed=10+20;  // title card + end credits
+  const natTotal=nat.reduce((a,b)=>a+b,0)||1;
+  const target=Math.max(20,goal*60-fixed);
+  /* never stretch a short story more than 3× — past that the scenes would be padding, not story */
+  const scale=Math.min(3,target/natTotal);
+  scenes.forEach((s,i)=>{ s.sec=Math.max(goal<=5?3:5,Math.round(nat[i]*scale)); });
+  const planned=Math.round((scenes.reduce((a,s)=>a+s.sec,0)+fixed)/60);
+  return {by,ca,photos,fileOf,meP,cast,units,scenes,goal,planned,natMinutes:Math.max(1,Math.round((natTotal+fixed)/60)),title:movieTitle(),
+    stats:{answers:units.filter(u=>u.kind==='q').length,moments:units.filter(u=>u.kind==='ev').length}};
+}
+function evAge(e){
+  let a=parseEvAge(e.age);
+  if(a===null){ const t=photosFor('ev:'+e.id).map(pid=>photoAge(S.pm[pid])).filter(x=>x!==null); if(t.length) a=median(t); }
+  if(a===null){ const t=ageFromText(e.story); if(t) a=t.age; }
+  return a;
+}
+function shortQ(q){ return trunc(q.q.replace(/\s*[—–-]\s.*$/,'').replace(/[?.]$/,''),60); }
+function sceneName(id){
+  return {grewup:'The Places That Made Me',home:'The House I Grew Up In',hood:'My Streets',money:'What We Had',culture:'Where We Come From',senses:'The Smell of Home',
+   eratech:'The Soundtrack of an Era',raisedBy:'The Ones Who Raised Me',parentScene:'Who They Really Were',siblings:'Partners in Crime',elders:'The Old Ones',
+   fambest:'The Best of Us',bff:'My First Best Friend',era:'The World Back Then',school:'School Days',crew:'The Crew',crush:'The First Butterflies',
+   firstlove:'First Love',firstjob:'First Paycheck',service:'Where I Was Trained',mentor:'The One Who Believed',rival:'The Antagonist',path:'The Grind',
+   partner:'How I Met My Person',kids:'What We Built',friendNow:'My People',now:'Where I Stand Today',famhard:'The Cracks at Home',heartbreak:'Heartbreak',
+   workhard:'Rock Bottom',darkest:'The Darkest Stretch',loss:'The Ones I Lost',health:'The Fight Inside',moneyhard:'The Broke Years',regret:'What I’d Take Back',
+   survived:'How I Survived',workproud:'Earned It',happiest:'The Happiest Day',proudest:'My Proudest Moment',lucky:'The Lucky Break',funny:'The Legendary Story',
+   travel:'The Great Adventure',smallJoy:'The Small Things',decision:'The Decision',almost:'The Almost',became:'Becoming Me',belief:'What I Unlearned',
+   personality:'Who I Am',habits:'My Signature Moves',dream:'Still Chasing',younger:'A Letter to My Younger Self',message:'What It All Meant',audience:'Dedication',
+   name:'What They Call Me',birth:'The Day It Began'}[id]||'A Chapter of My Life';
+}
+function subjectLook(age){
+  if(age!==null&&age!==undefined&&age<=2) return 'a newborn baby';
+  const band=ageBand(age);
+  const t= band==='child'?(val('lookKid')||val('lookNow')) : band==='teen'?(val('lookTeen')||val('lookNow')) : val('lookNow');
+  return t?trunc(bare(t),200):'';
+}
+/* the subject's best reference photos for a scene's age; if none match the age, fall back and say so */
+function subjectRefs(M,age){
+  const band=ageBand(age);
+  const same=M.meP.filter(p=>band?p.band===band:true);
+  if(same.length) return {files:same.slice(0,2).map(p=>p.file),note:''};
+  if(age!=null&&age<=2) return {files:[],note:''};
+  const any=M.meP.filter(p=>p.band==='adult'||!p.band).concat(M.meP).slice(0,1);
+  if(!any.length) return {files:[],note:''};
+  const pr=pron(), o=pr?pr.o:'them';
+  return {files:[any[0].file],note:age!=null?`from another age — keep the facial features but show ${o} at ${age}`:''};
+}
+function subjectFiles(M,age){ return subjectRefs(M,age).files; }
+function yearTag(s,M){
+  if(s.year) return `${s.year}${s.age!==null?' · age '+s.age:''}`;
+  if(s.age!==null&&s.age!==undefined) return 'age '+s.age;
+  return '';
+}
+
+/* ---- the master brief ---- */
+function briefFull(M){
+  const L=[]; const hr='═'.repeat(60), sub='─'.repeat(44);
+  const nick=nickName(), full=fullName(), pr=pron(), by=M.by;
+  const who=full?(nick!=='our hero'&&!full.toLowerCase().includes(nick.toLowerCase())?`${full} (“${nick}”)`:full):(nick!=='our hero'?nick:'the subject');
+  L.push(hr,`LIFE REEL — AUTOBIOGRAPHICAL FILM BRIEF`,`“${M.title}”`,`The life story of ${who}${by?`, born ${by}`:''}${val('birth')?` — ${firstSentence(val('birth'),110)}`:''}`,
+    `${M.stats.answers} answers · ${M.stats.moments} big moments · ${M.photos.length} reference photos · ${M.cast.length} people in the cast · prepared ${localDate()}`,hr,'');
+  L.push('HOW TO USE THIS BRIEF (instructions for the AI reading it)',
+    `You are the director, screenwriter and editor of a biographical film about a real person. Everything below is that person’s own account, in their own words. Build the film described in PART 1, following the RULES in PART 2.`,
+    M.photos.length?`The reference photos listed in PART 3 are attached (or will be uploaded right after this message) with exactly these file names. Study them before you design any character or set.`:`No photos were provided, so build consistent looks from the written descriptions in PART 4 and keep them fixed.`,
+    `• If you can generate video: follow the SCENE PLAN in PART 7 in order, keep every character consistent, then assemble the scenes with the narration and music into one film. Long films are built from many short shots — that is expected.`,
+    `• If you are a chat assistant: reply with (1) a logline and a one-paragraph treatment, (2) the full screenplay with narration, and (3) a numbered SHOT LIST for a video generator. Each shot prompt must stand alone: 60–100 words, start with the year and film look, name characters by their @handle from PART 4 with their age in that shot, one camera move and one action, then the voiceover on its own line as Voiceover (voice, tone, pace): "…". Describe what should be seen rather than what should not.`,
+    `• In tools with character references (ingredients, @tags, elements), create one reference per @handle in PART 4 from its listed photos (up to 3 each) and reuse it in every shot.`,
+    `• Keep to the order of the person’s life unless PART 7 says otherwise. If something important is missing, make a reasonable, modest choice and list your assumptions at the end — never invent major events.`,'');
+  L.push('PART 1 — THE FILM',sub,
+    `Title: ${M.title}${val('titleIdeas')?'':' (working title — suggest 3 better ones)'}`,
+    `Opening card: “${truthCard()}”`,
+    `Target length: about ${M.goal} minute${M.goal===1?'':'s'} — ${M.scenes.length+2} scenes planned in PART 7.${M.natMinutes<M.goal*0.7?` The story as told fills about ${M.natMinutes} min at a natural pace; reach the target with visual storytelling (montages, music, quiet moments), never with invented events.`:''}${M.goal>=20?' If your tool has a shorter limit, make the scenes marked ★ first.':''}`,
+    `Genre & tone: ${opt('tone')} — ${toneDesc()}`,
+    `Visual style: ${visualDesc()}`,
+    `Format: ${aspectDesc()}`,
+    `Narration: ${narrationDesc()}`,
+    `Music: ${val('music')?clean1(val('music')):'an original score that follows the emotional arc — nostalgic in childhood, tense in the storm, soaring in the light, quiet at the end'}`,
+    `Main character pronouns: ${pr?pr.s+'/'+pr.o:'use the name'}${M.ca!==null?` · age today: ${M.ca}`:''}`,'');
+  L.push('PART 2 — RULES (follow strictly)',sub,
+    `1. This is a real life. Never contradict the facts in this brief. Where details are missing, add only atmosphere — weather, set dressing, extras, camera work — never new events, people, relationships or quotes that change what happened.`,
+    `2. Keep every person looking like themselves in every scene: use the CAST BIBLE (PART 4) and the reference photos. Age people correctly for the year of each scene.`,
+    `3. Match each scene to its year: clothing, hair, cars, phones, TV, signage, film stock and color grade of that era. Years and ages are given per scene.`,
+    `4. Narration uses the person’s own words from PART 5, trimmed for flow. Keep their phrasing, slang and humor.`,
+    `5. ${careRule()}`,
+    `6. No subtitles, captions, watermarks or on-screen text except the title card, chapter cards and end credits.`,
+    `7. Depict every real person with dignity.${val('boundaries')?` Respect these wishes from the subject: ${clean1(val('boundaries'))}`:''}`,
+    `8. If the tool refuses to animate a real face (common for children), keep the scene with the written look only, or show the real photo as a slow-moving still with the narration over it — never drop the moment.`,'');
+  /* photos */
+  L.push(`PART 3 — REFERENCE PHOTOS (${M.photos.length})`,sub);
+  if(!M.photos.length) L.push('(none provided)');
+  M.photos.forEach(p=>{
+    const bits=[];
+    if(p.whoNames.length) bits.push('shows '+p.whoNames.join(', '));
+    if(p.m.year) bits.push(`taken ${p.m.year}${p.age!==null?` (subject age ${p.age})`:''}${p.m.ysrc==='you'?', date given by the subject':''}`);
+    else if(p.m.scan) bits.push('scanned print, year unknown');
+    L.push(`• ${p.file} — ${p.label}${bits.length?' — '+bits.join('; '):''}`);
+    if(p.m.desc&&p.m.desc.trim()) L.push(`    What it shows: ${clean1(p.m.desc)}`);
+    if(/black-and-white|faded|yellowed/.test(p.m.look||'')) L.push(`    Film look: ${p.m.look} — match this look in scenes from that time`);
+  });
+  L.push('');
+  /* cast */
+  L.push('PART 4 — CAST BIBLE & PLACES',sub);
+  const kid=val('lookKid'),teen=val('lookTeen'),adult=val('lookNow');
+  L.push(`★ ${who} — the main character${pr?` (${pr.s}/${pr.o})`:''}`);
+  const band=b=>M.meP.filter(p=>p.band===b).map(p=>p.file);
+  const undated=M.meP.filter(p=>!p.band).map(p=>p.file);
+  L.push(`   ${meHandle(8)} — as a child (0–12): ${kid?clean1(kid):'(not described — derive from the photos and the adult look)'}${band('child').length?' — photos: '+band('child').slice(0,3).join(', '):''}`);
+  L.push(`   ${meHandle(16)} — as a teen / young adult (13–22): ${teen?clean1(teen):'(not described)'}${band('teen').length?' — photos: '+band('teen').slice(0,3).join(', '):''}`);
+  L.push(`   ${meHandle(30)} — as an adult (23+): ${adult?clean1(adult):'(not described)'}${band('adult').length?' — photos: '+band('adult').slice(0,3).join(', '):''}`);
+  if(undated.length) L.push(`   Other photos of them: ${undated.join(', ')}`);
+  if(val('style')) L.push(`   Signature style: ${clean1(val('style'))}`);
+  if(val('feature')) L.push(`   What people notice first: ${clean1(val('feature'))}`);
+  if(M.cast.length){
+    L.push('   Supporting cast:');
+    const H=castHandles();
+    M.cast.forEach(({p,files})=>{
+      L.push(`   • ${H[p.id]} — ${p.name||p.rel}, ${p.rel.toLowerCase()}${p.era?` — in the story ${clean1(p.era)}`:''}${p.look?` — ${clean1(p.look)}`:''}${files.length?` — photos: ${files.slice(0,3).join(', ')}`:''}`);
+    });
+  } else L.push('   Supporting cast: see the people named in PART 5 — give each one a consistent look and keep it.');
+  const places=[['Born',val('birth')],['Grew up',val('grewup')],['Childhood home',val('home')],['Neighborhood',val('hood')],['Home today',val('now')]].filter(x=>x[1]);
+  if(places.length){ L.push('   Places:'); places.forEach(([k,v])=>L.push(`   • ${k}: ${firstSentence(v,170)}`)); }
+  L.push('');
+  /* story */
+  L.push('PART 5 — THE STORY, IN THEIR OWN WORDS',sub);
+  CH.forEach(c=>{
+    if(!c.qs||c.id==='moviestyle') return;
+    const qs=c.qs.filter(q=>!q.type&&val(q.id)&&!/^look|^style$|^feature$/.test(q.id));
+    if(!qs.length) return;
+    L.push(`[${c.title.toUpperCase()}]`);
+    qs.forEach(q=>{
+      L.push(`Q: ${q.q}`,`A: ${clean1(val(q.id))}`);
+      const f=photosFor('q:'+q.id).map(pid=>M.fileOf[pid]).filter(Boolean); if(f.length) L.push(`(photos: ${f.join(', ')})`);
+    });
+    L.push('');
+  });
+  /* timeline */
+  const evs=M.units.filter(u=>u.kind==='ev');
+  L.push(`PART 6 — BIG MOMENTS, IN ORDER (${evs.length})`,sub);
+  if(!evs.length) L.push('(none added)');
+  evs.slice().sort((a,b)=>(a.age==null?999:a.age)-(b.age==null?999:b.age)).forEach((u,i)=>{
+    const y=u.age!=null&&M.by!=null?M.by+u.age:null;
+    const tag=[y,u.age!=null?'age '+u.age:'',(EV_TYPES.find(t=>t.v===u.type)||{l:''}).l.replace(/^\S+\s/,'')].filter(Boolean).join(' · ');
+    L.push(`${i+1}. ${u.title}${tag?` (${tag})`:''}`);
+    if(u.text) L.push(`   ${u.text}`);
+    const f=u.photos.map(pid=>M.fileOf[pid]).filter(Boolean); if(f.length) L.push(`   photos: ${f.join(', ')}`);
+  });
+  L.push('');
+  /* scene plan */
+  L.push(`PART 7 — SCENE PLAN (${M.scenes.length+2} scenes, ~${M.goal} min — a starting structure: improve it, but keep the order of the life)`,sub);
+  L.push(`Scene 1 — Title card (10s): slow cinematic opening over meaningful personal objects (old photos, keys, a watch); the title “${M.title}” fades in, followed by the card “${truthCard()}”`);
+  let curAct='', n=1; const H=castHandles();
+  M.scenes.forEach(s=>{
+    if(s.actName!==curAct){ curAct=s.actName; L.push('',`${curAct}`); }
+    n++;
+    const tag=yearTag(s,M);
+    const cast=s.cast.map(id=>S.cast.find(p=>p.id===id)).filter(Boolean).map(p=>`${H[p.id]} (${castName(p)})`);
+    const ref=subjectRefs(M,s.age);
+    const files=[...new Set([...ref.files,...s.photos.map(pid=>M.fileOf[pid])].filter(Boolean))];
+    L.push(`Scene ${n}${s.star?' ★':''} — ${s.title}${tag?` — ${tag}`:''} (${s.sec}s)`);
+    L.push(`   Shows: ${cap(sent(s.shot))}`);
+    L.push(`   Main character: ${s.age!=null&&s.age<=2?`${nickName()} as a newborn baby`:`${meHandle(s.age)}${s.age!=null?` at age ${s.age}`:''}`}`);
+    L.push(`   Narration from: ${s.kind==='q'?`PART 5 → “${shortQ(qById()[s.id])}”`:`PART 6 → “${s.title}”`} — starts: “${firstSentence(s.text,120)}”`);
+    if(cast.length) L.push(`   Also in the scene: ${[...new Set(cast)].join(', ')}`);
+    if(files.length) L.push(`   Reference photos: ${files.join(', ')}${ref.note?` (${ref.note})`:''}`);
+    L.push(`   Mood: ${s.mood}`);
+  });
+  L.push('',`Scene ${n+1} — End credits (20s): slow pan across the real family photographs while the credits roll; last card: “${truthCard()}”${val('audience')?` and the dedication “${bare(firstSentence(val('audience'),90))}”`:''}`,'');
+  L.push('PART 8 — POSTER',sub,posterPrompt(M),'',hr,'END OF BRIEF — made with Life Reel',hr);
+  return L.join('\n');
+}
+function posterPrompt(M){
+  const pr=pron(), his=pr?pr.p:'their';
+  const face=M.meP.find(p=>p.band==='adult')||M.meP[0];
+  return `Cinematic movie poster for “${M.title}”. ${cap(visualDesc())}. ${nickName()} at the center${val('lookNow')?` (${trunc(bare(val('lookNow')),160)})`:''}${face?`, matching reference photo ${face.file}`:''}; moments from ${his} life collaged behind in the colors of their eras. ${cap(toneDesc())}. Tagline at the bottom: “${truthCard()}”`;
+}
+
+/* ---- short brief for apps with a character limit ---- */
+const SHORT_LIMIT=2400;   // fits the tightest common prompt box (Kling, 2,500 characters)
+function briefShort(M){
+  const nick=nickName(), by=M.by;
+  const head=`AUTOBIOGRAPHICAL FILM: “${M.title}” — the true life of ${fullName()||nick}${by?` (born ${by})`:''}. ${opt('tone')}, ${visualDesc()}, ${aspectDesc()}, about ${M.goal} min. Narration: ${narrationDesc()}. ${careRule()} Keep every person consistent with the attached reference photos and age them correctly for each year; match each era’s clothes, cars and film look. No on-screen text except title and credits.`;
+  const me=`MAIN CHARACTER: ${nick}${val('lookNow')?' — '+trunc(bare(val('lookNow')),170):''}${val('lookKid')?' | as a child: '+trunc(bare(val('lookKid')),110):''}${M.meP.length?' | photos: '+M.meP.slice(0,3).map(p=>p.file).join(', '):''}`;
+  const cast=M.cast.slice(0,5).map(({p,files})=>`${p.name||p.rel} (${p.rel})${p.look?': '+trunc(bare(p.look),80):''}${files.length?' ['+files[0]+']':''}`).join('; ');
+  const keys=M.scenes.filter(s=>s.star); const list=(keys.length?keys:M.scenes).slice(0,12);
+  let out=head+'\n\n'+me+(cast?'\nCAST: '+cast:'')+'\n\nSCENES IN ORDER:';
+  let i=0;
+  for(const s of list){
+    const line=`\n${++i}. ${s.title}${yearTag(s,M)?' ('+yearTag(s,M)+')':''}: ${trunc(s.text,150)}`;
+    if((out+line).length>SHORT_LIMIT-160) break;
+    out+=line;
+  }
+  out+=`\n\nEnd on: ${val('message')?sent(trunc(val('message'),140)):'what this life meant.'}`;
+  return out.slice(0,SHORT_LIMIT);
+}
+
+/* ---- one self-contained prompt per scene, for clip-by-clip video apps ---- */
+function sceneVideoPrompt(s,M){
+  const cast=s.cast.map(id=>S.cast.find(p=>p.id===id)).filter(Boolean);
+  /* 60–100 words: era + film look first, one shot, characters by @handle with their words-only look (so it still works when a tool refuses real faces) */
+  const look=subjectLook(s.age), baby=s.age!=null&&s.age<=2, H=castHandles();
+  const bits=[];
+  bits.push(cap(sent(s.year?eraLook(s.year):visualShort())));
+  bits.push(cap(sent(`${visualShort()}, ${opt('tone').toLowerCase()} tone`)),cap(sent(s.shot)));
+  if(s.place) bits.push(sent('Hometown: '+trunc(bare(s.place),110)));
+  bits.push(sent(baby?`${nickName()} as a newborn baby`:`${meHandle(s.age)}${s.age!=null?`, age ${s.age}`:''}${look?`: ${trunc(look,110)}`:''}`));
+  cast.slice(0,2).forEach(p=>bits.push(sent(`${H[p.id]} (${p.rel.toLowerCase()})${p.look?': '+trunc(bare(p.look),70):''}`)));
+  const ph=s.photos.map(pid=>S.pm[pid]).find(m=>m&&m.desc);
+  if(ph) bits.push(sent('Match the real photo: '+trunc(bare(ph.desc),110)));
+  bits.push(`${cap(bare(s.mood))}. ${cap(aspectDesc())}, clean frame.`);
+  return trunc(bits.join(' '),700);
+}
+function scenesText(M){
+  const H=castHandles();
+  const refs=[`${meHandle(8)} / ${meHandle(16)} / ${meHandle(30)} = ${nickName()} as a child / teen / adult`].concat(S.cast.map(p=>`${H[p.id]} = ${castName(p)} (${p.rel.toLowerCase()})`));
+  const L=[`“${M.title}” — SCENE BY SCENE (${M.scenes.length} scenes, ~${M.goal} min)`,
+    `For video apps that make one short clip at a time. Most clips are 5–10 seconds, so long scenes take several clips — generate a few and join them.`,
+    `Characters: ${refs.join(' · ')}. In apps with character references (ingredients, @tags, elements), make one per @handle from its photos and reuse it.`,
+    `If an app refuses to animate a real face (common for children), drop the photo and keep the written look — or show the real photo as a slow-moving still under the voiceover.`,''];
+  const voice=opt('narrator')==='My own voice'?'first person, the subject’s own voice, warm and unhurried':`first person, ${opt('narrator').toLowerCase()}, unhurried`;
+  M.scenes.forEach((s,i)=>{
+    const files=[...new Set([...subjectFiles(M,s.age),...s.photos.map(pid=>M.fileOf[pid])].filter(Boolean))];
+    L.push(`SCENE ${i+1}${s.star?' ★':''} — ${s.title}${yearTag(s,M)?' — '+yearTag(s,M):''} — ~${s.sec}s  [${s.actName}]`);
+    if(files.length) L.push(`REFERENCE PHOTOS: ${files.join(', ')}`);
+    L.push(`VIDEO PROMPT: ${sceneVideoPrompt(s,M)}`);
+    if(s.text) L.push(`Voiceover (${voice}): "${s.text.replace(/"/g,'”')}"`);
+    L.push('');
+  });
+  L.push('POSTER PROMPT: '+posterPrompt(M));
+  return L.join('\n');
+}
+function readmeText(M){
+  return [`LIFE REEL — YOUR MOVIE KIT`,`“${M.title}”`,'',
+  `What’s in this folder`,
+  `• 02-MOVIE-PROMPT.txt — the complete film brief. This is the one to paste.`,
+  `• 03-SHORT-PROMPT.txt — a shorter version (under ${SHORT_LIMIT} characters) for apps with a length limit.`,
+  `• 04-SCENE-BY-SCENE.txt — one ready prompt per scene, for apps that make one clip at a time.`,
+  `• photos/ — ${plural(M.photos.length,'reference photo')}. The prompt refers to them by these exact file names, so upload them without renaming.`,'',
+  `How to make your movie`,
+  `No AI app makes a full-length film in one go yet — long movies are built from many short clips. Three good ways to do it:`,
+  `• Simplest, one app: open an AI video app that takes a whole script (invideo AI is one), upload the photos, paste 02-MOVIE-PROMPT.txt, pick a voice, and edit what it makes.`,
+  `• Best quality: paste 02-MOVIE-PROMPT.txt into Gemini with up to 10 photos per message and ask for the numbered shot list. Then make each shot in Google Flow, adding your photos as ingredients. (Needs a paid Google AI plan.)`,
+  `• Free: in CapCut, put your real photos on the timeline in scene order and use each Voiceover line from 04-SCENE-BY-SCENE.txt as text-to-speech narration — or record it yourself.`,
+  `Any clip app (Kling, Runway, Luma, Pika…) works with 04-SCENE-BY-SCENE.txt: one prompt per clip. Some apps won’t animate real faces, especially children — use the written looks for those scenes.`,
+  `AI apps change fast; these are examples, not endorsements.`,'',
+  `Made with Life Reel — The Story of You.`].join('\n');
+}
+
+/* =====================================================================
+   OUTPUT SCREEN
+   ===================================================================== */
+let LAST=null;
+function openOutput(){
+  stopMic();
+  if(totalWords()<30){ toast('Tell a little of your story first — answer a few questions, then come back. 🎬'); if(curScreen==='home') openChapter(0); return; }
+  const M=buildModel();
+  LAST={M,full:briefFull(M),short:briefShort(M),scenes:scenesText(M)};
+  const secs=M.scenes.reduce((a,s)=>a+s.sec,0)+30;
+  const ck=checklist(M);
+  const goodTools=[
+    {t:'🎬 Simplest: one app does it all',d:'Open an AI video app that takes a whole script — invideo AI is one. Upload your photos, paste the full prompt, pick a voice, then edit what it makes.'},
+    {t:'✨ Best quality: Gemini + Google Flow',d:'Paste the full prompt into Gemini with your photos (up to 10 per message) and ask for the numbered shot list. Then make each shot in Google Flow with your photos as “ingredients”. Needs a paid Google AI plan.'},
+    {t:'✂️ Free: CapCut',d:'Put your real photos on the timeline in scene order and use the Voiceover lines from the scene-by-scene prompts as text-to-speech — or record them in your own voice.'},
+    {t:'🎞️ Any clip app',d:'Kling, Runway, Luma, Pika and others make 5–10 second clips. Use the scene-by-scene prompts below, one clip per prompt, and join them in order.'},
+  ];
+  let h=`<div class="brand" style="padding-top:4px"><img class="brand-heart" style="width:110px" src="icons/heart.webp" alt="">
+    <div class="ttl" style="text-align:center;margin-top:4px">${esc(M.title)}</div><div class="tagline" style="margin-top:6px">YOUR MOVIE PROMPT IS READY</div></div>
+    <div class="statgrid">
+      <div class="stat"><div class="v">${Math.max(1,Math.round(secs/60))}</div><div class="l">min planned</div></div>
+      <div class="stat"><div class="v">${M.scenes.length+2}</div><div class="l">scenes</div></div>
+      <div class="stat"><div class="v">${M.photos.length}</div><div class="l">photos</div></div>
+      <div class="stat"><div class="v">${M.cast.length+1}</div><div class="l">people</div></div>
+    </div>`;
+  if(ck.some(c=>!c.ok)) h+=`<div class="card"><h3>Make it even better</h3>${ck.map(c=>`<div class="check"><span class="${c.ok?'ok':'no'}">${c.ok?'✓':'○'}</span><span>${c.t}</span>${c.ok?'':`<button onclick="openChapter(${c.ch})">Fix</button>`}</div>`).join('')}</div>`;
+  h+=`<div class="card"><h3>Step 1 · Get your prompt</h3>
+      <p class="muted">The <b>Movie Kit</b> is one file with everything: the prompt, a short version, scene-by-scene prompts, and your photos named to match.</p>
+      <div class="stack">
+        <button class="btn pri" onclick="copyText(LAST.full,'📋 Full movie prompt copied — ${(LAST.full.length/1000).toFixed(0)}k characters. Paste it into your AI movie app.')">📋 Copy my movie prompt</button>
+        <button class="btn" onclick="downloadKit()">⬇ Save my Movie Kit (.zip)</button>
+        ${navigator.share?`<div class="row2"><button class="btn" onclick="sharePrompt()">↗ Share prompt</button><button class="btn" onclick="sharePhotos()" ${M.photos.length?'':'disabled'}>↗ Share photos</button></div>`:''}
+        <button class="btn ghost" onclick="copyText(LAST.short,'📋 Short prompt copied (${LAST.short.length} characters).')">Copy the short version (${LAST.short.length.toLocaleString()} characters)</button>
+      </div></div>`;
+  h+=`<div class="card"><h3>Step 2 · Make the movie</h3>
+      <p class="muted">No AI app makes a full-length film in one go yet — long movies are built from many short clips, and your prompt gives any app everything it needs.${M.photos.length?' <b>Upload your photos with the prompt</b> and keep their file names — the prompt refers to each one.':''}</p>
+      ${goodTools.map(t=>`<div class="toolcard"><div class="tt">${t.t}</div><div class="td">${t.d}</div></div>`).join('')}
+      <p class="muted" style="margin-top:10px">Some apps won’t animate real faces, especially children’s — the prompt includes written looks for every person as a backup. Apps change fast; these are examples, not endorsements.</p>
+    </div>`;
+  h+=`<details class="fold"><summary>👀 Read the full prompt</summary><div class="fb"><pre class="brief">${esc(LAST.full)}</pre>
+      <div class="stack"><button class="btn" onclick="copyText(LAST.full,'📋 Copied.')">📋 Copy</button></div></div></details>`;
+  h+=`<details class="fold"><summary>🎞️ Scene-by-scene prompts (${M.scenes.length})</summary><div class="fb">
+      <p class="muted">For apps that make one short clip at a time. ★ = key scene.</p>${sceneCards(M)}
+      <div class="stack"><button class="btn" onclick="copyText(LAST.scenes,'📋 All scene prompts copied.')">📋 Copy all scenes</button></div></div></details>`;
+  h+=`<details class="fold"><summary>🖼️ Movie poster prompt</summary><div class="fb"><div class="blk"><div class="bt" id="cp-poster">${esc(posterPrompt(M))}</div></div>
+      <div class="stack"><button class="btn" onclick="copyText($('cp-poster').innerText,'📋 Poster prompt copied.')">📋 Copy poster prompt</button></div></div></details>`;
+  h+=`<p class="muted" style="text-align:center;margin-top:18px">Change anything, then come back — the prompt rebuilds every time.</p>`;
+  $('outBody').innerHTML=h;
+  go('out');
+}
+function sceneCards(M){
+  let out='', act='';
+  M.scenes.forEach((s,i)=>{
+    if(s.actName!==act){ act=s.actName; const list=M.scenes.filter(x=>x.actName===act); out+=`<div class="acthead">${esc(act)}<small>${plural(list.length,'scene')} · ~${Math.round(list.reduce((a,x)=>a+x.sec,0)/6)/10} min</small></div>`; }
+    const files=[...new Set([...subjectFiles(M,s.age),...s.photos.map(pid=>M.fileOf[pid])].filter(Boolean))];
+    out+=`<div class="scene"><div class="shead"><div><div class="sn">SCENE ${i+1}${s.star?' ★':''}</div><div class="st">${esc(s.title)}</div>${yearTag(s,M)?`<div class="stag">${esc(yearTag(s,M))}</div>`:''}</div><div class="dur">~${s.sec}s</div></div>
+      ${files.length?`<div class="ptags">${files.map(f=>`<span class="ptag">📷 ${esc(f)}</span>`).join('')}</div>`:''}
+      <div class="blk"><div class="bl">VIDEO PROMPT <button class="copybtn" onclick="copyText(this.parentElement.nextElementSibling.innerText,'📋 Scene ${i+1} prompt copied.')">copy</button></div><div class="bt">${esc(sceneVideoPrompt(s,M))}</div></div>
+      ${s.text?`<div class="blk vo"><div class="bl">NARRATION <button class="copybtn" onclick="copyText(this.parentElement.nextElementSibling.innerText,'📋 Narration copied.')">copy</button></div><div class="bt">${esc(s.text)}</div></div>`:''}
+    </div>`;
+  });
+  return out;
+}
+function checklist(M){
+  const idx=id=>CH.findIndex(c=>c.id===id);
+  const kidPhoto=M.meP.some(p=>ageBand(p.age)==='child')||photosFor('q:lookKid').length>0;
+  const facePhoto=photosFor('q:lookNow').length>0||M.meP.some(p=>ageBand(p.age)==='adult');
+  return [
+    {ok:!!birthYear(),t:'Your birth year — so every scene gets the right era and age',ch:idx('basics')},
+    {ok:!!fullName(),t:'Your name',ch:idx('basics')},
+    {ok:facePhoto,t:'A clear, recent photo of your face — the #1 thing that makes movie-you look like you',ch:idx('look')},
+    {ok:kidPhoto,t:'A childhood photo',ch:idx('look')},
+    {ok:!!val('lookNow'),t:'A description of how you look',ch:idx('look')},
+    {ok:M.cast.length>=2,t:'At least 2 people in your cast, with photos if you have them',ch:idx('cast')},
+    {ok:M.stats.moments>=5,t:`At least 5 big moments (you have ${M.stats.moments})`,ch:idx('timeline')},
+    {ok:!!val('vstyle')&&!!val('tone'),t:'Your movie style',ch:idx('moviestyle')},
+    {ok:M.natMinutes>=M.goal*0.7,t:`Enough story for ${M.goal} minutes (you have about ${M.natMinutes}) — add answers and big moments, or pick a shorter movie in Movie Style`,ch:idx('timeline')},
+  ];
+}
+async function copyText(t,msg){
+  try{ if(navigator.clipboard&&window.isSecureContext){ await navigator.clipboard.writeText(t); } else throw 0; }
+  catch(e){ const ta=document.createElement('textarea'); ta.value=t; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(_){} ta.remove(); }
+  toast(msg||'📋 Copied.',3600);
+}
+async function photoFiles(M,withText){
+  const files=[];
+  for(const p of M.photos){ const rec=await DB.get(p.pid).catch(()=>null); if(rec&&rec.full) files.push(new File([rec.full],p.file,{type:'image/jpeg'})); }
+  return files;
+}
+async function sharePrompt(){
+  if(!LAST) return;
+  try{
+    const f=new File([LAST.full],'movie-prompt.txt',{type:'text/plain'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})) await navigator.share({files:[f],title:LAST.M.title,text:'My Life Reel movie prompt'});
+    else await navigator.share({title:LAST.M.title,text:LAST.full});
+  }catch(e){ if(e&&e.name!=='AbortError') copyText(LAST.full,'Sharing didn’t work here, so the prompt was copied instead.'); }
+}
+async function sharePhotos(){
+  if(!LAST) return;
+  busy(true,'Getting your photos ready…');
+  try{
+    const files=await photoFiles(LAST.M); busy(false);
+    if(!files.length){ toast('No photos yet.'); return; }
+    if(navigator.canShare&&navigator.canShare({files})) await navigator.share({files,title:LAST.M.title});
+    else toast('This device can’t share photos directly — use Save my Movie Kit instead.',5000);
+  }catch(e){ busy(false); if(e&&e.name!=='AbortError') toast('Sharing was cancelled or isn’t supported — use Save my Movie Kit.',5000); }
+}
+
+/* ---------------- zip (store-only, no compression — JPEGs don't shrink anyway) ---------------- */
+const CRC_T=(()=>{ const t=new Uint32Array(256); for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c=c&1?0xEDB88320^(c>>>1):c>>>1; t[n]=c>>>0; } return t; })();
+function crc32(u8){ let c=0xFFFFFFFF; for(let i=0;i<u8.length;i++) c=CRC_T[(c^u8[i])&0xFF]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
+function zipStore(files){
+  const enc=new TextEncoder(), parts=[], central=[]; let offset=0;
+  const d=new Date(), time=(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1), date=((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate();
+  for(const f of files){
+    const name=enc.encode(f.name), data=f.data, crc=crc32(data), size=data.length;
+    const lh=new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true); lh.setUint16(6,0x0800,true); lh.setUint16(8,0,true);
+    lh.setUint16(10,time,true); lh.setUint16(12,date,true); lh.setUint32(14,crc,true); lh.setUint32(18,size,true); lh.setUint32(22,size,true);
+    lh.setUint16(26,name.length,true); lh.setUint16(28,0,true);
+    parts.push(new Uint8Array(lh.buffer),name,data);
+    const ch=new DataView(new ArrayBuffer(46));
+    ch.setUint32(0,0x02014b50,true); ch.setUint16(4,20,true); ch.setUint16(6,20,true); ch.setUint16(8,0x0800,true); ch.setUint16(10,0,true);
+    ch.setUint16(12,time,true); ch.setUint16(14,date,true); ch.setUint32(16,crc,true); ch.setUint32(20,size,true); ch.setUint32(24,size,true);
+    ch.setUint16(28,name.length,true); ch.setUint32(42,offset,true);
+    central.push(new Uint8Array(ch.buffer),name);
+    offset+=30+name.length+size;
+  }
+  const cd=central.reduce((a,p)=>a+p.length,0), end=new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true); end.setUint16(8,files.length,true); end.setUint16(10,files.length,true); end.setUint32(12,cd,true); end.setUint32(16,offset,true);
+  return new Blob([...parts,...central,new Uint8Array(end.buffer)],{type:'application/zip'});
+}
+function unzipStore(buf){
+  const v=new DataView(buf), u8=new Uint8Array(buf), dec=new TextDecoder(), out={}; let p=0;
+  while(p+30<=buf.byteLength&&v.getUint32(p,true)===0x04034b50){
+    const flags=v.getUint16(p+6,true), method=v.getUint16(p+8,true), size=v.getUint32(p+18,true), nl=v.getUint16(p+26,true), xl=v.getUint16(p+28,true);
+    if(method!==0||(flags&8)) throw new Error('This backup was re-compressed by another app. Use the original file Life Reel saved.');
+    const name=dec.decode(u8.subarray(p+30,p+30+nl)), start=p+30+nl+xl;
+    out[name]=u8.slice(start,start+size); p=start+size;
+  }
+  return out;
+}
+const enc8=t=>new TextEncoder().encode(t.replace(/\n/g,'\r\n'));
+function saveBlob(blob,name){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),30000);
+}
+async function downloadKit(){
+  if(!LAST) return; const M=LAST.M;
+  busy(true,'Packing your Movie Kit…');
+  try{
+    const dir=`Life-Reel-${slug(M.title)||'movie'}/`;
+    const files=[{name:dir+'01-READ-ME-FIRST.txt',data:enc8(readmeText(M))},{name:dir+'02-MOVIE-PROMPT.txt',data:enc8(LAST.full)},
+      {name:dir+'03-SHORT-PROMPT.txt',data:enc8(LAST.short)},{name:dir+'04-SCENE-BY-SCENE.txt',data:enc8(LAST.scenes)}];
+    for(const p of M.photos){ const rec=await DB.get(p.pid).catch(()=>null); if(rec&&rec.full) files.push({name:dir+'photos/'+p.file,data:new Uint8Array(await rec.full.arrayBuffer())}); }
+    saveBlob(zipStore(files),`${dir.slice(0,-1)}.zip`);
+    busy(false); toast(`⬇ Movie Kit saved to your Downloads — ${plural(M.photos.length,'photo')} + your prompts.`,4500);
+  }catch(e){ busy(false); toast('Couldn’t build the kit — try Copy my movie prompt instead.',5000); }
+}
+
+/* ---------------- settings: language, backup, restore, erase ---------------- */
+function renderSettings(){
+  const cur=dictLang();
+  $('langSel').innerHTML=LANGS.map(([v,l])=>`<option value="${v}" ${v===cur?'selected':''}>${l}</option>`).join('');
+  $('verLbl').textContent='Life Reel '+APP_VERSION;
+}
+function setLang(v){ S.set.lang=v; save(); toast('🎤 Voice typing set to '+(LANGS.find(l=>l[0]===v)||['',v])[1]+'.'); }
+async function backup(){
+  busy(true,'Saving your backup…');
+  try{
+    const files=[{name:'lifereel-backup.json',data:new TextEncoder().encode(JSON.stringify({app:'lifereel',v:2,saved:new Date().toISOString(),state:S}))}];
+    for(const pid of Object.keys(S.pm)){ const rec=await DB.get(pid).catch(()=>null); if(!rec) continue;
+      files.push({name:`photos/${pid}.jpg`,data:new Uint8Array(await rec.full.arrayBuffer())});
+      if(rec.thumb) files.push({name:`thumbs/${pid}.jpg`,data:new Uint8Array(await rec.thumb.arrayBuffer())}); }
+    saveBlob(zipStore(files),`LifeReel-backup-${localDate()}.zip`);
+    busy(false); toast('💾 Backup saved to your Downloads. Keep it somewhere safe.',4500);
+  }catch(e){ busy(false); toast('Backup failed — this device may be low on space.',5000); }
+}
+async function restore(input){
+  const f=input.files&&input.files[0]; input.value=''; if(!f) return;
+  busy(true,'Restoring your story…');
+  try{
+    const files=unzipStore(await f.arrayBuffer());
+    const meta=files['lifereel-backup.json']; if(!meta) throw new Error('That isn’t a Life Reel backup file.');
+    const j=JSON.parse(new TextDecoder().decode(meta)); if(j.app!=='lifereel'||!j.state) throw new Error('That isn’t a Life Reel backup file.');
+    await DB.clear(); THUMB.forEach(u=>URL.revokeObjectURL(u)); THUMB.clear();
+    for(const pid of Object.keys(j.state.pm||{})){
+      const full=files[`photos/${pid}.jpg`]; if(!full){ delete j.state.pm[pid]; continue; }
+      const th=files[`thumbs/${pid}.jpg`];
+      await DB.put({id:pid,full:new Blob([full],{type:'image/jpeg'}),thumb:new Blob([th||full],{type:'image/jpeg'})});
+    }
+    Object.keys(j.state.ph||{}).forEach(k=>{ j.state.ph[k]=(j.state.ph[k]||[]).filter(pid=>j.state.pm[pid]); });
+    S=Object.assign(blank(),j.state); saveNow(); busy(false);
+    $('restoreNote').textContent=`Restored the backup from ${String(j.saved||'').slice(0,10)}.`;
+    toast('✅ Your story is back.',4000); go('home');
+  }catch(e){ busy(false); toast('⚠️ '+(e.message||'Couldn’t restore that file.'),6000); }
+}
+async function eraseAll(btn){
+  if(!armed(btn,'Tap again to erase EVERYTHING')) return;
+  stopMic(); S=blank(); saveNow(); try{ localStorage.removeItem(V1KEY); localStorage.removeItem(V1PKEY); }catch(e){}
+  await DB.clear().catch(()=>{}); THUMB.forEach(u=>URL.revokeObjectURL(u)); THUMB.clear();
+  toast('🧹 Fresh start. Your story is blank.'); go('home');
+}
+
+/* ---------------- one-time upgrade from Life Reel v1 (text in localStorage, photos as data URLs) ---------------- */
+async function migrateV1(){
+  let raw=null, rawP=null;
+  try{ raw=localStorage.getItem(V1KEY); rawP=localStorage.getItem(V1PKEY); }catch(e){}
+  if(!raw&&!rawP) return;
+  if(localStorage.getItem(KEY)){ return; }
+  try{
+    const o=raw?JSON.parse(raw):{a:{},ev:[]}, P=rawP?JSON.parse(rawP):{};
+    S=blank(); S.a=Object.assign({},o.a||{});
+    const n=S.a.name||'';
+    const full=(n.match(/(?:[Nn]ame is|I am|I'm|i'm)\s+([A-Z][\w'’-]+(?:\s+[A-Z][\w'’-]+){0,3})/)||[])[1]; if(full) S.a.fullname=full;
+    const nick=(n.match(/call(?:s|ed)? me ([A-Z][\w'’-]*)/i)||[])[1]; if(nick) S.a.nickname=nick;
+    const y=(S.a.birth||'').match(/\b(19\d{2}|20[0-2]\d)\b/); if(y) S.a.byear=y[1];
+    const addPhoto=async(slot,p)=>{
+      if(!p||!p.url) return; const blob=await (await fetch(p.url)).blob(); const pid=uid();
+      await DB.put({id:pid,full:blob,thumb:blob});
+      S.pm[pid]={slot,year:p.year||null,ysrc:p.year?'camera':'',look:p.look||'',desc:p.desc||'',who:defaultWho(slot),t:Date.now()};
+      (S.ph[slot]=S.ph[slot]||[]).push(pid);
+    };
+    for(const k of Object.keys(P)) await addPhoto('q:'+k,P[k]);
+    for(const e of (o.ev||[])){ const id=uid(); S.ev.push({id,title:e.title||'',age:e.age||'',type:e.type||'happy',story:e.story||''}); if(e.photo) await addPhoto('ev:'+id,e.photo); }
+    saveNow();
+    localStorage.removeItem(V1KEY); localStorage.removeItem(V1PKEY);
+    toast('✨ Life Reel was upgraded — your story and photos came along.',4500);
+  }catch(e){ /* leave v1 data untouched if anything fails */ }
+}
+
+/* ---------------- boot ---------------- */
+(async function boot(){
+  await migrateV1();
+  renderHome(); updateMeters();
+  try{ history.replaceState({s:'home'},''); }catch(e){}
+  if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closePhoto(); });
+</script>
+</body>
+</html>
