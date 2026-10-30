@@ -110,56 +110,62 @@ h1{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-weight:900;font-s
 .btn.launch{background:linear-gradient(120deg,#46f0ff,#7c9dff 55%,#a78bfa);color:#04101c;
   border-color:transparent;text-shadow:none}
 .btn.launch:hover{box-shadow:0 0 26px rgba(110,190,255,.55);transform:translateY(-1px)}
+.acts{display:flex;align-items:center;gap:10px}
+.acts .btn.launch{flex:1}
+.play{display:block;flex-shrink:0;line-height:0;border-radius:8px;transition:transform .25s}
+.play img{height:62px;width:auto;margin:-10px -9px}   /* Google's PNG carries its own clear space */
+.play:hover{transform:translateY(-1px)}
 
-/* ---------- local-business service banner ---------- */
-.svc{margin:2vh 0 6vh}
-.svc-card{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:0;
-  text-decoration:none;color:var(--ink);border-radius:18px;overflow:hidden;
-  border:1px solid rgba(251,188,5,.34);position:relative;
-  background:linear-gradient(120deg,rgba(251,188,5,.10),rgba(10,18,38,.72) 46%,rgba(66,133,244,.12));
+/* ---------- business services: three compact cards side by side ----------
+   Deliberately small and price-free: the homepage is for browsing; each card's
+   own page carries the prices. */
+.svc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:2vh 0 6vh}
+.svc-card{display:flex;flex-direction:column;text-decoration:none;color:var(--ink);
+  border-radius:16px;overflow:hidden;position:relative;border:1px solid rgba(251,188,5,.30);
+  background:linear-gradient(160deg,rgba(251,188,5,.08),rgba(10,18,38,.72) 55%);
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
   transition:transform .3s,border-color .3s,box-shadow .3s}
-.svc-card::before{content:'';position:absolute;top:0;left:6%;right:6%;height:1px;z-index:2;
-  background:linear-gradient(90deg,transparent,rgba(251,188,5,.85),transparent)}
-.svc-card:hover{transform:translateY(-4px);border-color:rgba(251,188,5,.62);
-  box-shadow:0 16px 46px rgba(0,0,0,.5),0 0 30px rgba(251,188,5,.16)}
+.svc-card::before{content:'';position:absolute;top:0;left:8%;right:8%;height:1px;z-index:2;
+  background:linear-gradient(90deg,transparent,rgba(251,188,5,.8),transparent)}
+.svc-card:hover{transform:translateY(-4px);border-color:rgba(251,188,5,.6);
+  box-shadow:0 14px 40px rgba(0,0,0,.45),0 0 24px rgba(251,188,5,.12)}
 .svc-card:focus-visible{outline:2px solid #FBBC05;outline-offset:3px}
-.svc-photo{position:relative;min-height:212px;overflow:hidden;background:#0a1226}
-.svc-photo img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s}
-.svc-card:hover .svc-photo img{transform:scale(1.05)}
-.svc-photo::after{content:'';position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent 55%,rgba(10,18,38,.75))}
-.svc-body{padding:28px 30px;display:flex;flex-direction:column;justify-content:center}
-.svc-kick{font-family:var(--mono);font-size:.6rem;letter-spacing:.3em;color:#FBBC05;
-  text-transform:uppercase;margin-bottom:11px}
-.svc-body h2{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-size:clamp(1.05rem,2.3vw,1.5rem);
-  font-weight:700;letter-spacing:.06em;margin:0 0 10px;line-height:1.2;color:#fff}
-.svc-body p{margin:0 0 18px;color:#bed1ef;font-size:1rem;max-width:46ch}
-.svc-foot{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-.svc-price{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-size:1.75rem;font-weight:900;
-  color:#FBBC05;line-height:1}
-.svc-price small{font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:600;color:var(--dim);letter-spacing:.02em}
-.svc-go{margin-left:auto;font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-size:.7rem;
-  font-weight:700;letter-spacing:.16em;padding:13px 20px;border-radius:10px;
-  background:linear-gradient(120deg,#FBBC05,#f59e0b);color:#241a00;white-space:nowrap}
-.svc-card:hover .svc-go{box-shadow:0 0 24px rgba(251,188,5,.45)}
-/* The long call to action does not fit beside the price. Give it its own
-   full-width row under it rather than letting flex squeeze it into a column
-   of single words. */
-.svc-go.long{flex:1 0 100%;margin-left:0;max-width:none;text-align:center;
-  white-space:normal;line-height:1.5;letter-spacing:.11em}
-/* second service card sits under the first; cyan instead of gold so the two
-   read as siblings rather than one being a repeat of the other */
-.svc{display:grid;gap:20px}
-.svc-card.svc-web{border-color:rgba(70,240,255,.30);
-  background:linear-gradient(120deg,rgba(70,240,255,.10),rgba(10,18,38,.72) 46%,rgba(167,139,250,.13))}
+.svc-photo{display:block;aspect-ratio:16/8;overflow:hidden;background:#0a1226}
+.svc-photo img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;transition:transform .5s}
+.svc-card:hover .svc-photo img{transform:scale(1.04)}
+.svc-body{padding:16px 18px 18px;display:flex;flex-direction:column;flex:1}
+.svc-kick{font-family:var(--mono);font-size:.56rem;letter-spacing:.26em;color:#FBBC05;
+  text-transform:uppercase;margin-bottom:8px}
+.svc-body h2{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-size:.92rem;
+  font-weight:700;letter-spacing:.06em;margin:0 0 8px;line-height:1.25;color:#fff}
+.svc-body p{margin:0 0 14px;color:#bed1ef;font-size:.95rem;line-height:1.5}
+.svc-go{margin-top:auto;font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-size:.64rem;
+  font-weight:700;letter-spacing:.1em;color:#FBBC05;text-decoration:none;line-height:1.5}
+.svc-card:hover .svc-go,.svc-go:hover{color:#fff}
+.svc-links{margin-top:auto;display:flex;flex-wrap:wrap;gap:6px 18px}
+.svc-links .svc-go{margin-top:0;background:none;border:0;padding:0;cursor:pointer}
+/* sibling colours so the three read as a set, not three copies */
+.svc-card.svc-web{border-color:rgba(70,240,255,.28);
+  background:linear-gradient(160deg,rgba(70,240,255,.08),rgba(10,18,38,.72) 55%)}
 .svc-card.svc-web::before{background:linear-gradient(90deg,transparent,rgba(70,240,255,.8),transparent)}
-.svc-card.svc-web:hover{border-color:rgba(70,240,255,.6);
-  box-shadow:0 16px 46px rgba(0,0,0,.5),0 0 30px rgba(70,240,255,.16)}
-.svc-card.svc-web .svc-kick{color:var(--cyan)}
-.svc-card.svc-web .svc-price{color:var(--cyan)}
-.svc-card.svc-web .svc-go{background:linear-gradient(120deg,#46f0ff,#7c9dff 55%,#a78bfa);color:#04101c}
-.svc-card.svc-web:hover .svc-go{box-shadow:0 0 24px rgba(110,190,255,.5)}
+.svc-card.svc-web:hover{border-color:rgba(70,240,255,.6);box-shadow:0 14px 40px rgba(0,0,0,.45),0 0 24px rgba(70,240,255,.12)}
+.svc-card.svc-web .svc-kick,.svc-card.svc-web .svc-go{color:var(--cyan)}
+.svc-card.svc-tool{border-color:rgba(167,139,250,.30);
+  background:linear-gradient(160deg,rgba(167,139,250,.10),rgba(10,18,38,.72) 55%)}
+.svc-card.svc-tool::before{background:linear-gradient(90deg,transparent,rgba(167,139,250,.8),transparent)}
+.svc-card.svc-tool:hover{border-color:rgba(167,139,250,.6);box-shadow:0 14px 40px rgba(0,0,0,.45),0 0 24px rgba(167,139,250,.12)}
+.svc-card.svc-tool .svc-kick,.svc-card.svc-tool .svc-go{color:#c4b5fd}
+.svc-card.svc-tool .svc-go:hover{color:#fff}
+@media screen and (max-width:900px){
+  .svc{grid-template-columns:1fr;gap:14px}
+  /* one column on tablets/phones: thumbnail beside the text keeps each card short */
+  .svc-card{flex-direction:row}
+  .svc-photo{aspect-ratio:auto;width:34%;flex-shrink:0}
+}
+@media screen and (max-width:520px){
+  .svc-card{flex-direction:column}
+  .svc-photo{width:auto;aspect-ratio:16/7}
+}
 /* The CTA tile is not a product, so it spans the whole last row rather than
    sitting alone in one column whenever the app count is a multiple of 3. */
 .card.more{border-style:dashed;background:rgba(10,18,38,.35);grid-column:1/-1}
@@ -170,13 +176,6 @@ h1{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-weight:900;font-s
 .contact.svc-link{color:#FBBC05;border-color:rgba(251,188,5,.4)}
 .svc-link .sm{display:none}
 .contact.svc-link:hover{color:#fff;border-color:#FBBC05;box-shadow:0 0 18px rgba(251,188,5,.22)}
-@media (max-width:760px){
-  .svc-card{grid-template-columns:1fr}
-  .svc-photo{min-height:172px}
-  .svc-photo::after{background:linear-gradient(180deg,transparent 50%,rgba(10,18,38,.8))}
-  .svc-body{padding:22px 20px}
-  .svc-go{margin-left:0;width:100%;text-align:center}
-}
 
 /* ---------- modal ---------- */
 .overlay{position:fixed;inset:0;z-index:50;background:rgba(2,6,16,.72);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
@@ -316,50 +315,56 @@ footer a:hover{color:var(--cyan)}
     <div class="stats">
       <span class="stat"><b id="st-apps">9</b>&nbsp;APPS</span>
       <span class="stat"><b id="st-sites">7</b>&nbsp;LIVE&nbsp;WEBSITES</span>
+      <span class="stat"><b id="st-play">5</b>&nbsp;ON&nbsp;GOOGLE&nbsp;PLAY</span>
       <span class="stat"><b>NFC</b>&nbsp;PROGRAMMING</span>
       <span class="stat"><b>∞</b>&nbsp;IDEAS</span>
-      <span class="stat"><b id="st-open">5</b>&nbsp;OPEN&nbsp;·&nbsp;<b id="st-gated">4</b>&nbsp;CODE-GATED</span>
+      <span class="stat"><b id="st-open">6</b>&nbsp;OPEN&nbsp;·&nbsp;<b id="st-gated">3</b>&nbsp;CODE-GATED</span>
     </div>
     <div class="scrollcue">▼&nbsp;&nbsp;THE&nbsp;FLEET&nbsp;&nbsp;▼</div>
   </section>
 
-  <div class="dir-head"><h2>// FOR LOCAL BUSINESSES</h2><div class="rule"></div></div>
+  <div class="dir-head"><h2>// FOR BUSINESSES</h2><div class="rule"></div></div>
   <section class="svc">
     <a class="svc-card" href="https://5startap.com" id="svc">
-      <div class="svc-photo">
-        <img src="img/banner-wide.jpg" width="1200" height="631" loading="lazy"
-             alt="Google review NFC tap cards and a 4.75 inch acrylic tap-to-review placard on a counter.">
-      </div>
+      <div class="svc-photo"><img src="img/banner-wide.jpg" width="1200" height="631" loading="lazy"
+           alt="Google review NFC tap cards and a 4.75 inch acrylic tap-to-review placard on a counter."></div>
       <div class="svc-body">
-        <div class="svc-kick">Done-for-you · Booked online</div>
+        <div class="svc-kick">Done-for-you</div>
         <h2>GOOGLE REVIEW TAP PLACARDS</h2>
-        <p>A tap-to-review sign for your counter — programmed with your Google review link
-          and installed in person. Your customer taps their phone, your review page opens.
-          No app, no QR code, no monthly fee.</p>
-        <div class="svc-foot">
-          <span class="svc-price">$40 <small>installed</small></span>
-          <span class="svc-go long">LET'S GET YOUR COUNTER WORKING FOR YOU ▸</span>
-        </div>
+        <p>A tap-to-review sign for your counter. Your customer taps their phone and your
+          Google review page opens. No app, no monthly fee.</p>
+        <span class="svc-go">LET'S GET YOUR COUNTER WORKING FOR YOU ▸</span>
       </div>
     </a>
 
     <a class="svc-card svc-web" href="websites.html">
-      <div class="svc-photo">
-        <img src="img/work/saccitypools.jpg" width="760" height="475" loading="lazy"
-             alt="The Sac City Pools website, one of the sites built by Spindola Software.">
-      </div>
+      <div class="svc-photo"><img src="img/work/saccitypools.jpg" width="760" height="475" loading="lazy"
+           alt="The Sac City Pools website, one of the sites built by Spindola Software."></div>
       <div class="svc-body">
         <div class="svc-kick">Designed, built and put live</div>
         <h2>WEBSITES FOR LOCAL BUSINESSES</h2>
-        <p>A real site, built by hand around your business — not a template and not a page
-          builder you pay for every month. One price, paid once, and the domain stays in
-          your name.</p>
-        <div class="svc-foot">
-          <span class="svc-price">$500 <small>if you've bought before · $950 otherwise</small></span>
-          <span class="svc-go">SEE THE WORK ▸</span>
-        </div>
+        <p>A real site built by hand around your business — not a template, not a page
+          builder you rent every month. The domain stays in your name.</p>
+        <span class="svc-go">SEE THE WORK ▸</span>
       </div>
     </a>
+
+    <article class="svc-card svc-tool">
+      <a class="svc-photo" href="https://unrgsolardata.com" target="_blank" rel="noopener"><img
+           src="img/work/unrgsolar.jpg" width="760" height="475" loading="lazy"
+           alt="The solar lead generator: a county-by-county count of homes with solar panels."></a>
+      <div class="svc-body">
+        <div class="svc-kick">Built to order</div>
+        <h2>CUSTOM TOOLS &amp; LEAD GENERATORS</h2>
+        <p>Like the solar lead generator: it finds the homes in a county that have solar
+          panels and turns them into a lead list. Need a tool that doesn't exist yet? I'll
+          build it.</p>
+        <div class="svc-links">
+          <a class="svc-go" href="https://unrgsolardata.com" target="_blank" rel="noopener">SEE IT LIVE ↗</a>
+          <button class="svc-go" type="button" id="tool-talk">WANT ONE? LET'S TALK ▸</button>
+        </div>
+      </div>
+    </article>
   </section>
 
   <div class="dir-head"><h2>// APP DIRECTORY</h2><div class="rule"></div></div>
@@ -399,6 +404,7 @@ footer a:hover{color:var(--cyan)}
 
   <footer>
     <span>© 2026 SPINDOLA SOFTWARE · GROWN ONE IDEA AT A TIME 🌳</span>
+    <span>GOOGLE PLAY AND THE GOOGLE PLAY LOGO ARE TRADEMARKS OF GOOGLE LLC.</span>
     <span>PREVIEW BUILDS · ACCESS BY INVITATION · <a href="mailto:Spindola.Software@gmail.com">SPINDOLA.SOFTWARE@GMAIL.COM</a></span>
   </footer>
 </div>
@@ -521,25 +527,26 @@ function tryUnlock(appId,rawCode){
 }
 
 /* ---------------- app directory UI ---------------- */
+/* Live products first. `play` = Google Play package id (adds the official badge). */
 const APPS=[
- {id:'logtight',name:'LogTight',icon:'❄️',badge:'LIVE',tag:'REFRIGERANT COMPLIANCE',url:'https://logtight.com',
+ {id:'logtight',name:'LogTight',icon:'❄️',badge:'LIVE',tag:'REFRIGERANT COMPLIANCE',url:'https://logtight.com',play:'com.logtight.app',
   desc:'EPA refrigerant leak-rate compliance for A/C and refrigeration shops — logging, cylinder reconciliation, branded reports.'},
- {id:'backflowlog',name:'BackflowLog',icon:'💧',badge:'NEW',tag:'WATER COMPLIANCE',
-  desc:'Backflow-testing compliance for the trade — assemblies, pass/fail tests, district paperwork.'},
- {id:'pooltidy',name:'PoolTidy',icon:'🫧',badge:'LIVE',tag:'FIELD SERVICE',url:'https://pooltidy.com',
+ {id:'pooltidy',name:'PoolTidy',icon:'🫧',badge:'LIVE',tag:'FIELD SERVICE',url:'https://pooltidy.com',play:'com.pooltidy.app',
   desc:'Two-sided pool service — dead simple for customers, LSI water chemistry and dosing for pros.'},
- {id:'extermimate',name:'Extermimate',icon:'🐜',badge:'LIVE',tag:'PEST CONTROL',url:'https://extermimate.com',
+ {id:'extermimate',name:'Extermimate',icon:'🐜',badge:'LIVE',tag:'PEST CONTROL',url:'https://extermimate.com',play:'com.extermimate.app',
   desc:'Pest control in the palm of your hand — routes, chemical logs, photo proof and customer history.'},
- {id:'petfi',name:'Petfi',icon:'🐾',badge:'PREVIEW',tag:'SOCIAL',site:true,
+ {id:'petfi',name:'Petfi',icon:'🐾',badge:'LIVE',tag:'SOCIAL',url:'https://petfi.pet',play:'com.petfi.app',
   desc:'The social network for pets — profiles, mate match, dog-park territory claims.'},
- {id:'3pass',name:'3Pass',icon:'🛡️',badge:'PREVIEW',tag:'PATROL OPS',site:true,
-  desc:'Shared trespass registry for guard companies — subjects, sites, 602 flow.'},
+ {id:'whisperpicture',name:'Whisper Picture',icon:'🖼️',badge:'LIVE',tag:'PRIVACY · CRYPTO',url:'https://whisperpicture.com',play:'com.whisperpicture.app',
+  desc:'Hide an AES-256 encrypted file or message inside an ordinary photo — runs entirely in your browser, nothing is ever uploaded.'},
  {id:'gorechess',name:'GoreChess',icon:'♟️',badge:'18+',tag:'GAME',url:'https://gorechess.com',
   desc:'Chess with consequences — per-piece kill animations, leagues and Elo.'},
+ {id:'backflowlog',name:'BackflowLog',icon:'💧',badge:'NEW',tag:'WATER COMPLIANCE',
+  desc:'Backflow-testing compliance for the trade — assemblies, pass/fail tests, district paperwork.'},
+ {id:'3pass',name:'3Pass',icon:'🛡️',badge:'PREVIEW',tag:'PATROL OPS',site:true,
+  desc:'Shared trespass registry for guard companies — subjects, sites, 602 flow.'},
  {id:'bodylore',name:'BodyLore',icon:'🖐️',badge:'PREVIEW',tag:'AI · FUN',
-  desc:'Scan your hands and face — on-device AI reads folklore and science side by side.'},
- {id:'whisperpicture',name:'Whisper Picture',icon:'🖼️',badge:'LIVE',tag:'PRIVACY · CRYPTO',url:'https://whisperpicture.com',
-  desc:'Hide an AES-256 encrypted file or message inside an ordinary photo — runs entirely in your browser, nothing is ever uploaded.'}
+  desc:'Scan your hands and face — on-device AI reads folklore and science side by side.'}
 ];
 const badgeClass={LIVE:'live',NEW:'new','18+':'adult',PREVIEW:'preview'};
 const LS_KEY='spindola.access.v1';
@@ -562,8 +569,13 @@ for(const app of APPS){
     el.innerHTML=head+
       '<div class="meta"><span class="tag">'+app.tag+'</span>'+
       '<span class="lockstate">🌐 '+hostOf(app.url).toUpperCase()+'</span></div>'+
-      '<a class="btn launch" href="'+app.url+'" target="_blank" rel="noopener">'+
-      'VISIT '+hostOf(app.url).toUpperCase()+' ▸</a>';
+      (app.play
+        ? '<div class="acts"><a class="btn launch" href="'+app.url+'" target="_blank" rel="noopener">WEBSITE ▸</a>'+
+          '<a class="play" href="https://play.google.com/store/apps/details?id='+app.play+'" target="_blank" rel="noopener">'+
+          '<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" '+
+          'alt="Get '+app.name+' on Google Play" width="160" height="62"></a></div>'
+        : '<a class="btn launch" href="'+app.url+'" target="_blank" rel="noopener">'+
+          'VISIT '+hostOf(app.url).toUpperCase()+' ▸</a>');
     grid.appendChild(el);
     continue;
   }
@@ -587,6 +599,7 @@ for(const app of APPS){
   put('st-sites',APPS.filter(a=>a.url||a.site).length);
   put('st-open',open);
   put('st-gated',APPS.length-open);
+  put('st-play',APPS.filter(a=>a.play).length);
 })();
 
 /* Closing CTA tile — spans the last row and says the list isn't finished. */
@@ -599,6 +612,9 @@ more.innerHTML=
   "because somebody asked. If the thing your business needs doesn't exist yet, it can.</p>"+
   '<button class="btn auth" type="button">⬡ TURN YOUR VISION INTO REALITY</button>';
 grid.appendChild(more);
+document.getElementById('tool-talk').addEventListener('click',()=>{
+  document.getElementById('vision-btn').click();
+});
 more.querySelector('button').addEventListener('click',()=>{
   document.getElementById('vision-btn').click();
 });
