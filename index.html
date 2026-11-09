@@ -116,6 +116,40 @@ h1{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-weight:900;font-s
 .play img{height:62px;width:auto;margin:-10px -9px}   /* Google's PNG carries its own clear space */
 .play:hover{transform:translateY(-1px)}
 
+/* ---------- Petfi spotlight ---------- */
+.pf{position:relative;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  border-radius:20px;overflow:hidden;margin:2vh 0 5vh;border:1px solid rgba(255,138,101,.45);
+  background:linear-gradient(135deg,rgba(255,138,101,.16),rgba(10,18,38,.78) 48%,rgba(244,114,182,.14));
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  box-shadow:0 18px 50px rgba(0,0,0,.45),0 0 40px rgba(255,138,101,.10)}
+.pf::before{content:'';position:absolute;top:0;left:6%;right:6%;height:1px;z-index:2;
+  background:linear-gradient(90deg,transparent,rgba(255,170,130,.9),transparent)}
+.pf-body{padding:30px 32px}
+.pf-kick{font-family:var(--mono);font-size:.62rem;letter-spacing:.3em;color:#ffb199;text-transform:uppercase;margin-bottom:12px}
+.pf h2{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-size:clamp(1.25rem,2.6vw,1.8rem);
+  font-weight:900;letter-spacing:.04em;line-height:1.2;margin:0 0 14px;color:#fff}
+.pf h2 em{font-style:normal;color:#ff9a7a}
+.pf-pledge{border:1px solid rgba(255,170,130,.4);background:rgba(255,138,101,.09);border-radius:14px;
+  padding:14px 16px;margin:0 0 16px;color:#ffe2d6;font-size:1.05rem;line-height:1.5}
+.pf-pledge b{color:#fff}
+.pf ul{list-style:none;padding:0;margin:0 0 20px;display:grid;gap:7px}
+.pf li{color:#c9d8f2;font-size:1rem;padding-left:24px;position:relative}
+.pf li::before{content:'🐾';position:absolute;left:0;top:0;font-size:.85rem}
+.pf-acts{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pf-go{font-family:'Orbitron','Rajdhani',system-ui,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.14em;
+  text-decoration:none;color:#2a0d04;background:linear-gradient(120deg,#ff9a7a,#ff7a59);
+  padding:13px 22px;border-radius:12px;transition:.25s}
+.pf-go:hover{box-shadow:0 0 26px rgba(255,138,101,.55);transform:translateY(-1px)}
+.pf .play img{height:66px}
+.pf-shot{display:block;position:relative;overflow:hidden;background:#fff5f1}
+.pf-shot img{width:100%;height:100%;object-fit:cover;object-position:left top;display:block;transition:transform .6s}
+.pf-shot:hover img{transform:scale(1.03)}
+@media screen and (max-width:900px){
+  .pf{grid-template-columns:1fr}
+  .pf-shot{order:-1;aspect-ratio:16/9}
+  .pf-body{padding:22px 20px}
+}
+
 /* ---------- business services: three compact cards side by side ----------
    Deliberately small and price-free: the homepage is for browsing; each card's
    own page carries the prices. */
@@ -321,6 +355,31 @@ footer a:hover{color:var(--cyan)}
       <span class="stat"><b id="st-open">6</b>&nbsp;OPEN&nbsp;·&nbsp;<b id="st-gated">3</b>&nbsp;CODE-GATED</span>
     </div>
     <div class="scrollcue">▼&nbsp;&nbsp;THE&nbsp;FLEET&nbsp;&nbsp;▼</div>
+  </section>
+
+  <div class="dir-head"><h2>// FEATURED · PETFI</h2><div class="rule"></div></div>
+  <section class="pf" id="petfi">
+    <div class="pf-body">
+      <div class="pf-kick">Now live · Web &amp; Android</div>
+      <h2>Petfi: the social world for pets — <em>that gives back.</em></h2>
+      <p class="pf-pledge"><b>The Petfi Pledge:</b> half of all Petfi profit and 100% of
+        donations go straight to real pets and pet owners who need help — vet bills,
+        adoptions, shelters. Every dollar given away is published in the app.</p>
+      <ul>
+        <li>Make friends — for your pet and for yourself</li>
+        <li>Buy your pet supplies and find local pet services</li>
+        <li>Promote your own pet products and services</li>
+        <li>Find a mate for your pet with Mate Match — and so much more</li>
+      </ul>
+      <div class="pf-acts">
+        <a class="pf-go" href="https://petfi.pet" target="_blank" rel="noopener">JOIN FREE AT PETFI.PET ▸</a>
+        <a class="play" href="https://play.google.com/store/apps/details?id=com.petfi.app" target="_blank" rel="noopener"><img
+           src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+           alt="Get Petfi on Google Play" width="170" height="66"></a>
+      </div>
+    </div>
+    <a class="pf-shot" href="https://petfi.pet" target="_blank" rel="noopener"><img src="img/petfi-spotlight.jpg"
+       width="960" height="600" alt="The Petfi home page: the social world for pets and their people."></a>
   </section>
 
   <div class="dir-head"><h2>// FOR BUSINESSES</h2><div class="rule"></div></div>
