@@ -1,0 +1,19 @@
+{
+  "id": "./",
+  "name": "My Holy Testimony — How Christ Changed My Story",
+  "short_name": "My Holy Testimony",
+  "description": "Tell your testimony, add your photos, and get one prompt that turns it into a film you can share.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#081330",
+  "theme_color": "#081330",
+  "lang": "en",
+  "categories": ["entertainment", "lifestyle", "photo"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
